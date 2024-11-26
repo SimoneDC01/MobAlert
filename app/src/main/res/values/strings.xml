@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">MobAlert</string>
     <string name="login">Login</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="default_web_client_id">642506030876-coflngv5121csrdvlekj41pk7bm7hqoj.apps.googleusercontent.com</string>
 </resources>

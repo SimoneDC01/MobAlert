@@ -17,8 +17,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.loginButton.setOnClickListener {
-            Toast.makeText(this, "Login button clicked", Toast.LENGTH_SHORT).show()
+        binding.goToLoginButton.setOnClickListener {
+            Toast.makeText(this, "Go to login button clicked", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
