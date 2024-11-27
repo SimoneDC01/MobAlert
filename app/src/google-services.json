@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "149144432724-6vddasm966dq8nv0pjgoi1arfsdn47a4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mobalert",
+            "certificate_hash": "e8ce683847fe24ec4d892fd45d9049478a6b08c4"
+          }
+        },
+        {
           "client_id": "149144432724-38ar4402ukfpttu8ovdp7pt516va0vln.apps.googleusercontent.com",
           "client_type": 3
         }

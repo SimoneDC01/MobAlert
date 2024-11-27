@@ -1,6 +1,24 @@
 <resources>
     <string name="app_name">MobAlert</string>
     <string name="login">Login</string>
+    <string name="signup">Signup</string>
     <string name="login_with_google">Login with Google</string>
-    <string name="default_web_client_id">642506030876-coflngv5121csrdvlekj41pk7bm7hqoj.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">149144432724-38ar4402ukfpttu8ovdp7pt516va0vln.apps.googleusercontent.com</string>
+    <string name="notRegistered">You are not registered? Signup</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>

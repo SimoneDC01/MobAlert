@@ -3,6 +3,7 @@ package com.example.mobalert
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +41,35 @@ class LoginActivity : AppCompatActivity() {
         binding.loginWithGoogleButton.setOnClickListener {
             signInWithGoogle()
         }
+
+        binding.loginButton.setOnClickListener {
+            Log.d("LOGIN", "entrato")
+            val email = binding.loginEmail.text.toString()
+            val password = binding.loginPassword.text.toString()
+            if(email.isNotEmpty() && password.isNotEmpty()){
+                auth.signInWithEmailAndPassword(email,password).addOnCompleteListener{ task ->
+                    if(task.isSuccessful){
+                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
+                    else {
+                        Toast.makeText(this, "Login Failed", Toast.LENGTH_SHORT).show()
+                        Log.d("LOGIN", "Error: ${task.exception}")
+                    }
+
+                }
+            }
+
+        }
+
+        binding.goToSignupButton.setOnClickListener {
+            startActivity(Intent(this, SignupActivity::class.java))
+            finish()
+        }
+        binding.loggedButton.setOnClickListener {
+            Log.d("LOGIN", "${auth.currentUser?.email}")
+        }
     }
 
     private fun signInWithGoogle(){
@@ -49,7 +79,9 @@ class LoginActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
         result ->
-        if(result.resultCode == Activity.RESULT_OK){
+        Toast.makeText(this, "Result Code: ${result.resultCode}. Result_ok: ${RESULT_OK}", Toast.LENGTH_SHORT).show()
+        Log.d("LOGIN", "$result")
+        if(result.resultCode == RESULT_OK){
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handleResults(task)
         }
