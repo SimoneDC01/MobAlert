@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,10 +44,19 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.loginButton.setOnClickListener {
-            Log.d("LOGIN", "entrato")
             val email = binding.loginEmail.text.toString()
             val password = binding.loginPassword.text.toString()
-            if(email.isNotEmpty() && password.isNotEmpty()){
+            Log.d("LOGIN", "entrato. Email: $email, Password: $password")
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+                //email pattern is invalid, show error
+                binding.loginEmail.error = "Invalid Email"
+                binding.loginEmail.requestFocus()
+            } else if (password.isEmpty()){
+                //password is not entered, show error
+                binding.loginPassword.error = "Enter Password"
+                binding.loginPassword.requestFocus()
+            } else {
                 auth.signInWithEmailAndPassword(email,password).addOnCompleteListener{ task ->
                     if(task.isSuccessful){
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
@@ -67,9 +77,9 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, SignupActivity::class.java))
             finish()
         }
-        binding.loggedButton.setOnClickListener {
+    /*    binding.loggedButton.setOnClickListener {
             Log.d("LOGIN", "${auth.currentUser?.email}")
-        }
+        }*/
     }
 
     private fun signInWithGoogle(){
@@ -111,5 +121,6 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
+
 
 }

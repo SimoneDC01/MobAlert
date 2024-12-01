@@ -3,6 +3,7 @@ package com.example.mobalert
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +31,18 @@ class SignupActivity : AppCompatActivity() {
         binding.signupButton.setOnClickListener {
             val email = binding.signupEmail.text.toString()
             val password = binding.signupPassword.text.toString()
-            if(email.isNotEmpty() && password.isNotEmpty()){
+            val cPassword = binding.signupConfirmPassword.text.toString()
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(email) .matches()){
+                binding.signupEmail.error = "Invalid Email Pattern"
+                binding.signupEmail.requestFocus()
+            } else if (password.isEmpty()){
+                binding.signupPassword.error = "Enter Password"
+                binding.signupPassword.requestFocus()
+            } else if (password != cPassword) {
+                binding.signupConfirmPassword.error = "Password doesn't match"
+                binding.signupConfirmPassword.requestFocus()
+            } else {
                 auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(this){ task ->
                     if(task.isSuccessful){
                         Toast.makeText(this, "Signup Successful", Toast.LENGTH_SHORT).show()
@@ -44,10 +56,11 @@ class SignupActivity : AppCompatActivity() {
 
                 }
             }
-            else{
-                Toast.makeText(this, "Please fill all the fields", Toast.LENGTH_SHORT).show()
-            }
+        }
 
-            }
+        binding.goToLoginButton.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
     }
 }

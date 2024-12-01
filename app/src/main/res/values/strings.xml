@@ -4,7 +4,8 @@
     <string name="signup">Signup</string>
     <string name="login_with_google">Login with Google</string>
     <string name="default_web_client_id">149144432724-38ar4402ukfpttu8ovdp7pt516va0vln.apps.googleusercontent.com</string>
-    <string name="notRegistered">You are not registered? Signup</string>
+    <string name="notRegistered">You are not registered? <b>Signup</b></string>
+    <string name="yetRegistered">You are registered? <b>Login</b></string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <!-- Preference Titles -->
@@ -21,4 +22,8 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="home">Home</string>
+    <string name="alert">Alert</string>
+    <string name="person">Person</string>
+    <string name="email">Email</string>
 </resources>

@@ -22,13 +22,28 @@ class ProfileFragment : Fragment() {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
 
-        binding.logoutButton.setOnClickListener {
+        binding.logoutCv.setOnClickListener {
             Log.d("LOGIN", "Logout button clicked")
             auth.signOut()
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
-        }// Inflate the layout for this fragment
+        }
+
+        binding.editCv.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.Fragment, EditProfileFragment())
+                .commit()
+        }
+
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.fullNameTv.text = auth.currentUser?.displayName
+        binding.emailTv.text = auth.currentUser?.email
+        if(auth.currentUser?.phoneNumber == "") binding.phoneTv.text = "Not Set"
+        else binding.phoneTv.text = auth.currentUser?.phoneNumber
     }
 
 
