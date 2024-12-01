@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
+        goToFragment(HomeFragment())
 
         auth = FirebaseAuth.getInstance()
         Log.d("LOGIN", "${auth.currentUser}")
@@ -36,22 +37,28 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.goToLoginButton.setOnClickListener {
+        /*binding.goToLoginButton.setOnClickListener {
             Toast.makeText(this, "Go to login button clicked", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
-        }
+        }*/
 
-        binding.homeButton.setOnClickListener {
-            goToFragment(HomeFragment())
-        }
+        binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.item_home -> {
+                    goToFragment(HomeFragment())
+                }
 
-        binding.profileButton.setOnClickListener {
-            goToFragment(SettingsFragment())
-        }
+                R.id.item_alert -> {
+                    goToFragment(AlertsFragment())
+                }
 
-        binding.alertsButton.setOnClickListener {
-            goToFragment(AlertsFragment())
+                R.id.item_person -> {
+                    goToFragment(ProfileFragment())
+                }
+            }
+
+            true
         }
 
     }

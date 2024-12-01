@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    id("kotlin-kapt")
 }
 
 android {
@@ -56,4 +57,5 @@ dependencies {
     implementation (libs.firebase.auth.v2101)
     implementation (libs.androidx.credentials)
     implementation (libs.play.services.auth.v1810)
+    implementation (libs.glide)
 }
