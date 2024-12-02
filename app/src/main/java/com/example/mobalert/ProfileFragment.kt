@@ -9,21 +9,30 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.mobalert.databinding.FragmentProfileBinding
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.lang.Thread.sleep
 
 class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentProfileBinding
     private val auth = Firebase.auth
+    private var database = FirebaseDatabase.getInstance()
+    private var reference = database.reference.child("Users")
 
     override fun onStart() {
         super.onStart()
         Log.d("LOGIN", "onStart")
-        sleep(1000)
-        binding.fullNameTv.text = auth.currentUser?.displayName
-        binding.emailTv.text = auth.currentUser?.email
-        if(auth.currentUser?.phoneNumber == "") binding.phoneTv.text = "Not Set"
-        else binding.phoneTv.text = auth.currentUser?.phoneNumber
+        reference.child(auth.uid.toString()).get().addOnSuccessListener {
+            binding.fullNameTv.text = it.child("name").value.toString()
+            binding.emailTv.text = it.child("email").value.toString()
+            val phone = it.child("phoneNumber").value.toString()
+            if(phone == "") binding.phoneTv.text = "Not Set"
+            else binding.phoneTv.text = phone
+            val dob = it.child("dob").value.toString()
+            if(dob == "") binding.dobTv.text = "Not Set"
+            else binding.dobTv.text = dob
+        }
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +46,12 @@ class ProfileFragment : Fragment() {
             auth.signOut()
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
+        }
+
+        binding.changePasswordCv.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.Fragment, ChangePasswordFragment())
+                .commit()
         }
 
         binding.editCv.setOnClickListener {

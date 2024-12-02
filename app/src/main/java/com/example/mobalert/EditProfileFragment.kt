@@ -22,6 +22,7 @@ import com.example.mobalert.databinding.FragmentEditProfileBinding
 import com.example.mobalert.databinding.FragmentProfileBinding
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.util.Calendar
 
@@ -29,11 +30,21 @@ import java.util.Calendar
 class EditProfileFragment : Fragment() {
     private lateinit var binding: FragmentEditProfileBinding
     private val auth = Firebase.auth
+    private var database = FirebaseDatabase.getInstance()
+    private var reference = database.reference.child("Users")
     private var imageUri: Uri? = null
 
     override fun onStart() {
         super.onStart()
         Log.d("LOGIN", "onStart")
+        reference.child(auth.uid.toString()).get().addOnSuccessListener {
+            binding.profileTv.text = it.child("name").value.toString()
+            binding.editName.setText(it.child("name").value.toString())
+            val phone = it.child("phoneNumber").value.toString()
+            if(phone != "") binding.editPhone.setText(phone)
+            val dob = it.child("dob").value.toString()
+            if(dob != "") binding.editDob.setText(dob)
+        }
     }
 
     override fun onCreateView(
@@ -45,10 +56,18 @@ class EditProfileFragment : Fragment() {
 
 
         binding.updateProfileButton.setOnClickListener {
-            val profile = UserProfileChangeRequest.Builder()
-                .setDisplayName(binding.nameTil.editText?.text.toString())
-                .build()
-            auth.currentUser?.updateProfile(profile)
+            val hashMap = HashMap<String, Any>()
+            hashMap["name"] = binding.editName.text.toString()
+            hashMap["phoneNumber"] = binding.editPhone.text.toString()
+            hashMap["dob"] = binding.editDob.text.toString()
+
+            reference.child(auth.uid.toString()).updateChildren(hashMap).
+            addOnSuccessListener {
+                Log.d("LOGIN", "updateUserInfo: Info saved")
+            }
+            .addOnFailureListener { e ->
+                Log.e("LOGIN", "updateUserInfo: ", e)
+            }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.Fragment, ProfileFragment())
                 .commit()
