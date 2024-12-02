@@ -60,6 +60,21 @@ class ProfileFragment : Fragment() {
                 .commit()
         }
 
+        binding.deleteCv.setOnClickListener {
+            reference.child(auth.uid.toString()).removeValue().addOnSuccessListener {
+                Log.d("LOGIN", "User deleted from database")
+            }.addOnFailureListener {
+                Log.d("LOGIN", "User not deleted from database")
+            }
+            auth.currentUser!!.delete().addOnSuccessListener {
+                Log.d("LOGIN", "User deleted from firebase")
+            }.addOnFailureListener {e->
+                Log.d("LOGIN", "User not deleted from firebase $e")
+            }
+            val intent = Intent(activity, LoginActivity::class.java)
+            startActivity(intent)
+        }
+
         return binding.root
     }
 
