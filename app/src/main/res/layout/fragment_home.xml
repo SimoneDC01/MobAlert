@@ -14,4 +14,10 @@
         android:textAlignment="center"
         android:textSize="30dp" />
 
+    <Button
+        android:id="@+id/prova"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="prova"></Button>
+
 </FrameLayout>

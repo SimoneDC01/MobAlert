@@ -18,11 +18,15 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseDatabase
+    private lateinit var reference: DatabaseReference
     private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +37,9 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = Firebase.auth
+        database = FirebaseDatabase.getInstance()
+        reference = database.reference.child("Users")
+
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -89,8 +96,8 @@ class LoginActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
         result ->
-        Toast.makeText(this, "Result Code: ${result.resultCode}. Result_ok: ${RESULT_OK}", Toast.LENGTH_SHORT).show()
-        Log.d("LOGIN", "$result")
+        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+        Log.d("LOGIN", "Login Successful")
         if(result.resultCode == RESULT_OK){
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handleResults(task)
@@ -111,16 +118,32 @@ class LoginActivity : AppCompatActivity() {
 
     private fun updateUI(account: GoogleSignInAccount){
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-        auth.signInWithCredential(credential).addOnCompleteListener{
-            if(it.isSuccessful){
+        auth.signInWithCredential(credential).addOnSuccessListener{ authResult ->
+
+                if(authResult.additionalUserInfo!!.isNewUser) {
+                    Log.d("LOGIN", "updateUserInfo: New User")
+                    val hashMap = HashMap<String, Any>()
+                    hashMap["uid"] = "$auth.uid"
+                    hashMap["email"] = "${auth.currentUser?.email}"
+                    hashMap["name"] = ""
+                    hashMap["phoneNumber"] = ""
+                    hashMap["dob"] = ""
+
+                    reference.child( auth.uid.toString())
+                        .setValue (hashMap)
+                        .addOnSuccessListener {
+                            Log.d("LOGIN", "updateUserInfo: Info saved")
+                        }
+                        .addOnFailureListener {e->
+                            Log.e("LOGIN", "updateUserInfo: ", e)
+                        }
+                }
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             }
-            else {
+            .addOnFailureListener {
                 Toast.makeText(this, "Can't login currently. Try after sometime", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
-
-
-}
