@@ -96,9 +96,9 @@ class LoginActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
         result ->
-        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-        Log.d("LOGIN", "Login Successful")
         if(result.resultCode == RESULT_OK){
+            Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+            Log.d("LOGIN", "Login Successful")
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handleResults(task)
         }
