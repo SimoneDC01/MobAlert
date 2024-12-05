@@ -57,7 +57,10 @@ class ChangePasswordFragment : Fragment() {
                             .addOnSuccessListener {
                                 Log.d("LOGIN", "updatePassword: Password updated ... ")
                                 Toast.makeText(this.activity, "Password updated", Toast.LENGTH_SHORT).show()
-                                parentFragmentManager.beginTransaction().replace(R.id.Fragment, ProfileFragment()).commit()
+                                parentFragmentManager.beginTransaction()
+                                    .replace(R.id.Fragment, ProfileFragment())
+                                    .addToBackStack(null)
+                                    .commit()
                             }
                             .addOnFailureListener { e ->
                                 Log.e("LOGIN", "updatePassword: ", e)

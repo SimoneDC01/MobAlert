@@ -27,7 +27,7 @@ class AdAdapter(private val ads: List<HomeFragment.HomeAlters>) : RecyclerView.A
     override fun onBindViewHolder(holder: AdViewHolder, position: Int) {
         // Popola i dati
         val ad = ads[position]
-        holder.imageIv.setImageResource(R.drawable.image_white)
+        holder.imageIv.setImageBitmap(ad.image)
         holder.titleTv.text = ad.title
         holder.descriptionTv.text = ad.description
         holder.dateTv.text = ad.datehour

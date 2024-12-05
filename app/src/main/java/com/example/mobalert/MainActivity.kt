@@ -24,7 +24,11 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        goToFragment(HomeFragment())
+        if(savedInstanceState == null){
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.Fragment, HomeFragment())
+                .commit()
+        }
 
         auth = FirebaseAuth.getInstance()
         Log.d("LOGIN", "${auth.currentUser}")
@@ -44,29 +48,52 @@ class MainActivity : AppCompatActivity() {
         }*/
 
         binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.Fragment)
             when (menuItem.itemId) {
                 R.id.item_home -> {
-                    goToFragment(HomeFragment())
+                    if (currentFragment !is HomeFragment) {
+                        goToFragment(HomeFragment())
+                    }
                 }
 
                 R.id.item_alert -> {
-                    goToFragment(AlertsFragment())
+                    if (currentFragment !is AlertsFragment) {
+                        goToFragment(AlertsFragment())
+                    }
                 }
 
                 R.id.item_person -> {
-                    goToFragment(ProfileFragment())
+                    if (currentFragment !is ProfileFragment) {
+                        goToFragment(ProfileFragment())
+                    }
                 }
             }
 
             true
         }
 
+        supportFragmentManager.addOnBackStackChangedListener {
+            updateBottomNavSelection()
+        }
+
+    }
+    private fun updateBottomNavSelection() {
+        // Ottieni il fragment attualmente visibile
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.Fragment)
+        Log.d("LOGIN", "updateBottomNavSelection loc: $currentFragment")
+        when (currentFragment) {
+            is HomeFragment -> binding.bottomNavigationView.selectedItemId = R.id.item_home
+            is AlertsFragment -> binding.bottomNavigationView.selectedItemId = R.id.item_alert
+            is ProfileFragment -> binding.bottomNavigationView.selectedItemId = R.id.item_person
+        }
     }
 
     private fun goToFragment(fragment: Fragment) {
+
         Log.d("LOGIN", "goToFragment")
         supportFragmentManager.beginTransaction()
             .replace(R.id.Fragment, fragment)
+            .addToBackStack(null)
             .commit()
 
     }

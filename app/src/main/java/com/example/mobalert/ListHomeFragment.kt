@@ -1,6 +1,8 @@
 package com.example.mobalert
 
 import AdAdapter
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.http.HttpResponseCache.install
 import android.os.Bundle
 import android.util.Log
@@ -12,10 +14,12 @@ import com.example.mobalert.HomeFragment.Alert
 import com.example.mobalert.HomeFragment.HomeAlters
 import com.example.mobalert.databinding.FragmentListHomeBinding
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readBytes
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
@@ -66,11 +70,12 @@ class ListHomeFragment : Fragment() {
                 val alerts: List<Alert> = Json.decodeFromString(response.bodyAsText())
                 var homealerts = mutableListOf<HomeAlters>()
                 for (alert in alerts) {
+                    val image = getImage(alert.image)
                     val payload = HomeAlters(
                         alert.description,
                         alert.title,
                         alert.datehour,
-                        R.drawable.image_white
+                        image
                     )
                     homealerts.add(payload)
                 }
@@ -85,6 +90,25 @@ class ListHomeFragment : Fragment() {
             }
         } catch (e: Exception) {
             Log.e("LOGIN", "Errore durante la richiesta: $e")
+        }
+    }
+
+    private suspend fun getImage(image: String): Bitmap? {
+        val url = "https://deep-jaybird-exotic.ngrok-free.app/images/$image"
+        try {
+            val response: HttpResponse = client.get(url)
+            if (response.status == HttpStatusCode.OK) {
+                val bytes = response.readBytes()
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+                return bitmap
+            } else {
+                Log.e("LOGIN", "Errore nella richiesta img: ${response.status}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta img: $e")
+            return null
         }
     }
 

@@ -70,6 +70,7 @@ class EditProfileFragment : Fragment() {
             }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.Fragment, ProfileFragment())
+                .addToBackStack(null)
                 .commit()
         }
 

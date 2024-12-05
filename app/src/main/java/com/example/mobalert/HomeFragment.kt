@@ -1,6 +1,7 @@
 package com.example.mobalert
 
 import AdAdapter
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -30,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -66,7 +68,8 @@ class HomeFragment : Fragment() {
         val description: String,
         val title: String,
         val datehour: String,
-        val image: Int
+        @Contextual
+        val image: Bitmap?
     )
 
 

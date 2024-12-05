@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.lang.Thread.sleep
+import androidx.fragment.app.FragmentManager
 
 class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentProfileBinding
@@ -44,6 +45,7 @@ class ProfileFragment : Fragment() {
         binding.logoutCv.setOnClickListener {
             Log.d("LOGIN", "Logout button clicked")
             auth.signOut()
+            parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
         }
@@ -51,12 +53,14 @@ class ProfileFragment : Fragment() {
         binding.changePasswordCv.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.Fragment, ChangePasswordFragment())
+                .addToBackStack(null)
                 .commit()
         }
 
         binding.editCv.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.Fragment, EditProfileFragment())
+                .addToBackStack(null)
                 .commit()
         }
 
@@ -71,6 +75,9 @@ class ProfileFragment : Fragment() {
             }.addOnFailureListener {e->
                 Log.d("LOGIN", "User not deleted from firebase $e")
             }
+
+            parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
         }
