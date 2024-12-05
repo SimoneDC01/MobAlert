@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -87,6 +88,12 @@ class LoginActivity : AppCompatActivity() {
     /*    binding.loggedButton.setOnClickListener {
             Log.d("LOGIN", "${auth.currentUser?.email}")
         }*/
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Non fare nulla per disabilitare il pulsante "indietro"
+            }
+        })
     }
 
     private fun signInWithGoogle(){

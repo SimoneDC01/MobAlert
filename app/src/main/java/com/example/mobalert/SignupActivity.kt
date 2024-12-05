@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mobalert.databinding.ActivitySignupBinding
@@ -77,7 +78,10 @@ class SignupActivity : AppCompatActivity() {
                 }
             }
         }
-
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+            }
+        })
         binding.goToLoginButton.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()

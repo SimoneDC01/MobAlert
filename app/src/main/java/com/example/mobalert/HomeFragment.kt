@@ -50,7 +50,8 @@ class HomeFragment : Fragment() {
         val iduser: String,
         val position: String,
         val title: String,
-        val type: String
+        val type: String,
+        val image: String
     )
 
     @Serializable
