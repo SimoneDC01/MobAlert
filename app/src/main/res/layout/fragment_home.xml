@@ -65,14 +65,6 @@
         android:text="Map View">
     </Button>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/alerts_fragment"
-        android:name="androidx.fragment.app.DialogFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/filter"
-        />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_alert"
         android:layout_width="wrap_content"
@@ -85,6 +77,16 @@
         app:shapeAppearanceOverlay="@style/ImageStyle_Circle"
         app:maxImageSize="50dp">
     </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/alerts_fragment"
+        android:name="androidx.fragment.app.DialogFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/filter"
+        />
+
+
     <!--
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/alertsRv"

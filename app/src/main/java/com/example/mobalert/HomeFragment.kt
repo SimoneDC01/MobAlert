@@ -1,6 +1,7 @@
 package com.example.mobalert
 
 import AdAdapter
+import android.app.DatePickerDialog
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -35,6 +36,7 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.util.Calendar
 
 
 class HomeFragment : Fragment() {
@@ -83,6 +85,9 @@ class HomeFragment : Fragment() {
         database = FirebaseDatabase.getInstance()
         referece = database.reference.child("Users")
 
+        binding.addAlert.setOnClickListener {
+            goToFragment2(InsertAlertFragment())
+        }
         goToFragment(ListHomeFragment())
 
 
@@ -151,6 +156,12 @@ class HomeFragment : Fragment() {
             .replace(R.id.alerts_fragment, fragment)
             .commit()
 
+    }
+    private fun goToFragment2(fragment: Fragment) {
+        parentFragmentManager.beginTransaction()
+        .replace(R.id.Fragment, fragment) // Sostituisci il fragment attuale
+        .addToBackStack(null) // Opzionale, aggiunge il fragment alla back stack
+        .commit() // Applica la transazione
     }
 
 
