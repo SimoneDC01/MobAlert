@@ -24,6 +24,28 @@ import com.example.mobalert.databinding.FragmentInsertAlertBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.utils.EmptyContent.contentType
+import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.InternalAPI
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -35,19 +57,62 @@ class InsertAlertFragment : Fragment() {
     private var reference = database.reference.child("Users")
     private var imageUri: Uri? = null
 
+    private val client = HttpClient {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
+
+    private lateinit var imagesPickedArrayList: ArrayList<ModelImagePicked>
+
+    private lateinit var adapterImagePicked: AdapterImagePicked
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Usa il binding per associare la vista
+
         binding = FragmentInsertAlertBinding.inflate(inflater, container, false)
-        // Configura il menu a tendina per le categorie
+
+
         setupCategoryDropdown()
-        // Configura il selettore di data e ora
+
         setupDateTimePicker()
-        // Imposta il listener sul pulsante
+
+        imagesPickedArrayList = ArrayList()
+
         binding.InsertAlertButton.setOnClickListener {
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val alert = HomeFragment.Alert(
+                        binding.editDateHour.text.toString(),
+                        binding.editDescription.text.toString(),
+                        0,
+                        auth.currentUser!!.uid,
+                        binding.editPosition.text.toString(),
+                        binding.editTitle.text.toString(),
+                        binding.editCategory.text.toString(),
+                        imagesPickedArrayList[0].id.toString()+".jpg"
+                    )
+
+                    insertAlert(alert, imagesPickedArrayList[0])
+                    withContext(Dispatchers.Main) {
+                    }
+                }
+                catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Log.d("LOGIN", "Error: $e")
+                    }
+                }
+            }
+
+
+
             Toast.makeText(requireContext(), "Insert", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
             parentFragmentManager.beginTransaction()
@@ -121,20 +186,20 @@ class InsertAlertFragment : Fragment() {
         )
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-        cameraAcrivityResultLauncher.launch(intent)
+        cameraActivityResultLauncher.launch(intent)
     }
 
-    private val cameraAcrivityResultLauncher = registerForActivityResult(
+    private val cameraActivityResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ){ result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            Log.d("LOGIN", "Image Uri: $imageUri")
-            try {
-                Glide.with(this.activity).load(imageUri).into(binding.AlertImage)
-            }
-            catch (e: Exception){
-                Log.d("LOGIN", "Error: $e")
-            }
+            val modelImagePicked = ModelImagePicked(
+                id = 0,
+                imageUri = imageUri
+            )
+            imagesPickedArrayList.add(modelImagePicked)
+            Log.d("LOGIN", "arraryList: $imagesPickedArrayList")
+            loadImages()
         }
         else{
             Log.d("LOGIN", "Image Pick Cancelled")
@@ -152,11 +217,64 @@ class InsertAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             imageUri = result.data?.data
-            try {
+
+            val modelImagePicked = ModelImagePicked(
+                id = 0,
+                imageUri = imageUri
+            )
+
+            imagesPickedArrayList.add(modelImagePicked)
+
+            loadImages()
+            /*try {
                 Glide.with(this.activity).load(imageUri).into(binding.AlertImage)
             } catch (e: Exception) {
                 Log.d("LOGIN", "Error: $e")
+            }*/
+        }
+        else{
+            Log.d("LOGIN", "Image Pick Cancelled")
+            Toast.makeText(this.activity, "Image Pick Cancelled", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun loadImages() {
+        Log.d("LOGIN", "loadImages: ")
+        adapterImagePicked = AdapterImagePicked(this.requireContext(), imagesPickedArrayList)
+        binding.imagesRv.adapter = adapterImagePicked
+    }
+
+    @OptIn(InternalAPI::class)
+    suspend fun insertAlert(alert: HomeFragment.Alert, file: ModelImagePicked) {
+        val url = "https://deep-jaybird-exotic.ngrok-free.app/alerts"
+        val fileBytes = requireContext().contentResolver.openInputStream(file.imageUri!!)?.use { inputStream ->
+            inputStream.readBytes()
+        }?: throw IllegalArgumentException("unable to read bytes from input stream ${file.imageUri!!}")
+        try {
+            val response: HttpResponse = client.post(url) {
+                contentType(ContentType.MultiPart.FormData)
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            // Aggiungi il corpo dell'alert come parte della richiesta
+                            append("data", Json.encodeToString(alert))
+
+                            // Aggiungi il file come parte della richiesta
+                            append("file", fileBytes, Headers.build {
+                                append(HttpHeaders.ContentDisposition, "filename=\"${file.id.toString()}.jpg\"")
+                            })
+                        }
+                    )
+                )
             }
+            if (response.status == HttpStatusCode.Created) {
+                val result = response.bodyAsText()
+                Log.d("LOGIN", "Risposta dal server: $result")
+            } else {
+                Log.e("LOGIN", "Errore nella richiesta: ${response.status}")
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta: $e")
         }
     }
 

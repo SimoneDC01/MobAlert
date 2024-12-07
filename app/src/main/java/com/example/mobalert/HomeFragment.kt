@@ -170,8 +170,19 @@ class HomeFragment : Fragment() {
         val url = "https://deep-jaybird-exotic.ngrok-free.app/alerts"
         try {
             val response: HttpResponse = client.post(url) {
-                contentType(ContentType.Application.Json)
-                setBody(alert)
+                contentType(ContentType.MultiPart.FormData)
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            // Aggiungi il corpo dell'alert come parte della richiesta
+                            append("alert", alert)
+
+                            // Aggiungi il file come parte della richiesta
+                            append("file", file.readBytes(), Headers.build {
+                                append(HttpHeaders.ContentDisposition, "filename=\"${file.name}\"")
+                            })
+                        }
+                    )
             }
             if (response.status == HttpStatusCode.Created) {
                 val result = response.bodyAsText()
