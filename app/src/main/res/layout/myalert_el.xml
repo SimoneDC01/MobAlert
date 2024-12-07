@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="10dp"
+    app:cardUseCompatPadding="true">
+
+    <RelativeLayout
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- ImageView -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/myimageIv"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginEnd="10dp"
+            android:background="#ADA6A4A4"
+            android:scaleType="fitCenter"
+            android:src="@drawable/image_white"
+            style="@style/ImageStyle_Corners_Rounded" />
+
+        <!-- Title TextView -->
+        <TextView
+            android:id="@+id/mytitleTv"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/myimageIv"
+            android:layout_alignTop="@id/myimageIv"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="The Ad Title"
+            android:textStyle="bold"
+            android:layout_marginEnd="40dp" />
+
+        <!-- Options Button -->
+        <ImageButton
+            android:id="@+id/myoptions_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/mytitleTv"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="0dp"
+            android:layout_marginTop="0dp"
+            android:src="@drawable/camera_black"
+            app:fabCustomSize="5dp"/>
+
+        <!-- Description TextView -->
+        <TextView
+            android:id="@+id/mydescriptionTv"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/myimageIv"
+            android:layout_below="@id/mytitleTv"
+            android:ellipsize="end"
+            android:maxLines="4"
+            android:text="The long description of the Ad that can be of muaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" />
+
+        <!-- Date TextView -->
+        <TextView
+            android:id="@+id/mydateTv"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/myimageIv"
+            android:layout_alignBottom="@id/myimageIv"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="04/12/2024"
+            android:textColor="#787878" />
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>
