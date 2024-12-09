@@ -65,13 +65,15 @@ class HomeFragment : Fragment() {
         val title: String
     )
 
-    @Serializable
     data class HomeAlters(
+        val id: Int,
         val description: String,
         val title: String,
         val datehour: String,
-        @Contextual
-        val image: Bitmap?
+        val type: String,
+        val position: String,
+        val image: ArrayList<Bitmap?>,
+        var visible: Boolean = true
     )
 
 
@@ -88,6 +90,7 @@ class HomeFragment : Fragment() {
         binding.addAlert.setOnClickListener {
             goToFragment2(InsertAlertFragment())
         }
+
         goToFragment(ListHomeFragment())
 
 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/filter_background">
+
+    <TextView
+        android:id="@+id/titleDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="title"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="10dp">
+    </TextView>
+
+    <EditText
+        android:id="@+id/title"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:hint="title"
+        android:inputType="text"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="20dp">
+    </EditText>
+
+    <TextView
+        android:id="@+id/descriptionDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="description"
+        android:layout_below="@id/title"
+        android:layout_marginLeft="10dp">
+    </TextView>
+
+    <EditText
+        android:id="@+id/description"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:hint="description"
+        android:inputType="text"
+        android:layout_marginLeft="100dp"
+        android:layout_below="@id/title">
+    </EditText>
+    <Button
+        android:id="@+id/submitFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:layout_below="@id/description">
+    </Button>
+
+
+</RelativeLayout>

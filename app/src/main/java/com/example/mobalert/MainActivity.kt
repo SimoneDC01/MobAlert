@@ -97,4 +97,8 @@ class MainActivity : AppCompatActivity() {
             .commit()
 
     }
+
+    companion object {
+        const val url = "http://192.168.1.58:5000"
+    }
 }

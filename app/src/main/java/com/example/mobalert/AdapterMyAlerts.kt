@@ -1,3 +1,4 @@
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -6,25 +7,54 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.viewpager2.widget.ViewPager2
+import com.example.mobalert.AdapterImageSlider
+import com.example.mobalert.AlertsFragment
 import com.example.mobalert.EditAlertFragment
 import com.example.mobalert.HomeFragment
 import com.example.mobalert.InsertAlertFragment
+import com.example.mobalert.MainActivity
+import com.example.mobalert.ModelImageSlider
 import com.example.mobalert.R
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
-class AdAdapterMy(private val ads: List<HomeFragment.HomeAlters>,
+class AdAdapterMy(private val context: Context, private val ads: List<HomeFragment.HomeAlters>,
                   private val parentFragment: Fragment) : RecyclerView.Adapter<AdAdapterMy.AdViewHolder>() {
+
+    private val client = HttpClient {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
 
     // ViewHolder per gli elementi della RecyclerView
     class AdViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageIv: ShapeableImageView = itemView.findViewById(R.id.myimageIv)
+        val root: View = itemView.findViewById(R.id.myroot)
+        val imageIv: ViewPager2  = itemView.findViewById(R.id.myimageIv)
         val titleTv: TextView = itemView.findViewById(R.id.mytitleTv)
         val descriptionTv: TextView = itemView.findViewById(R.id.mydescriptionTv)
         val dateTv: TextView = itemView.findViewById(R.id.mydateTv)
-        val optionsButton: ImageButton=itemView.findViewById(R.id.myoptions_button)
+        val categoryTv: TextView = itemView.findViewById(R.id.mycategoryTv)
+        val positionTv: TextView = itemView.findViewById(R.id.mypositionTv)
+        val optionsButton: TextView =itemView.findViewById(R.id.myoptions_button)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdViewHolder {
@@ -37,10 +67,13 @@ class AdAdapterMy(private val ads: List<HomeFragment.HomeAlters>,
     override fun onBindViewHolder(holder: AdViewHolder, position: Int) {
         // Popola i dati
         val ad = ads[position]
-        holder.imageIv.setImageBitmap(ad.image)
+        Log.d("LOGIN", "onBindViewHolder: $ad")
+        //holder.imageIv.setImageBitmap(ad.image)
         holder.titleTv.text = ad.title
         holder.descriptionTv.text = ad.description
         holder.dateTv.text = ad.datehour
+        holder.categoryTv.text = ad.type
+
         holder.optionsButton.setOnClickListener { view ->
             val popupMenu = PopupMenu(view.context, holder.optionsButton)
             popupMenu.menu.add(Menu.NONE, 1, 1, "Edit Alert")
@@ -49,7 +82,7 @@ class AdAdapterMy(private val ads: List<HomeFragment.HomeAlters>,
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     1 -> {
-                        Log.d("AdAdapter", "Edit Alert")
+                        Log.d("LOGIN", "Edit Alert")
 
                         // Naviga al nuovo Fragment
                         val fragmentManager = parentFragment.parentFragmentManager
@@ -58,8 +91,10 @@ class AdAdapterMy(private val ads: List<HomeFragment.HomeAlters>,
 
                         // Passa dati se necessario (ad esempio l'ID dell'alert)
                         val bundle = Bundle()
+                        bundle.putInt("alertId", ad.id)
                         bundle.putString("alertTitle", ad.title)
                         bundle.putString("alertDescription", ad.description)
+                        bundle.putString("alertCategory", ad.type)
                         fragment.arguments = bundle
 
                         // Sostituisci il Fragment corrente con quello nuovo
@@ -68,8 +103,22 @@ class AdAdapterMy(private val ads: List<HomeFragment.HomeAlters>,
                         transaction.commit()
                     }
                     2 -> {
-                        Log.d("AdAdapter", "Delete Alert")
-                        // Aggiungi qui il codice per eliminare l'alert
+                        CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                deleteAlert(ad.id)
+                                withContext(Dispatchers.Main) {
+                                    Log.d("LOGIN", "Delete Alert")
+                                    parentFragment.parentFragmentManager.beginTransaction()
+                                        .replace(R.id.Fragment, AlertsFragment())
+                                        .commit()
+                                }
+                            }
+                            catch (e: Exception) {
+                                withContext(Dispatchers.Main) {
+                                    Log.d("LOGIN", "Error: $e")
+                                }
+                            }
+                        }
                     }
                 }
                 true
@@ -78,6 +127,90 @@ class AdAdapterMy(private val ads: List<HomeFragment.HomeAlters>,
             // Mostra il menu popup
             popupMenu.show()
         }
+
+        var images = ArrayList<ModelImageSlider>()
+        for (image in ad.image) {
+            images.add(ModelImageSlider(image!!))
+        }
+        var adapter = AdapterImageSlider(context, images)
+        holder.imageIv.adapter = adapter
+
+        holder.root.setOnClickListener {
+            Log.d("LOGIN", "CLICK ${holder.imageIv.layoutParams.width}")
+            if(holder.imageIv.layoutParams.width == 360) {
+                holder.imageIv.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+                holder.imageIv.layoutParams.height = 1000
+
+                var params = holder.titleTv.layoutParams as RelativeLayout.LayoutParams
+                params.removeRule(RelativeLayout.END_OF)
+                params.addRule(RelativeLayout.BELOW, R.id.myimageIv)
+                holder.titleTv.layoutParams = params
+
+
+                params = holder.descriptionTv.layoutParams as RelativeLayout.LayoutParams
+                params.removeRule(RelativeLayout.END_OF)
+                holder.descriptionTv.layoutParams = params
+
+                params = holder.categoryTv.layoutParams as RelativeLayout.LayoutParams
+                params.removeRule(RelativeLayout.END_OF)
+                holder.categoryTv.layoutParams = params
+                holder.categoryTv.visibility = View.VISIBLE
+
+                params = holder.dateTv.layoutParams as RelativeLayout.LayoutParams
+                params.removeRule(RelativeLayout.END_OF)
+                holder.dateTv.layoutParams = params
+
+                holder.imageIv.requestLayout()
+                holder.titleTv.requestLayout()
+                holder.descriptionTv.requestLayout()
+                holder.categoryTv.requestLayout()
+                holder.dateTv.requestLayout()
+            }
+            else{
+                holder.imageIv.layoutParams.width = 360
+                holder.imageIv.layoutParams.height = 360
+
+                var params = holder.titleTv.layoutParams as RelativeLayout.LayoutParams
+                params.removeRule(RelativeLayout.BELOW)
+                params.addRule(RelativeLayout.END_OF, R.id.myimageIv)
+                holder.titleTv.layoutParams = params
+
+
+                params = holder.descriptionTv.layoutParams as RelativeLayout.LayoutParams
+                params.addRule(RelativeLayout.END_OF, R.id.myimageIv)
+                holder.descriptionTv.layoutParams = params
+
+                params = holder.categoryTv.layoutParams as RelativeLayout.LayoutParams
+                params.addRule(RelativeLayout.END_OF, R.id.myimageIv)
+                holder.categoryTv.layoutParams = params
+
+                params = holder.dateTv.layoutParams as RelativeLayout.LayoutParams
+                params.addRule(RelativeLayout.END_OF, R.id.myimageIv)
+                holder.dateTv.layoutParams = params
+
+            }
+
+            holder.imageIv.requestLayout()
+            holder.titleTv.requestLayout()
+            holder.descriptionTv.requestLayout()
+            holder.categoryTv.requestLayout()
+            holder.dateTv.requestLayout()
+        }
+
     }
     override fun getItemCount(): Int = ads.size
+
+    suspend fun deleteAlert(itemId: Int) {
+        val url = "${MainActivity.url}/alerts/$itemId"
+        try {
+            val response: HttpResponse = client.delete(url)
+            when (response.status) {
+                HttpStatusCode.OK -> Log.d("LOGIN", "Alert con ID $itemId eliminato con successo.")
+                HttpStatusCode.NotFound -> Log.e("LOGIN", "Alert con ID $itemId non trovato.")
+                else -> Log.e("LOGIN", "Errore nell'eliminazione: ${response.status}")
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta: $e")
+        }
+    }
 }

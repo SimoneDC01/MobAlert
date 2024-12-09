@@ -13,7 +13,9 @@ import android.view.ViewGroup
 import com.example.mobalert.HomeFragment.Alert
 import com.example.mobalert.HomeFragment.HomeAlters
 import com.example.mobalert.databinding.FragmentAlertsBinding
+import com.example.mobalert.ListHomeFragment
 import com.example.mobalert.databinding.FragmentListHomeBinding
+import com.google.firebase.auth.FirebaseAuth
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
@@ -33,6 +35,8 @@ class AlertsFragment : Fragment() {
 
     private lateinit var binding: FragmentAlertsBinding
 
+    private lateinit var auth: FirebaseAuth
+
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -41,12 +45,27 @@ class AlertsFragment : Fragment() {
             })
         }
     }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d("LOGIN", "onCreate")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("LOGIN", "onStart")
+    }
+    override fun onResume() {
+        super.onResume()
+        Log.d("LOGIN", "onResume")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAlertsBinding.inflate(inflater, container, false);
+
+        auth = FirebaseAuth.getInstance()
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -63,28 +82,42 @@ class AlertsFragment : Fragment() {
     }
 
     private suspend fun getAlerts() {
-        val url = "https://deep-jaybird-exotic.ngrok-free.app/alerts"
+        Log.d("LOGIN", "id: ${auth.uid}")
+        val url = "${MainActivity.url}/myalerts/${auth.uid}"
         try {
             val response: HttpResponse = client.get(url)
             if (response.status == HttpStatusCode.OK) {
                 val alerts: List<Alert> = Json.decodeFromString(response.bodyAsText())
                 var homealerts = mutableListOf<HomeAlters>()
+                Log.d("LOGIN", "alerts: $alerts")
                 for (alert in alerts) {
-                    val image = getImage(alert.image)
+                    var my_images: ArrayList<Bitmap?> = ArrayList()
+                    var my_images_name : List<String> = alert.image.split(",")
+                    for (image in my_images_name) {
+                        val bitmap = getImage(alert.id, image)
+                        if (bitmap != null) {
+                            my_images.add(bitmap)
+                        }
+                    }
+                    //val image = getImage(alert.id,"0")
                     val payload = HomeAlters(
+                        alert.id,
                         alert.description,
                         alert.title,
                         alert.datehour,
-                        image
+                        alert.type,
+                        alert.position,
+                        my_images
                     )
                     homealerts.add(payload)
                 }
                 withContext(Dispatchers.Main) {
-                    val adapter = AdAdapterMy(homealerts,this@AlertsFragment)
+                    Log.d("LOGIN", "homealerts: $homealerts")
+                    val adapter = AdAdapterMy(requireContext(),homealerts,this@AlertsFragment)
                     binding.MyAlertsRv.adapter = adapter
                 }
 
-                Log.d("LOGIN", "alerts: $alerts")
+                Log.d("LOGIN", "myalerts: $alerts")
             } else {
                 Log.e("LOGIN", "Errore nella richiesta: ${response.status}")
             }
@@ -95,8 +128,10 @@ class AlertsFragment : Fragment() {
 
 
 
-    private suspend fun getImage(image: String): Bitmap? {
-        val url = "https://deep-jaybird-exotic.ngrok-free.app/images/$image"
+    private suspend fun getImage(id : Int, image: String): Bitmap? {
+        var url : String
+        if (".jpg" in image) url = "${MainActivity.url}/images/${id.toString()}_$image"
+        else url = "${MainActivity.url}/images/${id.toString()}_$image.jpg"
         try {
             val response: HttpResponse = client.get(url)
             if (response.status == HttpStatusCode.OK) {

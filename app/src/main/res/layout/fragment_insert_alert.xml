@@ -30,10 +30,14 @@
 
     </RelativeLayout>
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbarRlAlert">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbarRlAlert"
         android:padding="10dp">
 
         <androidx.core.widget.NestedScrollView
@@ -203,5 +207,6 @@
                             />
 
                     </RelativeLayout>
+    </androidx.core.widget.NestedScrollView>
 
                 </RelativeLayout>

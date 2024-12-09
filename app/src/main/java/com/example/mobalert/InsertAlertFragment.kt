@@ -22,6 +22,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
 import com.example.mobalert.databinding.FragmentInsertAlertBinding
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.primitives.Bytes
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import io.ktor.client.HttpClient
@@ -87,6 +88,12 @@ class InsertAlertFragment : Fragment() {
 
         binding.InsertAlertButton.setOnClickListener {
 
+            var images =""
+            for (imagePicked in imagesPickedArrayList) {
+                images += imagePicked.id.toString()+".jpg,"
+            }
+            images = images.substring(0, images.length - 1)
+
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val alert = HomeFragment.Alert(
@@ -97,11 +104,16 @@ class InsertAlertFragment : Fragment() {
                         binding.editPosition.text.toString(),
                         binding.editTitle.text.toString(),
                         binding.editCategory.text.toString(),
-                        imagesPickedArrayList[0].id.toString()+".jpg"
+                        images
                     )
 
                     insertAlert(alert, imagesPickedArrayList[0])
                     withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Insert", Toast.LENGTH_SHORT).show()
+                        parentFragmentManager.popBackStack()
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.Fragment, HomeFragment())
+                            .commit()
                     }
                 }
                 catch (e: Exception) {
@@ -113,11 +125,7 @@ class InsertAlertFragment : Fragment() {
 
 
 
-            Toast.makeText(requireContext(), "Insert", Toast.LENGTH_SHORT).show()
-            parentFragmentManager.popBackStack()
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.Fragment, HomeFragment())
-                .commit()
+
         }
 
         binding.imageButtonAlert.setOnClickListener {
@@ -246,7 +254,15 @@ class InsertAlertFragment : Fragment() {
 
     @OptIn(InternalAPI::class)
     suspend fun insertAlert(alert: HomeFragment.Alert, file: ModelImagePicked) {
-        val url = "https://deep-jaybird-exotic.ngrok-free.app/alerts"
+        val url = "${MainActivity.url}/alerts"
+        var listImages = arrayListOf<ByteArray>()
+
+        for (imagePicked in imagesPickedArrayList) {
+            val imageBytes = requireContext().contentResolver.openInputStream(imagePicked.imageUri!!)?.use { inputStream ->
+                inputStream.readBytes()
+            }?: throw IllegalArgumentException("unable to read bytes from input stream ${imagePicked.imageUri!!}")
+            listImages.add(imageBytes)
+        }
         val fileBytes = requireContext().contentResolver.openInputStream(file.imageUri!!)?.use { inputStream ->
             inputStream.readBytes()
         }?: throw IllegalArgumentException("unable to read bytes from input stream ${file.imageUri!!}")
@@ -260,9 +276,22 @@ class InsertAlertFragment : Fragment() {
                             append("data", Json.encodeToString(alert))
 
                             // Aggiungi il file come parte della richiesta
-                            append("file", fileBytes, Headers.build {
-                                append(HttpHeaders.ContentDisposition, "filename=\"${file.id.toString()}.jpg\"")
-                            })
+                            for (i in 0 until listImages.size) {
+                                append("file$i", listImages[i],
+                                    Headers.build {
+                                        append(HttpHeaders.ContentDisposition, "filename=$i.jpg")
+                                    })
+                            }
+                            /*
+                            listImages.forEachIndexed { index, imageBytes ->
+                                append(
+                                    "file",
+                                    imageBytes,
+                                    Headers.build {
+                                        append(HttpHeaders.ContentDisposition, "filename=\"$index.jpg\"")
+                                    }
+                                )
+                            }*/
                         }
                     )
                 )

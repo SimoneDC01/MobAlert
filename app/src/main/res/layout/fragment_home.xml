@@ -6,44 +6,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".HomeFragment">
 <!--
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="190dp"
-        android:layout_height="46dp"
-        android:layout_gravity="center"
-        android:text="Home"
-        android:textAlignment="center"
-        android:textSize="30dp" />
-
-    <TextView
-        android:id="@+id/get"
-        android:layout_width="match_parent"
-        android:layout_height="139dp"
-        android:text="get"></TextView>
-
-    <Button
-        android:id="@+id/insert"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="150dp"
-        android:text="insert"></Button>
-
-    <Button
-        android:id="@+id/delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="200dp"
-        android:layout_marginTop="150dp"
-        android:text="delete"></Button>
-
-    <Button
-        android:id="@+id/update"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
-        android:text="update"></Button>
--->
     <Button
         android:id="@+id/filter"
         android:layout_width="wrap_content"
@@ -64,7 +26,7 @@
         android:layout_alignParentEnd="true"
         android:text="Map View">
     </Button>
-
+-->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_alert"
         android:layout_width="wrap_content"
@@ -83,7 +45,6 @@
         android:name="androidx.fragment.app.DialogFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/filter"
         />
 
 

@@ -8,20 +8,16 @@
     app:cardUseCompatPadding="true">
 
     <RelativeLayout
-        android:id="@+id/root"
+        android:id="@+id/myroot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <!-- ImageView -->
-        <com.google.android.material.imageview.ShapeableImageView
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/myimageIv"
             android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginEnd="10dp"
-            android:background="#ADA6A4A4"
-            android:scaleType="fitCenter"
-            android:src="@drawable/image_white"
-            style="@style/ImageStyle_Corners_Rounded" />
+            android:layout_height="120dp">
+        </androidx.viewpager2.widget.ViewPager2>
 
         <!-- Title TextView -->
         <TextView
@@ -30,15 +26,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/myimageIv"
-            android:layout_alignTop="@id/myimageIv"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="The Ad Title"
-            android:textStyle="bold"
-            android:layout_marginEnd="40dp" />
+            android:textStyle="bold" />
 
         <!-- Options Button -->
-        <ImageButton
+        <TextView
             android:id="@+id/myoptions_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,8 +40,21 @@
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="0dp"
             android:layout_marginTop="0dp"
-            android:src="@drawable/camera_black"
+            android:background="@drawable/option_black"
             app:fabCustomSize="5dp"/>
+
+        <TextView
+            android:id="@+id/mycategoryTv"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/mytitleTv"
+            android:layout_toEndOf="@id/myimageIv"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="The Ad Category"
+            android:textStyle="bold" />
 
         <!-- Description TextView -->
         <TextView
@@ -56,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/myimageIv"
-            android:layout_below="@id/mytitleTv"
+            android:layout_below="@id/mycategoryTv"
             android:ellipsize="end"
             android:maxLines="4"
             android:text="The long description of the Ad that can be of muaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" />
@@ -68,10 +75,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/myimageIv"
-            android:layout_alignBottom="@id/myimageIv"
+            android:layout_below="@id/mydescriptionTv"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="04/12/2024"
             android:textColor="#787878" />
+
+        <TextView
+            android:id="@+id/mypositionTv"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/mydateTv"
+            android:layout_below="@id/mydescriptionTv"
+            android:ellipsize="end"
+            android:lines="1"
+            android:background="@drawable/position_black"
+            android:layout_marginStart="20dp">
+        </TextView>
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>
