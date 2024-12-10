@@ -68,6 +68,7 @@ class HomeFragment : Fragment() {
     data class HomeAlters(
         val id: Int,
         val description: String,
+        val username: String="",
         val title: String,
         val datehour: String,
         val type: String,

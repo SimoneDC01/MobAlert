@@ -28,6 +28,7 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
         val root: View = itemView.findViewById(R.id.root)
         val titleTv: TextView = itemView.findViewById(R.id.titleTv)
         val descriptionTv: TextView = itemView.findViewById(R.id.descriptionTv)
+        val iduser: TextView= itemView.findViewById(R.id.usernameTv)
         val dateTv: TextView = itemView.findViewById(R.id.dateTv)
         val categoryTv: TextView = itemView.findViewById(R.id.categoryTv)
         val positionTv: TextView = itemView.findViewById(R.id.positionTv)
@@ -47,6 +48,7 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
         //holder.imageIv.setImageBitmap(ad.image[0])
         holder.titleTv.text = ad.title
         holder.descriptionTv.text = ad.description
+        holder.iduser.text=ad.username
         holder.dateTv.text = ad.datehour
         holder.categoryTv.text = ad.type
 
@@ -76,6 +78,9 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
                 params.addRule(RelativeLayout.BELOW, R.id.imageIv)
                 holder.titleTv.layoutParams = params
 
+                params = holder.iduser.layoutParams as RelativeLayout.LayoutParams
+                params.addRule(RelativeLayout.BELOW, R.id.imageIv)
+                holder.iduser.layoutParams = params
 
                 params = holder.descriptionTv.layoutParams as RelativeLayout.LayoutParams
                 params.removeRule(RelativeLayout.END_OF)
@@ -99,6 +104,9 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
                 params.addRule(RelativeLayout.END_OF, R.id.imageIv)
                 holder.titleTv.layoutParams = params
 
+                params = holder.iduser.layoutParams as RelativeLayout.LayoutParams
+                params.removeRule(RelativeLayout.BELOW)
+                holder.iduser.layoutParams = params
 
                 params = holder.descriptionTv.layoutParams as RelativeLayout.LayoutParams
                 params.addRule(RelativeLayout.END_OF, R.id.imageIv)
@@ -116,6 +124,7 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
 
             holder.imageIv.requestLayout()
             holder.titleTv.requestLayout()
+            holder.iduser.requestLayout()
             holder.descriptionTv.requestLayout()
             holder.categoryTv.requestLayout()
             holder.dateTv.requestLayout()
@@ -126,34 +135,50 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
 
     override fun getItemCount(): Int = ads.size
 
-    fun filter(filed: String, query: String){
+    fun filter(filters: MutableMap<String, String>){
+        Log.d("LOGIN", "${filters}")
         val newList = ads.map { it.copy() }.toMutableList()
         for (ad in newList) {
-            if (filed == "title") {
-                if (!ad.title.contains(query, ignoreCase = true)) {
+            ad.visible=true
+
+            if (!ad.title.contains(filters["title"]!!, ignoreCase = true)) {
+                ad.visible = false
+            }
+
+            if (!ad.description.contains(filters["description"]!!, ignoreCase = true)) {
+                ad.visible = false
+            }
+            if(filters["category"]!="") {
+                if (!filters["category"]!!.contains(ad.type, ignoreCase = true)) {
                     ad.visible = false
-                } else {
-                    ad.visible = true
-                }
-            } else if (filed == "description") {
-                if (!ad.description.contains(query, ignoreCase = true)) {
-                    ad.visible = false
-                } else {
-                    ad.visible = true
                 }
             }
+
+
+            if (!ad.username.contains(filters["username"]!!, ignoreCase = true)) {
+                ad.visible = false
+            }
+
+            if(filters["dateHour"]!="") {
+                val dates = filters["dateHour"]!!.split(",")
+                val dateFrom = dates[0]
+                val dateTo = dates[1]
+                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                val dateFromParsed = LocalDateTime.parse(dateFrom, formatter)
+                val dateToParsed = LocalDateTime.parse(dateTo, formatter)
+                if (LocalDateTime.parse(ad.datehour, formatter)
+                        .isBefore(dateFromParsed) || LocalDateTime.parse(ad.datehour, formatter)
+                        .isAfter(dateToParsed)
+                ) {
+                    ad.visible = false
+                }
+            }
+
+
         }
         updateList(newList)
     }
 
-    fun noFilter(){
-        val newList = ads.map { it.copy() }.toMutableList()
-        for (ad in newList) {
-            ad.visible = true
-        }
-
-        updateList(newList)
-    }
 
     fun sortByDate() {
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")

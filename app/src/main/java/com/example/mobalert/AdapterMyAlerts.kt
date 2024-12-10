@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager2.widget.ViewPager2
 import com.example.mobalert.AdapterImageSlider
 import com.example.mobalert.AlertsFragment
@@ -32,8 +33,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-class AdAdapterMy(private val context: Context, private val ads: List<HomeFragment.HomeAlters>,
+class AdAdapterMy(private val context: Context, private val ads: MutableList<HomeFragment.HomeAlters>,
                   private val parentFragment: Fragment) : RecyclerView.Adapter<AdAdapterMy.AdViewHolder>() {
 
     private val client = HttpClient {
@@ -127,7 +130,13 @@ class AdAdapterMy(private val context: Context, private val ads: List<HomeFragme
             // Mostra il menu popup
             popupMenu.show()
         }
-
+        if (ad.visible) {
+            holder.root.visibility = View.VISIBLE
+        }
+        else {
+            Log.d("LOGIN", "GONE")
+            holder.root.visibility = View.GONE
+        }
         var images = ArrayList<ModelImageSlider>()
         for (image in ad.image) {
             images.add(ModelImageSlider(image!!))
@@ -213,4 +222,87 @@ class AdAdapterMy(private val context: Context, private val ads: List<HomeFragme
             Log.e("LOGIN", "Errore durante la richiesta: $e")
         }
     }
+
+    fun filter(filters: MutableMap<String, String>){
+        Log.d("LOGIN", "${filters}")
+        val newList = ads.map { it.copy() }.toMutableList()
+        for (ad in newList) {
+            Log.d("LOGIN","${ad}")
+            ad.visible=true
+
+            if (!ad.title.contains(filters["title"]!!, ignoreCase = true)) {
+                ad.visible = false
+            }
+
+            if (!ad.description.contains(filters["description"]!!, ignoreCase = true)) {
+                ad.visible = false
+            }
+            if(filters["category"]!="") {
+                if (!filters["category"]!!.contains(ad.type, ignoreCase = true)) {
+                    ad.visible = false
+                }
+            }
+
+
+            if(filters["dateHour"]!="") {
+                val dates = filters["dateHour"]!!.split(",")
+                val dateFrom = dates[0]
+                val dateTo = dates[1]
+                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                val dateFromParsed = LocalDateTime.parse(dateFrom, formatter)
+                val dateToParsed = LocalDateTime.parse(dateTo, formatter)
+                if (LocalDateTime.parse(ad.datehour, formatter)
+                        .isBefore(dateFromParsed) || LocalDateTime.parse(ad.datehour, formatter)
+                        .isAfter(dateToParsed)
+                ) {
+                    ad.visible = false
+                }
+            }
+
+
+        }
+        updateList(newList)
+    }
+
+
+    fun sortByDate() {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        val sortedList = ads.sortedBy{ LocalDateTime.parse(it.datehour, formatter)}
+        updateList(sortedList)
+    }
+
+    fun sortByDateDesc() {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        val sortedList = ads.sortedByDescending{ LocalDateTime.parse(it.datehour, formatter)}
+        updateList(sortedList)
+    }
+
+    fun updateList(newAds: List<HomeFragment.HomeAlters>) {
+        val diffCallback = AdDiffCallback(ads, newAds)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        ads.clear()
+        ads.addAll(newAds)
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+
+
+    // DiffUtil Callback per calcolare le differenze tra vecchia e nuova lista
+    class AdDiffCallback(
+        private val oldList: List<HomeFragment.HomeAlters>,
+        private val newList: List<HomeFragment.HomeAlters>
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int = oldList.size
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id // Supponendo che HomeAlters abbia un campo 'id'
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+    }
+
+
 }
