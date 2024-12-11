@@ -68,4 +68,5 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation("com.mapbox.maps:android:11.8.1")
 }

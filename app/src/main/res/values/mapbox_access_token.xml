@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="mapbox_access_token" translatable="false" tools:ignore="UnusedResources">pk.eyJ1IjoiaXByb2JhYmlsaXNzaW1pMyIsImEiOiJjbTRqc2U5MmIwZm4yMmtzbDg3dHd6eHA4In0.KtqGZOhRJIJauKPBnw9rSQ</string>
+</resources>

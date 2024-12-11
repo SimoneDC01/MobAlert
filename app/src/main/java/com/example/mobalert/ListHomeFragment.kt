@@ -294,6 +294,12 @@ class ListHomeFragment : Fragment() {
             window.showAsDropDown(binding.filter)
         }
 
+        binding.mapView.setOnClickListener{
+            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.alerts_fragment, MapFragment())
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
 
         return binding.root
     }
