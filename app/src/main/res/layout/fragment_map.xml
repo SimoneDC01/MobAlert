@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".MapFragment">
 
+    <!-- TODO: Update blank fragment layout -->
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:mapbox_cameraTargetLat="39.5"
-        app:mapbox_cameraTargetLng="-98.0"
-        app:mapbox_cameraZoom="2.0"
+        app:mapbox_cameraTargetLat="41.8820214"
+        app:mapbox_cameraTargetLng="12.5032939"
+        app:mapbox_cameraZoom="18.0"
         app:mapbox_cameraPitch="0.0"
         app:mapbox_cameraBearing="0.0"
         app:mapbox_locationComponentEnabled="true"
-        app:mapbox_locationComponentPuckBearing="heading" />
+        app:mapbox_locationComponentPuckBearing="heading"/>
 
 </FrameLayout>
