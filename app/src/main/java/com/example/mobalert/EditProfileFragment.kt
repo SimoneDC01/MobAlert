@@ -19,11 +19,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
 import com.example.mobalert.databinding.FragmentEditProfileBinding
-import com.example.mobalert.databinding.FragmentProfileBinding
-import com.google.firebase.auth.UserProfileChangeRequest
+import com.yalantis.ucrop.UCrop
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
+import java.io.File
 import java.util.Calendar
 
 
@@ -92,108 +92,152 @@ class EditProfileFragment : Fragment() {
         }
 
         binding.imageButton.setOnClickListener {
-            //init popup menu param 1 is context and param 2 is the UI View (profileIma
-            val popupMenu = PopupMenu( this.context, binding.imageButton)
-            //add menu items to our popup menu Param#1 is GroupID, Param#2 is ItemID, P
+            val popupMenu = PopupMenu(this.context, binding.imageButton)
             popupMenu.menu.add(Menu.NONE, 1, 1, "Camera")
             popupMenu.menu.add(Menu.NONE, 2, 2, "Gallery")
-            //Show Popup Menu
             popupMenu.show()
-            //handle popup menu item click
+
             popupMenu.setOnMenuItemClickListener { item ->
-                //get the id of the menu item clicked
-                val itemId = item.itemId
-                //check which menu item is clicked based on itemId we got
-                if (itemId == 1) {
-                    //Camera is clicked
-                    Log.d("LOGIN", "imagePickDialog: Camera Clicked")
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        requestCameraPermission.launch(arrayOf(
-                            android.Manifest.permission.CAMERA))
+                when (item.itemId) {
+                    1 -> {
+                        Log.d("LOGIN", "imagePickDialog: Camera Clicked")
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            requestCameraPermission.launch(arrayOf(
+                                android.Manifest.permission.CAMERA
+                            ))
+                        } else {
+                            requestCameraPermission.launch(arrayOf(
+                                android.Manifest.permission.CAMERA,
+                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            ))
+                        }
                     }
-                    else{
-                        requestCameraPermission.launch(arrayOf(
-                            android.Manifest.permission.CAMERA,
-                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                    2 -> {
+                        Log.d("LOGIN", "imagePickDialog: Gallery Clicked")
+                        pickImageGallery()
                     }
-                } else {
-                    //Device version is below TIRAMISU. We need Camera & Storage permis
-                    Log.d("LOGIN", "imagePickDialog: Gallery Clicked")
-                    pickImageGallery()
                 }
                 true
             }
         }
 
+
         return binding.root
     }
 
+
+
+
+
     private val requestCameraPermission = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ){ result ->
-        var allAreGranted = true
-        for (isGranted in result.values){
-            allAreGranted = allAreGranted && isGranted
-        }
+    ) { result ->
+        val allAreGranted = result.values.all { it }
 
-        if (allAreGranted){
+        if (allAreGranted) {
             Log.d("LOGIN", "Permission granted")
             pickImageCamera()
-        }
-        else {
+        } else {
             Log.d("LOGIN", "Permission denied")
         }
     }
 
-    private fun pickImageCamera(){
-        val contentValues = ContentValues()
-        contentValues.put(MediaStore.Images.Media.TITLE, "Temp Image")
-        contentValues.put(MediaStore.Images.Media.DESCRIPTION, "Temp Image Description")
+    private fun pickImageCamera() {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.TITLE, "Temp Image")
+            put(MediaStore.Images.Media.DESCRIPTION, "Temp Image Description")
+        }
 
         imageUri = requireContext().contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
         )
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-        cameraAcrivityResultLauncher.launch(intent)
+
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+            putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+        }
+
+        cameraActivityResultLauncher.launch(intent)
     }
 
-    private val cameraAcrivityResultLauncher = registerForActivityResult(
+    private val cameraActivityResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ){ result ->
+    ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             Log.d("LOGIN", "Image Uri: $imageUri")
-            try {
-                Glide.with(this.activity).load(imageUri).into(binding.profileIv)
-            }
-            catch (e: Exception){
-                Log.d("LOGIN", "Error: $e")
-            }
-        }
-        else{
+            startCrop(imageUri)
+        } else {
             Log.d("LOGIN", "Image Pick Cancelled")
             Toast.makeText(this.activity, "Image Pick Cancelled", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun pickImageGallery(){
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.setType("image/*")
+    private fun pickImageGallery() {
+
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+        }
+
         galleryActivityResultLauncher.launch(intent)
+
     }
 
     private val galleryActivityResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result ->
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             imageUri = result.data?.data
-            try {
-                Glide.with(this.activity).load(imageUri).into(binding.profileIv)
-            } catch (e: Exception) {
-                Log.d("LOGIN", "Error: $e")
+            if (imageUri != null) {
+                startCrop(imageUri)
             }
         }
     }
+
+    private val cropImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val resultUri = UCrop.getOutput(result.data!!)
+            if (resultUri != null) {
+                Log.d("LOGIN", "Cropped Image URI: $resultUri")
+                Glide.with(requireContext())
+                    .load(resultUri)
+                    .into(binding.profileIv)
+            } else {
+                Log.d("LOGIN", "Cropped image URI is null")
+            }
+        } else if (result.resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(result.data!!)
+            Log.d("LOGIN", "Crop error: $cropError")
+        }
+    }
+
+
+    private fun startCrop(uri: Uri?) {
+        Log.d("LOGIN", "startCrop called with URI: $uri")
+        uri?.let {
+            try {
+                val uniqueFileName = "croppedImage_${System.currentTimeMillis()}.jpg"
+                val destinationUri = Uri.fromFile(File(requireContext().cacheDir, uniqueFileName))
+                val options = UCrop.Options().apply {
+                    setCompressionQuality(80)
+                    setFreeStyleCropEnabled(true)
+                    setHideBottomControls(false)
+                }
+                val uCropIntent = UCrop.of(it, destinationUri)
+                    .withOptions(options)
+                    .withAspectRatio(1f, 1f)
+                    .getIntent(requireContext())
+
+                cropImageLauncher.launch(uCropIntent)
+            } catch (e: Exception) {
+                Log.e("LOGIN", "Error starting UCrop: ${e.message}")
+            }
+        } ?: Log.e("LOGIN", "URI is null")
+    }
+
+
+
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.profileTv.text = auth.currentUser?.displayName
         super.onViewCreated(view, savedInstanceState)

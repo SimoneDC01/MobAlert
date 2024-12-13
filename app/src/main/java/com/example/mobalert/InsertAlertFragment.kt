@@ -25,6 +25,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.primitives.Bytes
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
+import com.yalantis.ucrop.UCrop
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -47,6 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -201,13 +203,8 @@ class InsertAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()
     ){ result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val modelImagePicked = ModelImagePicked(
-                id = 0,
-                imageUri = imageUri
-            )
-            imagesPickedArrayList.add(modelImagePicked)
-            Log.d("LOGIN", "arraryList: $imagesPickedArrayList")
-            loadImages()
+            startCrop(imageUri)
+
         }
         else{
             Log.d("LOGIN", "Image Pick Cancelled")
@@ -225,26 +222,60 @@ class InsertAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             imageUri = result.data?.data
+            startCrop(imageUri)
 
-            val modelImagePicked = ModelImagePicked(
-                id = 0,
-                imageUri = imageUri
-            )
 
-            imagesPickedArrayList.add(modelImagePicked)
-
-            loadImages()
-            /*try {
-                Glide.with(this.activity).load(imageUri).into(binding.AlertImage)
-            } catch (e: Exception) {
-                Log.d("LOGIN", "Error: $e")
-            }*/
         }
         else{
             Log.d("LOGIN", "Image Pick Cancelled")
             Toast.makeText(this.activity, "Image Pick Cancelled", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private val cropImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val resultUri = UCrop.getOutput(result.data!!)
+            if (resultUri != null) {
+                val modelImagePicked = ModelImagePicked(
+                    id = 0,
+                    imageUri = resultUri
+                )
+                Log.d("LOGIN", "Cropped Image URI: $resultUri")
+                imagesPickedArrayList.add(modelImagePicked)
+                loadImages()
+            } else {
+                Log.d("LOGIN", "Cropped image URI is null")
+            }
+        } else if (result.resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(result.data!!)
+            Log.d("LOGIN", "Crop error: $cropError")
+        }
+    }
+
+
+    private fun startCrop(uri: Uri?) {
+        Log.d("LOGIN", "startCrop called with URI: $uri")
+        uri?.let {
+            try {
+                val uniqueFileName = "croppedImage_${System.currentTimeMillis()}.jpg"
+                val destinationUri = Uri.fromFile(File(requireContext().cacheDir, uniqueFileName))
+                val options = UCrop.Options().apply {
+                    setCompressionQuality(80)
+                    setFreeStyleCropEnabled(true)
+                    setHideBottomControls(false)
+                }
+                val uCropIntent = UCrop.of(it, destinationUri)
+                    .withOptions(options)
+                    .withAspectRatio(1f, 1f)
+                    .getIntent(requireContext())
+
+                cropImageLauncher.launch(uCropIntent)
+            } catch (e: Exception) {
+                Log.e("LOGIN", "Error starting UCrop: ${e.message}")
+            }
+        } ?: Log.e("LOGIN", "URI is null")
+    }
+
 
     private fun loadImages() {
         Log.d("LOGIN", "loadImages: ")
