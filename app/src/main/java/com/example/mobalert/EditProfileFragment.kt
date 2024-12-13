@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.ContentValues
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,21 +20,55 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
+import com.example.mobalert.HomeFragment.Alert
+import com.example.mobalert.HomeFragment.HomeAlters
 import com.example.mobalert.databinding.FragmentEditProfileBinding
 import com.yalantis.ucrop.UCrop
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpResponse
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readBytes
+import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.Calendar
 
 
 class EditProfileFragment : Fragment() {
     private lateinit var binding: FragmentEditProfileBinding
+    private lateinit var ImageProfile: Uri
     private val auth = Firebase.auth
     private var database = FirebaseDatabase.getInstance()
     private var reference = database.reference.child("Users")
     private var imageUri: Uri? = null
+
+    private val client = HttpClient {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
 
     override fun onStart() {
         super.onStart()
@@ -53,6 +89,21 @@ class EditProfileFragment : Fragment() {
     ): View? {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false);
         // Inflate the layout for this fragment
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val image = getImage(auth.uid.toString())
+                withContext(Dispatchers.Main) {
+                    Glide.with(requireContext())
+                        .load(image)
+                        .into(binding.profileIv)
+                }
+            } catch (e: Exception) {
+                // Handle exceptions if necessary
+                e.printStackTrace()
+            }
+        }
+
+
 
 
         binding.updateProfileButton.setOnClickListener {
@@ -68,6 +119,41 @@ class EditProfileFragment : Fragment() {
             .addOnFailureListener { e ->
                 Log.e("LOGIN", "updateUserInfo: ", e)
             }
+
+
+            val imageBytes = requireContext().contentResolver.openInputStream(ImageProfile)?.use { inputStream ->
+                inputStream.readBytes()
+            } ?: throw IllegalArgumentException("Unable to read bytes from input stream ")
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response: io.ktor.client.statement.HttpResponse =
+                        client.post("${MainActivity.url}/InsertProfileImage") {
+                            contentType(ContentType.MultiPart.FormData)
+                            setBody(
+                                MultiPartFormDataContent(
+                                    formData {
+                                        append("file", imageBytes, Headers.build {
+                                            append(
+                                                HttpHeaders.ContentDisposition,
+                                                "filename=${auth.uid}.jpg"
+                                            )
+                                        })
+                                    }
+                                )
+                            )
+                        }
+
+                    if (response.status == HttpStatusCode.Created) {
+                        val result = response.bodyAsText()
+                        Log.d("LOGIN", "Server response: $result")
+                    } else {
+                        Log.e("LOGIN", "Request error: ${response.status}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("LOGIN", "Error during request: $e")
+                }
+            }
+
             parentFragmentManager.beginTransaction()
                 .replace(R.id.Fragment, ProfileFragment())
                 .addToBackStack(null)
@@ -197,10 +283,12 @@ class EditProfileFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             val resultUri = UCrop.getOutput(result.data!!)
             if (resultUri != null) {
+                ImageProfile = resultUri
                 Log.d("LOGIN", "Cropped Image URI: $resultUri")
                 Glide.with(requireContext())
                     .load(resultUri)
                     .into(binding.profileIv)
+
             } else {
                 Log.d("LOGIN", "Cropped image URI is null")
             }
@@ -236,7 +324,25 @@ class EditProfileFragment : Fragment() {
 
 
 
+    private suspend fun getImage(image: String): Bitmap? {
+        var url : String
+        url = "${MainActivity.url}/images/$image.jpg"
+        try {
+            val response: io.ktor.client.statement.HttpResponse = client.get(url)
+            if (response.status == HttpStatusCode.OK) {
+                val bytes = response.readBytes()
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 
+                return bitmap
+            } else {
+                Log.e("LOGIN", "Errore nella richiesta img: ${response.status}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta img: $e")
+            return null
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.profileTv.text = auth.currentUser?.displayName

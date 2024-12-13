@@ -88,6 +88,10 @@ class InsertAlertFragment : Fragment() {
 
         imagesPickedArrayList = ArrayList()
 
+        binding.IAButtonAlert.setOnClickListener{
+            Log.d("LOGIN", "IA Help")
+        }
+
         binding.InsertAlertButton.setOnClickListener {
 
             var images =""
@@ -313,16 +317,7 @@ class InsertAlertFragment : Fragment() {
                                         append(HttpHeaders.ContentDisposition, "filename=$i.jpg")
                                     })
                             }
-                            /*
-                            listImages.forEachIndexed { index, imageBytes ->
-                                append(
-                                    "file",
-                                    imageBytes,
-                                    Headers.build {
-                                        append(HttpHeaders.ContentDisposition, "filename=\"$index.jpg\"")
-                                    }
-                                )
-                            }*/
+
                         }
                     )
                 )
