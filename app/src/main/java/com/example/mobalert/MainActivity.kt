@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+
 class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
 
@@ -21,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         if(savedInstanceState == null){
@@ -99,6 +99,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val url = "http://192.168.1.12:5000"
+        const val url = "http://192.168.1.86:5000"
     }
 }

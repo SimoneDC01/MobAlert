@@ -1,6 +1,8 @@
 package com.example.mobalert
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -14,12 +16,32 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.lang.Thread.sleep
 import androidx.fragment.app.FragmentManager
+import com.bumptech.glide.Glide
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.statement.readBytes
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
 class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentProfileBinding
     private val auth = Firebase.auth
     private var database = FirebaseDatabase.getInstance()
     private var reference = database.reference.child("Users")
+    private val client = HttpClient {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
 
     override fun onStart() {
         super.onStart()
@@ -41,7 +63,19 @@ class ProfileFragment : Fragment() {
     ): View? {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val image = getImage(auth.uid.toString())
+                withContext(Dispatchers.Main) {
+                    Glide.with(requireContext())
+                        .load(image)
+                        .into(binding.profileIv)
+                }
+            } catch (e: Exception) {
+                // Handle exceptions if necessary
+                e.printStackTrace()
+            }
+        }
         binding.logoutCv.setOnClickListener {
             Log.d("LOGIN", "Logout button clicked")
             auth.signOut()
@@ -84,6 +118,27 @@ class ProfileFragment : Fragment() {
 
         return binding.root
     }
+
+    private suspend fun getImage(image: String): Bitmap? {
+        var url : String
+        url = "${MainActivity.url}/images/$image.jpg"
+        try {
+            val response: io.ktor.client.statement.HttpResponse = client.get(url)
+            if (response.status == HttpStatusCode.OK) {
+                val bytes = response.readBytes()
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+                return bitmap
+            } else {
+                Log.e("LOGIN", "Errore nella richiesta img: ${response.status}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta img: $e")
+            return null
+        }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
