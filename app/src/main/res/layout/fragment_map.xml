@@ -20,4 +20,13 @@
         app:mapbox_locationComponentEnabled="true"
         app:mapbox_locationComponentPuckBearing="heading"/>
 
+   <include
+       layout="@layout/alert_el"
+       android:id="@+id/include"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="bottom"
+       android:visibility="gone">
+   </include>
+
 </FrameLayout>

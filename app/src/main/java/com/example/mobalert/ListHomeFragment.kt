@@ -53,6 +53,8 @@ class ListHomeFragment : Fragment() {
 
     private lateinit var adapter: AdAdapter
 
+    private var alerts = mutableListOf<Alert>()
+
     private var filters= mutableMapOf(
         "title" to "",
         "description" to "",
@@ -100,11 +102,11 @@ class ListHomeFragment : Fragment() {
                 when (item.itemId) {
                     1 -> {
                         Log.d("LOGIN", "Recent Date")
-                        adapter.sortByDate()
+                        adapter.sortByDateDesc()
                     }
                     2 -> {
                         Log.d("LOGIN", "Old Date")
-                        adapter.sortByDateDesc()
+                        adapter.sortByDate()
                     }
                 }
                 true
@@ -295,8 +297,15 @@ class ListHomeFragment : Fragment() {
         }
 
         binding.mapView.setOnClickListener{
+
+            val bundle = Bundle()
+            bundle.putSerializable("alerts", ArrayList(alerts))
+
+            val fragment = MapFragment()
+            fragment.arguments = bundle
+
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.alerts_fragment, MapFragment())
+            transaction.replace(R.id.alerts_fragment, fragment)
             transaction.addToBackStack(null)
             transaction.commit()
         }
@@ -309,7 +318,7 @@ class ListHomeFragment : Fragment() {
         try {
             val response: HttpResponse = client.get(url)
             if (response.status == HttpStatusCode.OK) {
-                val alerts: List<Alert> = Json.decodeFromString(response.bodyAsText())
+                alerts = Json.decodeFromString(response.bodyAsText())
                 var homealerts = mutableListOf<HomeAlters>()
                 for (alert in alerts) {
                     var my_images: ArrayList<Bitmap?> = ArrayList()

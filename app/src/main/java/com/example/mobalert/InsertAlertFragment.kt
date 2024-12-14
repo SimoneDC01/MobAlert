@@ -9,6 +9,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -19,6 +21,7 @@ import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.mobalert.databinding.FragmentInsertAlertBinding
 import com.google.firebase.auth.ktx.auth
@@ -50,6 +53,14 @@ import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 class InsertAlertFragment : Fragment() {
     private lateinit var binding: FragmentInsertAlertBinding
@@ -161,6 +172,8 @@ class InsertAlertFragment : Fragment() {
                 true
             }
         }
+
+        setupEditText()
 
         // Restituisci la vista associata al binding
         return binding.root
@@ -377,6 +390,100 @@ class InsertAlertFragment : Fragment() {
         }
     }
 
+    private fun fetchAddressSuggestions(query: String) {
+        Log.d("LOGIN", "fetchAddressSuggestions: $query")
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.mapbox.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        Log.d("LOGIN", "fetchAddressSuggestions: 1")
+
+        val service = retrofit.create(GeocodingService::class.java)
+        val call = service.getSuggestions(query, "sk.eyJ1IjoiaXByb2JhYmlsaXNzaW1pMyIsImEiOiJjbTRsOXM1cDkxMGhiMmtyM3N1MHJjNHgyIn0.BbTuFcHNuFteXvY7GFXUrw")
+
+
+        Log.d("LOGIN", "fetchAddressSuggestions: 2")
+
+        call.enqueue(object : Callback<Map<String, Any>> {
+            override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
+                if (response.isSuccessful) {
+                    Log.d("LOGIN", "fetchAddressSuggestions: 3")
+
+                    val features = (response.body()?.get("features") as? List<*>)?.filterIsInstance<Map<String, Any>>()
+                    val suggestions = features?.mapNotNull { it["place_name"] as? String } ?: emptyList()
+                    Log.d("LOGIN", "fetchAddressSuggestions: $suggestions")
+
+                    // Aggiorna i suggerimenti nel RecyclerView
+                    updateSuggestions(suggestions)
+                } else {
+                    Log.e("LOGIN", "Errore nella risposta: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
+                Log.e("LOGIN", "Errore: ${t.message}")
+            }
+        })
+    }
+
+    interface GeocodingService {
+        @GET("geocoding/v5/mapbox.places/{query}.json")
+        fun getSuggestions(
+            @Path("query") query: String,
+            @Query("access_token") accessToken: String,
+            @Query("autocomplete") autocomplete: Boolean = true,
+            @Query("limit") limit: Int = 5
+        ): Call<Map<String, Any>>
+    }
+
+    private fun setupEditText() {
+        val editText = binding.editPosition
+        val recyclerView = binding.recyclerViewSuggestions
+
+        Log.d("LOGIN", "setupEditText: 1")
+        val suggestionsAdapter = SuggestionsAdapter(emptyList()) { selectedAddress ->
+            editText.setText(selectedAddress)
+            recyclerView.visibility = View.GONE
+        }
+        Log.d("LOGIN", "setupEditText: 2")
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = suggestionsAdapter
+
+        Log.d("LOGIN", "setupEditText: 3")
+
+        editText.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                Log.d("LOGIN", "onTextChanged: $s")
+                val query = s.toString()
+                if (query.isNotEmpty()) {
+                    recyclerView.visibility = View.VISIBLE
+                    fetchAddressSuggestions(query)
+                } else {
+                    recyclerView.visibility = View.GONE
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private fun updateSuggestions(suggestions: List<String>) {
+        val recyclerView = binding.recyclerViewSuggestions
+        val onItemClick: (String) -> Unit = { suggestion ->
+           Log.d("LOGIN", "hai cliccato: $suggestion")
+            binding.editPosition.setText(suggestion)
+            binding.recyclerViewSuggestions.visibility = View.GONE
+        }
+        val adapter = SuggestionsAdapter(suggestions, onItemClick)
+        Log.d("LOGIN", "updateSuggestions: $suggestions")
+
+        recyclerView.adapter = adapter
+
+    }
 
 
 }

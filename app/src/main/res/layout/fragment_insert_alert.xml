@@ -195,6 +195,13 @@
 
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerViewSuggestions"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/PositionTil"
+                            android:visibility="gone" />
+
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/InsertAlertButton"
@@ -202,7 +209,7 @@
                             android:layout_height="wrap_content"
                             android:minHeight="@dimen/m_button_height"
                             android:text="Insert Alert"
-                            android:layout_below="@id/PositionTil"
+                            android:layout_below="@id/recyclerViewSuggestions"
                             android:layout_marginTop="25dp"
                             />
 

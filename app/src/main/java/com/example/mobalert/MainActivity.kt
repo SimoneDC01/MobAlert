@@ -99,6 +99,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val url = "http://192.168.1.58:5000"
+        const val url = "http://192.168.1.12:5000"
     }
 }

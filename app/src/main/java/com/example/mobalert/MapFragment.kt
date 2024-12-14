@@ -11,8 +11,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.WrappedDrawable
 import androidx.core.graphics.drawable.toBitmap
 import com.example.mobalert.databinding.FragmentMapBinding
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -56,10 +59,8 @@ class MapFragment : Fragment() {
 
     private lateinit var pointAnnotationManager: PointAnnotationManager
 
-    private val markerMap = mutableMapOf<PointAnnotation, String>()
-    private var markerIdCounter = 0
+    private val markerMap = mutableMapOf<PointAnnotation, HomeFragment.Alert>()
 
-    lateinit var permissionsManager: PermissionsManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +75,27 @@ class MapFragment : Fragment() {
     ): View? {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        val alerts = arguments?.getSerializable("alerts") as ArrayList<HomeFragment.Alert>
+
+
+        // Usa la lista come preferisci
+        alerts.forEach { alert ->
+            when (alert.type) {
+                "Info" -> {
+                    convertAddressToCoordinates(alert.position, R.drawable.location_green, alert)
+                }
+                "Warning" -> {
+                    convertAddressToCoordinates(alert.position, R.drawable.location_yellow, alert)
+                }
+                "Emergency" -> {
+                    convertAddressToCoordinates(alert.position, R.drawable.location_orange, alert)
+                }
+                "Critical" -> {
+                    convertAddressToCoordinates(alert.position, R.drawable.location_red, alert)
+                }
+            }
+        }
 
         // Controlla e richiedi i permessi
         checkAndRequestPermissions()
@@ -137,6 +159,7 @@ class MapFragment : Fragment() {
         }
     }
 
+
     private fun getLastKnownLocation() {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -187,11 +210,11 @@ class MapFragment : Fragment() {
             }
     }
 
-    private fun addMarker(longitude: Double, latitude: Double) {
+    private fun addMarker(longitude: Double, latitude: Double, drawable: Int, alert: HomeFragment.Alert) {
         val point = Point.fromLngLat(longitude, latitude)
 
         // Converti il drawable in bitmap
-        val drawable = ContextCompat.getDrawable(requireContext(), R.drawable.location_red)
+        val drawable = ContextCompat.getDrawable(requireContext(), drawable)
         val bitmap = drawable?.toBitmap()
 
         // Converte il layout in Bitmap
@@ -206,20 +229,23 @@ class MapFragment : Fragment() {
                     .withIconImage(it)
             )
 
-            markerMap[pointAnnotationManager.annotations.last()] = markerIdCounter.toString()
-            markerIdCounter++
+            markerMap[pointAnnotationManager.annotations.last()] = alert
         }
     }
 
     private fun setupMarkerClickListener() {
         pointAnnotationManager.addClickListener { annotation ->
-            val id = markerMap[annotation]
-            if (id != null) {
-                // Gestisci l'azione per il marker cliccato
-                Toast.makeText(requireContext(), "Marker cliccato con ID: $id", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "Marker cliccato!", Toast.LENGTH_SHORT).show()
-            }
+            val alert = markerMap[annotation]
+
+            Log.d("LOGIN", "Marker cliccato con alert: $alert")
+            // Gestisci l'azione per il marker cliccat
+            val include = view?.findViewById<View>(R.id.include)
+            include?.visibility = View.VISIBLE
+            binding.include.titleTv.text = alert?.title
+            binding.include.categoryTv.text = alert?.type
+            binding.include.descriptionTv.text = alert?.description
+            binding.include.dateTv.text = alert?.datehour
+            Toast.makeText(requireContext(), "Marker cliccato con ID: ${alert?.id}", Toast.LENGTH_SHORT).show()
             true // Ritorna true per consumare l'evento
         }
     }
@@ -237,6 +263,7 @@ class MapFragment : Fragment() {
     private fun onMapClick(point: Point) {
         val latitude = point.latitude()
         val longitude = point.longitude()
+        view?.findViewById<View>(R.id.include)?.visibility = View.GONE
 
         Log.d("MAP_CLICK", "Lat: $latitude, Lon: $longitude")
         Toast.makeText(requireContext(), "Punto cliccato: Lat: $latitude, Lon: $longitude", Toast.LENGTH_SHORT).show()
@@ -279,7 +306,7 @@ class MapFragment : Fragment() {
                     val features = (body?.get("features") as? List<*>)?.filterIsInstance<Map<String, Any>>()
                     if (!features.isNullOrEmpty()) {
                         val address = features[0]["place_name"] as? String
-                        convertAddressToCoordinates(address!!)
+                        //convertAddressToCoordinates(address!!)
                         Log.d("LOGIN", "Indirizzo trovato: $address")
                     } else {
                         Log.d("LOGIN", "Nessun indirizzo trovato.")
@@ -297,7 +324,7 @@ class MapFragment : Fragment() {
 
 
 
-    fun convertAddressToCoordinates(address: String) {
+    fun convertAddressToCoordinates(address: String, drawable: Int, alert: HomeFragment.Alert) {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.mapbox.com/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -317,7 +344,7 @@ class MapFragment : Fragment() {
                         if (coordinates != null && coordinates.size >= 2) {
                             val longitude = coordinates[0]
                             val latitude = coordinates[1]
-                            addMarker(longitude, latitude)
+                            addMarker(longitude, latitude, drawable,alert)
                             setupMarkerClickListener()
                             Log.d("LOGIN", "Coordinate trovate: Lat: $latitude, Lon: $longitude")
                         } else {
