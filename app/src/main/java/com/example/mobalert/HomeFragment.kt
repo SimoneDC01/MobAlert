@@ -51,7 +51,7 @@ class HomeFragment : Fragment() {
         val datehour: String,
         val description: String,
         val id: Int,
-        val iduser: String,
+        var iduser: String,
         val position: String,
         val title: String,
         val type: String,
@@ -84,6 +84,7 @@ class HomeFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+        homeBinding = binding
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
         referece = database.reference.child("Users")
@@ -94,62 +95,6 @@ class HomeFragment : Fragment() {
 
         goToFragment(ListHomeFragment())
 
-
-        /*
-        binding.insert.setOnClickListener{
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val payload = Alert(
-                        "2024-12-03T12:00:00",
-                        "Descrizione di esempio",
-                        1,
-                        "Titolo di esempio",
-                        "Posizione di esempio",
-                        "123456789",
-                        "Tipo di esempio"
-                    )
-                    insertAlert(payload)
-                    withContext(Dispatchers.Main) {
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                    }
-                }
-            }
-        }
-
-        binding.delete.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    deleteAlert(1)
-                    withContext(Dispatchers.Main) {
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                    }
-                }
-            }
-        }
-
-        binding.update.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val payload = UpdateAlert(
-                        "Descrizione aggiornata",
-                        "Tipo aggiornato",
-                        "Titolo aggiornato"
-                    )
-                    updateAlert(2, payload)
-                    withContext(Dispatchers.Main) {
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                    }
-                }
-            }
-        }
-
-         */
         return binding.root
     }
 
@@ -168,67 +113,7 @@ class HomeFragment : Fragment() {
         .commit() // Applica la transazione
     }
 
-
-/*
-    suspend fun insertAlert(alert: Alert) {
-        val url = "https://deep-jaybird-exotic.ngrok-free.app/alerts"
-        try {
-            val response: HttpResponse = client.post(url) {
-                contentType(ContentType.MultiPart.FormData)
-                setBody(
-                    MultiPartFormDataContent(
-                        formData {
-                            // Aggiungi il corpo dell'alert come parte della richiesta
-                            append("alert", alert)
-
-                            // Aggiungi il file come parte della richiesta
-                            append("file", file.readBytes(), Headers.build {
-                                append(HttpHeaders.ContentDisposition, "filename=\"${file.name}\"")
-                            })
-                        }
-                    )
-            }
-            if (response.status == HttpStatusCode.Created) {
-                val result = response.bodyAsText()
-               Log.d("LOGIN", "Risposta dal server: $result")
-            } else {
-                Log.e("LOGIN", "Errore nella richiesta: ${response.status}")
-            }
-        } catch (e: Exception) {
-            Log.e("LOGIN", "Errore durante la richiesta: $e")
-        }
+    companion object{
+        var homeBinding: FragmentHomeBinding? = null
     }
-
-    suspend fun deleteAlert(itemId: Int) {
-        val url = "https://deep-jaybird-exotic.ngrok-free.app/alerts/$itemId"
-        try {
-            val response: HttpResponse = client.delete(url)
-            when (response.status) {
-                HttpStatusCode.OK -> Log.d("LOGIN", "Alert con ID $itemId eliminato con successo.")
-                HttpStatusCode.NotFound -> Log.e("LOGIN", "Alert con ID $itemId non trovato.")
-                else -> Log.e("LOGIN", "Errore nell'eliminazione: ${response.status}")
-            }
-        } catch (e: Exception) {
-            Log.e("LOGIN", "Errore durante la richiesta: $e")
-        }
-    }
-
-    suspend fun updateAlert(itemId: Int, update: UpdateAlert) {
-        val url = "https://deep-jaybird-exotic.ngrok-free.app/alerts/$itemId"
-        try {
-            val response: HttpResponse = client.put(url) {
-                contentType(ContentType.Application.Json)
-                setBody(update)
-            }
-            when (response.status) {
-                HttpStatusCode.OK -> Log.d("LOGIN", "Alert con ID $itemId aggiornato con successo.")
-                HttpStatusCode.NotFound -> Log.e("LOGIN", "Alert con ID $itemId non trovato.")
-                else -> Log.e("LOGIN", "Errore nell'aggiornamento: ${response.status}")
-            }
-        } catch (e: Exception) {
-            Log.e("LOGIN", "Errore durante la richiesta: $e")
-        }
-    }*/
-
-
 }

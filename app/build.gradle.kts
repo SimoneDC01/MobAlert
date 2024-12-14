@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     kotlin("plugin.serialization") version "1.9.10"
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -74,5 +75,5 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation("com.mapbox.maps:android:11.8.1")
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:6.5.0")
-    implementation ("com.github.yalantis:ucrop:2.2.8")
+    implementation ("com.github.yalantis:ucrop:2.2.10")
 }

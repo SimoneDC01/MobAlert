@@ -81,6 +81,7 @@ class ListHomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentListHomeBinding.inflate(inflater, container, false);
+        HomeFragment.homeBinding?.addAlert?.visibility = View.VISIBLE
 
         CoroutineScope(Dispatchers.IO).launch {
             try {

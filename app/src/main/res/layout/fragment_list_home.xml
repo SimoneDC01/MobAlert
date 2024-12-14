@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:text="Filter">
     </Button>
-
     <Button
         android:id="@+id/order_by"
         android:layout_width="wrap_content"
@@ -37,21 +36,4 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/alert_el">
     </androidx.recyclerview.widget.RecyclerView>
-
-    <!--
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/order"
-        android:src="@color/black"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </com.google.android.material.floatingactionbutton.FloatingActionButton>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/orderdesc"
-        android:src="@color/black"
-        android:layout_marginLeft="50dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </com.google.android.material.floatingactionbutton.FloatingActionButton>
--->
 </RelativeLayout>

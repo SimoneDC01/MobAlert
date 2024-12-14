@@ -1,29 +1,33 @@
 package com.example.mobalert
 
+import AdAdapter
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.location.Location
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.PopupWindow
 import android.widget.Toast
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.WrappedDrawable
 import androidx.core.graphics.drawable.toBitmap
 import com.example.mobalert.databinding.FragmentMapBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.gson.JsonObject
-import com.mapbox.android.core.permissions.PermissionsListener
-import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.api.geocoding.v5.MapboxGeocoding
+import com.google.firebase.database.FirebaseDatabase
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.Style
@@ -34,9 +38,19 @@ import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.api.geocoding.v5.models.CarmenFeature
-import com.mapbox.api.geocoding.v5.models.GeocodingResponse
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readBytes
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
 import retrofit2.Call
 import retrofit2.Callback
@@ -46,8 +60,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-
-
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 
 
 class MapFragment : Fragment() {
@@ -60,7 +77,27 @@ class MapFragment : Fragment() {
     private lateinit var pointAnnotationManager: PointAnnotationManager
 
     private val markerMap = mutableMapOf<PointAnnotation, HomeFragment.Alert>()
+    private val imagesAlert = mutableMapOf<Int, ArrayList<Bitmap?>>()
 
+    private var database = FirebaseDatabase.getInstance()
+    private var reference = database.reference.child("Users")
+
+    private val client = HttpClient {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
+
+    private var filters= mutableMapOf(
+        "title" to "",
+        "description" to "",
+        "username" to "",
+        "dateHour" to "",
+        "category" to ""
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,12 +112,47 @@ class MapFragment : Fragment() {
     ): View? {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        HomeFragment.homeBinding?.addAlert?.visibility = View.GONE
+        binding.listView.setOnClickListener {
+            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.alerts_fragment, ListHomeFragment())
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
 
         val alerts = arguments?.getSerializable("alerts") as ArrayList<HomeFragment.Alert>
 
 
         // Usa la lista come preferisci
         alerts.forEach { alert ->
+
+            if (!imagesAlert.containsKey(alert.id)) {
+                imagesAlert[alert.id] = ArrayList()
+            }
+
+            var my_images_name : List<String> = alert.image.split(",")
+            for (image in my_images_name) {
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val bitmap = getImage(alert.id, image)
+                        if (bitmap != null) {
+                            imagesAlert[alert.id]!!.add(bitmap)
+                        }
+                        withContext(Dispatchers.Main) {
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                        }
+                    }
+                }
+
+            }
+
+            reference.child(alert.iduser.toString()).get().addOnSuccessListener {
+                alert.iduser = it.child("name").value.toString()
+            }
+
             when (alert.type) {
                 "Info" -> {
                     convertAddressToCoordinates(alert.position, R.drawable.location_green, alert)
@@ -112,7 +184,304 @@ class MapFragment : Fragment() {
             true
         }
 
+        binding.filter.setOnClickListener {
+            val window = PopupWindow(requireContext())
+            val view = layoutInflater.inflate(R.layout.filter_layout, null)
+            window.contentView = view
+            window.isFocusable = true
+            window.isOutsideTouchable = true
+            window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
+            val button = view.findViewById<Button>(R.id.submitFilter)
+            val editText = view.findViewById<EditText>(R.id.title)
+            val username=view.findViewById<EditText>(R.id.username)
+            val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
+            val reset=view.findViewById<Button>(R.id.Reset)
+            val elemTo=view.findViewById<EditText>(R.id.dateTo)
+            setupDateTimePicker(elemFrom)
+            setupDateTimePicker(elemTo)
+            val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+            cat1.setOnClickListener {
+                // Puoi controllare lo stato della checkbox manualmente
+                if (cat1.isChecked) {
+                    if(filters["category"]==""){
+                        filters["category"]="Info"
+                    }
+                    else{
+                        filters["category"]+=",Info"
+                    }
+                    // Azione quando è selezionata
+                    filter(filters, alerts)
+                } else {
+
+
+                    filters["category"] = filters["category"]!!.replace(",Info", "")
+                    filters["category"] = filters["category"]!!.replace("Info", "")
+                    filter(filters, alerts)
+
+                }
+            }
+
+            val cat2=view.findViewById<CheckBox>(R.id.Cat2)
+            cat2.setOnClickListener {
+                // Puoi controllare lo stato della checkbox manualmente
+                if (cat2.isChecked) {
+                    if(filters["category"]==""){
+                        filters["category"]="Warning"
+                    }
+                    else{
+                        filters["category"]+=",Warning"
+                    }
+                    // Azione quando è selezionata
+                    filter(filters, alerts)
+                } else {
+
+                    filters["category"] = filters["category"]!!.replace(",Warning", "")
+                    filters["category"] = filters["category"]!!.replace("Warning", "")
+                    filter(filters, alerts)
+
+                }
+            }
+
+            val cat3=view.findViewById<CheckBox>(R.id.Cat3)
+            cat3.setOnClickListener {
+                // Puoi controllare lo stato della checkbox manualmente
+                if (cat3.isChecked) {
+                    if(filters["category"]==""){
+                        filters["category"]="Emergency"
+                    }
+                    else{
+                        filters["category"]+=",Emergency"
+                    }
+                    // Azione quando è selezionata
+                    filter(filters, alerts)
+                } else {
+
+                    filters["category"] = filters["category"]!!.replace(",Emergency", "")
+                    filters["category"] = filters["category"]!!.replace("Emergency", "")
+                    filter(filters, alerts)
+
+                }
+            }
+
+            val cat4=view.findViewById<CheckBox>(R.id.Cat4)
+            cat4.setOnClickListener {
+                // Puoi controllare lo stato della checkbox manualmente
+                if (cat4.isChecked) {
+                    if(filters["category"]==""){
+                        filters["category"]="Critical"
+                    }
+                    else{
+                        filters["category"]+=",Critical"
+                    }
+                    // Azione quando è selezionata
+                    filter(filters, alerts)
+                } else {
+
+
+                    filters["category"] = filters["category"]!!.replace(",Critical", "")
+                    filters["category"] = filters["category"]!!.replace("Critical", "")
+                    filter(filters, alerts)
+
+                }
+            }
+
+            editText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    // Azioni prima che il testo cambi
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    // Azioni mentre il testo sta cambiando
+                    filters["title"] = s.toString()
+                    filter(filters, alerts)
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    // Azioni dopo che il testo è cambiato
+                    if (s != null) {
+                        println("Il testo è ora: $s")
+                    }
+                }
+            })
+
+            username.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    // Azioni prima che il testo cambi
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    // Azioni mentre il testo sta cambiando
+                    filters["username"] = s.toString()
+                    filter(filters, alerts)
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    // Azioni dopo che il testo è cambiato
+
+                }
+            })
+
+            val description = view.findViewById<EditText>(R.id.description)
+
+            description.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    // Azioni prima che il testo cambi
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    // Azioni mentre il testo sta cambiando
+                    filters["description"] = s.toString()
+                    filter(filters, alerts)
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    // Azioni dopo che il testo è cambiato
+                    if (s != null) {
+                        println("Il testo è ora: $s")
+                    }
+                }
+            })
+
+            button.setOnClickListener {
+                val datefrom = view.findViewById<EditText>(R.id.dateFrom)
+                val dateto = view.findViewById<EditText>(R.id.dateTo)
+                filters["dateHour"] = "${datefrom.text},${dateto.text}"
+                filter(filters, alerts)
+                window.dismiss()
+            }
+
+            reset.setOnClickListener {
+                //TO-DO: RESETTARE LA UI
+                filters["title"] = ""
+                filters["description"] = ""
+                filters["username"] = ""
+                filters["dateHour"] = ""
+                filters["category"] = ""
+                filter(filters, alerts)
+            }
+
+            window.showAsDropDown(binding.filter)
+        }
+
         return binding.root
+    }
+
+    private fun clearMarkers() {
+        pointAnnotationManager.deleteAll()
+        markerMap.clear()
+    }
+    
+    private fun filter(filters: MutableMap<String, String>, alerts: ArrayList<HomeFragment.Alert>) {
+        Log.d("LOGIN", "${filters}")
+        clearMarkers()
+
+        for (ad in alerts) {
+            var visible=true
+
+            if (!ad.title.contains(filters["title"]!!, ignoreCase = true)) {
+                visible = false
+            }
+
+            if (!ad.description.contains(filters["description"]!!, ignoreCase = true)) {
+                visible = false
+            }
+            if(filters["category"]!="") {
+                if (!filters["category"]!!.contains(ad.type, ignoreCase = true)) {
+                    visible = false
+                }
+            }
+
+
+            if (!ad.iduser.contains(filters["username"]!!, ignoreCase = true)) {
+                visible = false
+            }
+
+            if(filters["dateHour"]!="") {
+                val dates = filters["dateHour"]!!.split(",")
+                val dateFrom = dates[0]
+                val dateTo = dates[1]
+                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                val dateFromParsed = LocalDateTime.parse(dateFrom, formatter)
+                val dateToParsed = LocalDateTime.parse(dateTo, formatter)
+                if (LocalDateTime.parse(ad.datehour, formatter)
+                        .isBefore(dateFromParsed) || LocalDateTime.parse(ad.datehour, formatter)
+                        .isAfter(dateToParsed)
+                ) {
+                    visible = false
+                }
+            }
+
+            if(visible){
+                when (ad.type) {
+                    "Info" -> convertAddressToCoordinates(ad.position, R.drawable.location_green, ad)
+                    "Warning" -> convertAddressToCoordinates(ad.position, R.drawable.location_yellow, ad)
+                    "Emergency" -> convertAddressToCoordinates(ad.position, R.drawable.location_orange, ad)
+                    "Critical" -> convertAddressToCoordinates(ad.position, R.drawable.location_red, ad)
+                }
+            }
+        }
+    }
+
+    private fun setupDateTimePicker(elem:EditText) {
+        val calendar = Calendar.getInstance()
+
+        // Listener per clic su data/ora
+        elem.setOnClickListener {
+            // Mostra DatePickerDialog
+            DatePickerDialog(
+                requireContext(),
+                { _, year, month, dayOfMonth ->
+                    // Aggiorna la data nel calendario
+                    calendar.set(Calendar.YEAR, year)
+                    calendar.set(Calendar.MONTH, month)
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    // Mostra TimePickerDialog
+                    TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            // Aggiorna l'ora nel calendario
+                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                            calendar.set(Calendar.MINUTE, minute)
+
+                            // Formatta data e ora
+                            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                            val formattedDateTime = sdf.format(calendar.time)
+
+                            // Imposta il valore nel campo di testo
+                            elem.setText(formattedDateTime)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true // Usa formato 24 ore
+                    ).show()
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+    }
+
+    private suspend fun getImage(id : Int, image: String): Bitmap? {
+        var url : String
+        if (".jpg" in image) url = "${MainActivity.url}/images/${id.toString()}_$image"
+        else url = "${MainActivity.url}/images/${id.toString()}_$image.jpg"
+        try {
+            val response: HttpResponse = client.get(url)
+            if (response.status == HttpStatusCode.OK) {
+                val bytes = response.readBytes()
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+                return bitmap
+            } else {
+                Log.e("LOGIN", "Errore nella richiesta img: ${response.status}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta img: $e")
+            return null
+        }
     }
 
     private fun checkAndRequestPermissions() {
@@ -240,11 +609,27 @@ class MapFragment : Fragment() {
             Log.d("LOGIN", "Marker cliccato con alert: $alert")
             // Gestisci l'azione per il marker cliccat
             val include = view?.findViewById<View>(R.id.include)
-            include?.visibility = View.VISIBLE
+            //include?.visibility = View.VISIBLE
+            val payload = HomeFragment.HomeAlters(
+                alert!!.id,
+                alert!!.description,
+                alert!!.iduser,
+                alert!!.title,
+                alert!!.datehour,
+                alert!!.type,
+                alert!!.position,
+                imagesAlert[alert.id]!!,
+                true
+            )
+            val adapter = AdAdapter(requireContext(), mutableListOf(payload))
+            binding.alertsRv.adapter = adapter
+            /*
+            binding.include.usernameTv.text = alert?.iduser
             binding.include.titleTv.text = alert?.title
             binding.include.categoryTv.text = alert?.type
             binding.include.descriptionTv.text = alert?.description
             binding.include.dateTv.text = alert?.datehour
+            */
             Toast.makeText(requireContext(), "Marker cliccato con ID: ${alert?.id}", Toast.LENGTH_SHORT).show()
             true // Ritorna true per consumare l'evento
         }
@@ -263,7 +648,8 @@ class MapFragment : Fragment() {
     private fun onMapClick(point: Point) {
         val latitude = point.latitude()
         val longitude = point.longitude()
-        view?.findViewById<View>(R.id.include)?.visibility = View.GONE
+        //view?.findViewById<View>(R.id.include)?.visibility = View.GONE
+        binding.alertsRv.adapter = null
 
         Log.d("MAP_CLICK", "Lat: $latitude, Lon: $longitude")
         Toast.makeText(requireContext(), "Punto cliccato: Lat: $latitude, Lon: $longitude", Toast.LENGTH_SHORT).show()
