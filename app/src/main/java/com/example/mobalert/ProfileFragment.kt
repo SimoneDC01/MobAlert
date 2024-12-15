@@ -17,10 +17,14 @@ import com.google.firebase.ktx.Firebase
 import java.lang.Thread.sleep
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
+import com.example.mobalert.HomeFragment.Alert
+import com.example.mobalert.HomeFragment.HomeAlters
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readBytes
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -108,6 +112,16 @@ class ProfileFragment : Fragment() {
 
             //TO-DO ELIMINARE ANCHE GLI ALERT E L IMMAGINE PROFILO
 
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    DeleteProfileImage(auth.uid.toString())
+                    getAlerts()
+                } catch (e: Exception) {
+                    // Handle exceptions if necessary
+                    e.printStackTrace()
+                }
+            }
+
             reference.child(auth.uid.toString()).removeValue().addOnSuccessListener {
                 Log.d("LOGIN", "User deleted from database")
             }.addOnFailureListener {
@@ -155,6 +169,43 @@ class ProfileFragment : Fragment() {
             when (response.status) {
                 HttpStatusCode.OK -> Log.d("LOGIN", "Image con ID $image eliminato con successo.")
                 HttpStatusCode.NotFound -> Log.e("LOGIN", "Image con ID $image non trovato.")
+                else -> Log.e("LOGIN", "Errore nell'eliminazione: ${response.status}")
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta: $e")
+        }
+    }
+
+    private suspend fun getAlerts() {
+        Log.d("LOGIN", "id: ${auth.uid}")
+        val url = "${MainActivity.url}/myalerts/${auth.uid}"
+        try {
+            val response: HttpResponse = client.get(url)
+            if (response.status == HttpStatusCode.OK) {
+                val alerts: List<Alert> = Json.decodeFromString(response.bodyAsText())
+                var homealerts = mutableListOf<HomeAlters>()
+                Log.d("LOGIN", "alerts: $alerts")
+                for (alert in alerts) {
+                    val alertId=alert.id
+                    deleteAlert(alertId)
+                }
+                Log.d("LOGIN", "myalerts: $alerts")
+            } else {
+                Log.e("LOGIN", "Errore nella richiesta: ${response.status}")
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta: $e")
+        }
+    }
+
+
+    suspend fun deleteAlert(itemId: Int) {
+        val url = "${MainActivity.url}/alerts/$itemId"
+        try {
+            val response: HttpResponse = client.delete(url)
+            when (response.status) {
+                HttpStatusCode.OK -> Log.d("LOGIN", "Alert con ID $itemId eliminato con successo.")
+                HttpStatusCode.NotFound -> Log.e("LOGIN", "Alert con ID $itemId non trovato.")
                 else -> Log.e("LOGIN", "Errore nell'eliminazione: ${response.status}")
             }
         } catch (e: Exception) {
