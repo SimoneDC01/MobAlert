@@ -74,7 +74,7 @@ class MapFragment : Fragment() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private lateinit var pointAnnotationManager: PointAnnotationManager
+    private var pointAnnotationManager: PointAnnotationManager ?= null
 
     private val markerMap = mutableMapOf<PointAnnotation, HomeFragment.Alert>()
     private val imagesAlert = mutableMapOf<Int, ArrayList<Bitmap?>>()
@@ -192,161 +192,74 @@ class MapFragment : Fragment() {
             window.isOutsideTouchable = true
             window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
             val button = view.findViewById<Button>(R.id.submitFilter)
-            val editText = view.findViewById<EditText>(R.id.title)
+            val title = view.findViewById<EditText>(R.id.title)
             val username=view.findViewById<EditText>(R.id.username)
+            val description = view.findViewById<EditText>(R.id.description)
             val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
             val reset=view.findViewById<Button>(R.id.Reset)
             val elemTo=view.findViewById<EditText>(R.id.dateTo)
             setupDateTimePicker(elemFrom)
             setupDateTimePicker(elemTo)
-            val cat1=view.findViewById<CheckBox>(R.id.Cat1)
-            cat1.setOnClickListener {
-                // Puoi controllare lo stato della checkbox manualmente
-                if (cat1.isChecked) {
-                    if(filters["category"]==""){
-                        filters["category"]="Info"
-                    }
-                    else{
-                        filters["category"]+=",Info"
-                    }
-                    // Azione quando è selezionata
-                    filter(filters, alerts)
-                } else {
 
+            title.setText(filters["title"])
+            username.setText(filters["username"])
+            description.setText(filters["description"])
+            if(filters["dateHour"]!="") {
 
-                    filters["category"] = filters["category"]!!.replace(",Info", "")
-                    filters["category"] = filters["category"]!!.replace("Info", "")
-                    filter(filters, alerts)
-
-                }
+                elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                elemTo.setText(filters["dateHour"]!!.split(",")[1])
             }
+            else{
+                elemFrom.setText("")
+                elemTo.setText("")
+            }
+
+            val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+            setUpCategory(cat1,"Info",alerts)
 
             val cat2=view.findViewById<CheckBox>(R.id.Cat2)
-            cat2.setOnClickListener {
-                // Puoi controllare lo stato della checkbox manualmente
-                if (cat2.isChecked) {
-                    if(filters["category"]==""){
-                        filters["category"]="Warning"
-                    }
-                    else{
-                        filters["category"]+=",Warning"
-                    }
-                    // Azione quando è selezionata
-                    filter(filters, alerts)
-                } else {
-
-                    filters["category"] = filters["category"]!!.replace(",Warning", "")
-                    filters["category"] = filters["category"]!!.replace("Warning", "")
-                    filter(filters, alerts)
-
-                }
-            }
+            setUpCategory(cat2,"Warning",alerts)
 
             val cat3=view.findViewById<CheckBox>(R.id.Cat3)
-            cat3.setOnClickListener {
-                // Puoi controllare lo stato della checkbox manualmente
-                if (cat3.isChecked) {
-                    if(filters["category"]==""){
-                        filters["category"]="Emergency"
-                    }
-                    else{
-                        filters["category"]+=",Emergency"
-                    }
-                    // Azione quando è selezionata
-                    filter(filters, alerts)
-                } else {
-
-                    filters["category"] = filters["category"]!!.replace(",Emergency", "")
-                    filters["category"] = filters["category"]!!.replace("Emergency", "")
-                    filter(filters, alerts)
-
-                }
-            }
+            setUpCategory(cat3,"Emergency",alerts)
 
             val cat4=view.findViewById<CheckBox>(R.id.Cat4)
-            cat4.setOnClickListener {
-                // Puoi controllare lo stato della checkbox manualmente
-                if (cat4.isChecked) {
-                    if(filters["category"]==""){
-                        filters["category"]="Critical"
-                    }
-                    else{
-                        filters["category"]+=",Critical"
-                    }
-                    // Azione quando è selezionata
-                    filter(filters, alerts)
-                } else {
+            setUpCategory(cat4,"Critical",alerts)
 
+            setUpEditText(title, "title", alerts)
 
-                    filters["category"] = filters["category"]!!.replace(",Critical", "")
-                    filters["category"] = filters["category"]!!.replace("Critical", "")
-                    filter(filters, alerts)
+            setUpEditText(username, "username", alerts)
 
-                }
-            }
+            setUpEditText(description, "description", alerts)
 
-            editText.addTextChangedListener(object : TextWatcher {
+            elemFrom.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    // Azioni prima che il testo cambi
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Azioni mentre il testo sta cambiando
-                    filters["title"] = s.toString()
+                    filters["dateHour"] = "${s.toString()},${elemTo.text}"
                     filter(filters, alerts)
                 }
 
                 override fun afterTextChanged(s: Editable?) {
-                    // Azioni dopo che il testo è cambiato
-                    if (s != null) {
-                        println("Il testo è ora: $s")
-                    }
                 }
             })
 
-            username.addTextChangedListener(object : TextWatcher {
+            elemTo.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    // Azioni prima che il testo cambi
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Azioni mentre il testo sta cambiando
-                    filters["username"] = s.toString()
+                    filters["dateHour"] = "${elemFrom.text},${s.toString()}"
                     filter(filters, alerts)
                 }
 
                 override fun afterTextChanged(s: Editable?) {
-                    // Azioni dopo che il testo è cambiato
-
                 }
             })
 
-            val description = view.findViewById<EditText>(R.id.description)
-
-            description.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    // Azioni prima che il testo cambi
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Azioni mentre il testo sta cambiando
-                    filters["description"] = s.toString()
-                    filter(filters, alerts)
-                }
-
-                override fun afterTextChanged(s: Editable?) {
-                    // Azioni dopo che il testo è cambiato
-                    if (s != null) {
-                        println("Il testo è ora: $s")
-                    }
-                }
-            })
 
             button.setOnClickListener {
-                val datefrom = view.findViewById<EditText>(R.id.dateFrom)
-                val dateto = view.findViewById<EditText>(R.id.dateTo)
-                filters["dateHour"] = "${datefrom.text},${dateto.text}"
-                filter(filters, alerts)
                 window.dismiss()
             }
 
@@ -358,6 +271,7 @@ class MapFragment : Fragment() {
                 filters["dateHour"] = ""
                 filters["category"] = ""
                 filter(filters, alerts)
+                window.dismiss()
             }
 
             window.showAsDropDown(binding.filter)
@@ -366,13 +280,56 @@ class MapFragment : Fragment() {
         return binding.root
     }
 
+    private fun setUpEditText(elem: EditText, field: String, alerts: ArrayList<HomeFragment.Alert>){
+        elem.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Azioni prima che il testo cambi
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Azioni mentre il testo sta cambiando
+                filters[field] = s.toString()
+                filter(filters, alerts)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+        })
+    }
+
+    private fun setUpCategory(elem: CheckBox, category: String,alerts: ArrayList<HomeFragment.Alert>){
+        elem.isChecked = filters["category"]!!.contains(category)
+
+        elem.setOnClickListener {
+            // Puoi controllare lo stato della checkbox manualmente
+            if (elem.isChecked) {
+                if(filters["category"]==""){
+                    filters["category"]=category
+                }
+                else{
+                    filters["category"]+=",$category"
+                }
+                // Azione quando è selezionata
+                filter(filters, alerts)
+            } else {
+
+
+                filters["category"] = filters["category"]!!.replace(",$category", "")
+                filters["category"] = filters["category"]!!.replace(category, "")
+                filter(filters, alerts)
+
+            }
+        }
+    }
+
     private fun clearMarkers() {
-        pointAnnotationManager.deleteAll()
+        pointAnnotationManager?.deleteAll()
         markerMap.clear()
     }
     
     private fun filter(filters: MutableMap<String, String>, alerts: ArrayList<HomeFragment.Alert>) {
-        Log.d("LOGIN", "${filters}")
+        Log.d("LOGIN", "$filters")
         clearMarkers()
 
         for (ad in alerts) {
@@ -401,13 +358,35 @@ class MapFragment : Fragment() {
                 val dateFrom = dates[0]
                 val dateTo = dates[1]
                 val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-                val dateFromParsed = LocalDateTime.parse(dateFrom, formatter)
-                val dateToParsed = LocalDateTime.parse(dateTo, formatter)
-                if (LocalDateTime.parse(ad.datehour, formatter)
-                        .isBefore(dateFromParsed) || LocalDateTime.parse(ad.datehour, formatter)
-                        .isAfter(dateToParsed)
-                ) {
-                    visible = false
+                val dateFromParsed: LocalDateTime
+                val dateToParsed: LocalDateTime
+                if (dateFrom.isNotEmpty()) {
+                    dateFromParsed = LocalDateTime.parse(dateFrom, formatter)
+                    if (dateTo.isNotEmpty()) {
+                        dateToParsed = LocalDateTime.parse(dateTo, formatter)
+                        if (LocalDateTime.parse(ad.datehour, formatter)
+                                .isBefore(dateFromParsed) || LocalDateTime.parse(
+                                ad.datehour,
+                                formatter
+                            )
+                                .isAfter(dateToParsed)
+                        ) {
+                            visible = false
+                        }
+                    } else {
+                        if (LocalDateTime.parse(ad.datehour, formatter)
+                                .isBefore(dateFromParsed)
+                        ) {
+                            visible = false
+                        }
+                    }
+                } else if (dateTo.isNotEmpty()) {
+                    dateToParsed = LocalDateTime.parse(dateTo, formatter)
+                    if (LocalDateTime.parse(ad.datehour, formatter)
+                            .isAfter(dateToParsed)
+                    ) {
+                        visible = false
+                    }
                 }
             }
 
@@ -592,18 +571,24 @@ class MapFragment : Fragment() {
 
         // Registra il bitmap come icona nel gestore annotazioni
         bitmap?.let {
-            pointAnnotationManager.create(
+            pointAnnotationManager?.create(
                 PointAnnotationOptions()
                     .withPoint(point)
                     .withIconImage(it)
             )
 
-            markerMap[pointAnnotationManager.annotations.last()] = alert
+            try {
+                markerMap[pointAnnotationManager?.annotations!!.last()] = alert
+            }
+            catch (e: Exception){
+                Log.e("LOGIN", "Errore nell'aggiunta del marker $e")
+                Toast.makeText(requireContext(), "Errore nell'aggiunta del marker", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun setupMarkerClickListener() {
-        pointAnnotationManager.addClickListener { annotation ->
+        pointAnnotationManager?.addClickListener { annotation ->
             val alert = markerMap[annotation]
 
             Log.d("LOGIN", "Marker cliccato con alert: $alert")

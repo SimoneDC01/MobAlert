@@ -164,13 +164,35 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
                 val dateFrom = dates[0]
                 val dateTo = dates[1]
                 val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-                val dateFromParsed = LocalDateTime.parse(dateFrom, formatter)
-                val dateToParsed = LocalDateTime.parse(dateTo, formatter)
-                if (LocalDateTime.parse(ad.datehour, formatter)
-                        .isBefore(dateFromParsed) || LocalDateTime.parse(ad.datehour, formatter)
-                        .isAfter(dateToParsed)
-                ) {
-                    ad.visible = false
+                val dateFromParsed: LocalDateTime
+                val dateToParsed: LocalDateTime
+                if (dateFrom.isNotEmpty()) {
+                    dateFromParsed = LocalDateTime.parse(dateFrom, formatter)
+                    if (dateTo.isNotEmpty()) {
+                        dateToParsed = LocalDateTime.parse(dateTo, formatter)
+                        if (LocalDateTime.parse(ad.datehour, formatter)
+                                .isBefore(dateFromParsed) || LocalDateTime.parse(
+                                ad.datehour,
+                                formatter
+                            )
+                                .isAfter(dateToParsed)
+                        ) {
+                            ad.visible = false
+                        }
+                    } else {
+                        if (LocalDateTime.parse(ad.datehour, formatter)
+                                .isBefore(dateFromParsed)
+                        ) {
+                            ad.visible = false
+                        }
+                    }
+                } else if (dateTo.isNotEmpty()) {
+                    dateToParsed = LocalDateTime.parse(dateTo, formatter)
+                    if (LocalDateTime.parse(ad.datehour, formatter)
+                            .isAfter(dateToParsed)
+                    ) {
+                        ad.visible = false
+                    }
                 }
             }
 

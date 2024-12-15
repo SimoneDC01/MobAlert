@@ -112,8 +112,6 @@ class ListHomeFragment : Fragment() {
                 }
                 true
             }
-
-            // Mostra il menu popup
             popupMenu.show()
         }
 
@@ -126,161 +124,73 @@ class ListHomeFragment : Fragment() {
             window.isOutsideTouchable = true
             window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
             val button = view.findViewById<Button>(R.id.submitFilter)
-            val editText = view.findViewById<EditText>(R.id.title)
+            val title = view.findViewById<EditText>(R.id.title)
             val username=view.findViewById<EditText>(R.id.username)
+            val description = view.findViewById<EditText>(R.id.description)
             val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
             val reset=view.findViewById<Button>(R.id.Reset)
             val elemTo=view.findViewById<EditText>(R.id.dateTo)
             setupDateTimePicker(elemFrom)
             setupDateTimePicker(elemTo)
-            val cat1=view.findViewById<CheckBox>(R.id.Cat1)
-            cat1.setOnClickListener {
-                // Puoi controllare lo stato della checkbox manualmente
-                if (cat1.isChecked) {
-                    if(filters["category"]==""){
-                        filters["category"]="Info"
-                    }
-                    else{
-                        filters["category"]+=",Info"
-                    }
-                    // Azione quando è selezionata
-                    adapter.filter(filters)
-                } else {
 
-
-                        filters["category"] = filters["category"]!!.replace(",Info", "")
-                        filters["category"] = filters["category"]!!.replace("Info", "")
-                        adapter.filter(filters)
-
-                }
+            title.setText(filters["title"])
+            username.setText(filters["username"])
+            description.setText(filters["description"])
+            if(filters["dateHour"]!="") {
+                elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                elemTo.setText(filters["dateHour"]!!.split(",")[1])
             }
+            else{
+                elemFrom.setText("")
+                elemTo.setText("")
+            }
+
+            val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+            setUpCategory(cat1,"Info")
 
             val cat2=view.findViewById<CheckBox>(R.id.Cat2)
-            cat2.setOnClickListener {
-                // Puoi controllare lo stato della checkbox manualmente
-                if (cat2.isChecked) {
-                    if(filters["category"]==""){
-                        filters["category"]="Warning"
-                    }
-                    else{
-                        filters["category"]+=",Warning"
-                    }
-                    // Azione quando è selezionata
-                    adapter.filter(filters)
-                } else {
-
-                        filters["category"] = filters["category"]!!.replace(",Warning", "")
-                        filters["category"] = filters["category"]!!.replace("Warning", "")
-                        adapter.filter(filters)
-
-                }
-            }
+            setUpCategory(cat2,"Warning")
 
             val cat3=view.findViewById<CheckBox>(R.id.Cat3)
-            cat3.setOnClickListener {
-                // Puoi controllare lo stato della checkbox manualmente
-                if (cat3.isChecked) {
-                    if(filters["category"]==""){
-                        filters["category"]="Emergency"
-                    }
-                    else{
-                        filters["category"]+=",Emergency"
-                    }
-                    // Azione quando è selezionata
-                    adapter.filter(filters)
-                } else {
-
-                        filters["category"] = filters["category"]!!.replace(",Emergency", "")
-                        filters["category"] = filters["category"]!!.replace("Emergency", "")
-                        adapter.filter(filters)
-
-                }
-            }
+            setUpCategory(cat3,"Emergency")
 
             val cat4=view.findViewById<CheckBox>(R.id.Cat4)
-            cat4.setOnClickListener {
-                // Puoi controllare lo stato della checkbox manualmente
-                if (cat4.isChecked) {
-                    if(filters["category"]==""){
-                        filters["category"]="Critical"
-                    }
-                    else{
-                        filters["category"]+=",Critical"
-                    }
-                    // Azione quando è selezionata
-                    adapter.filter(filters)
-                } else {
+            setUpCategory(cat4,"Critical")
 
 
-                        filters["category"] = filters["category"]!!.replace(",Critical", "")
-                        filters["category"] = filters["category"]!!.replace("Critical", "")
-                        adapter.filter(filters)
+            setUpEditText(title, "title")
 
-                }
-            }
+            setUpEditText(username, "username")
 
-            editText.addTextChangedListener(object : TextWatcher {
+            setUpEditText(description, "description")
+
+            elemFrom.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    // Azioni prima che il testo cambi
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Azioni mentre il testo sta cambiando
-                    filters["title"] = s.toString()
+                    filters["dateHour"] = "${s.toString()},${elemTo.text}"
                     adapter.filter(filters)
                 }
 
                 override fun afterTextChanged(s: Editable?) {
-                    // Azioni dopo che il testo è cambiato
-                    if (s != null) {
-                        println("Il testo è ora: $s")
-                    }
                 }
             })
 
-            username.addTextChangedListener(object : TextWatcher {
+            elemTo.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    // Azioni prima che il testo cambi
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Azioni mentre il testo sta cambiando
-                    filters["username"] = s.toString()
+                    filters["dateHour"] = "${elemFrom.text},${s.toString()}"
                     adapter.filter(filters)
                 }
 
                 override fun afterTextChanged(s: Editable?) {
-                    // Azioni dopo che il testo è cambiato
-
-                }
-            })
-
-            val description = view.findViewById<EditText>(R.id.description)
-
-            description.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    // Azioni prima che il testo cambi
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Azioni mentre il testo sta cambiando
-                    filters["description"] = s.toString()
-                    adapter.filter(filters)
-                }
-
-                override fun afterTextChanged(s: Editable?) {
-                    // Azioni dopo che il testo è cambiato
-                    if (s != null) {
-                        println("Il testo è ora: $s")
-                    }
                 }
             })
 
             button.setOnClickListener {
-                val datefrom = view.findViewById<EditText>(R.id.dateFrom)
-                val dateto = view.findViewById<EditText>(R.id.dateTo)
-                filters["dateHour"] = "${datefrom.text},${dateto.text}"
-                adapter.filter(filters)
                 window.dismiss()
             }
 
@@ -292,6 +202,7 @@ class ListHomeFragment : Fragment() {
                 filters["dateHour"] = ""
                 filters["category"] = ""
                 adapter.filter(filters)
+                window.dismiss()
             }
 
             window.showAsDropDown(binding.filter)
@@ -312,6 +223,45 @@ class ListHomeFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun setUpCategory(elem: CheckBox, category: String){
+        elem.isChecked = filters["category"]!!.contains(category)
+        elem.setOnClickListener {
+            // Puoi controllare lo stato della checkbox manualmente
+            if (elem.isChecked) {
+                if(filters["category"]==""){
+                    filters["category"]=category
+                }
+                else{
+                    filters["category"]+=",$category"
+                }
+                // Azione quando è selezionata
+                adapter.filter(filters)
+            } else {
+
+
+                filters["category"] = filters["category"]!!.replace(",$category", "")
+                filters["category"] = filters["category"]!!.replace(category, "")
+                adapter.filter(filters)
+
+            }
+        }
+    }
+
+    private fun setUpEditText(elem: EditText, field: String){
+        elem.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filters[field] = s.toString()
+                adapter.filter(filters)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
     }
 
     private suspend fun getAlerts() {
