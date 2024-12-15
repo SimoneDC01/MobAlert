@@ -5,28 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".HomeFragment">
-<!--
-    <Button
-        android:id="@+id/filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Filter">
-    </Button>
-    <Button
-        android:id="@+id/order_by"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="Order by">
-    </Button>
-    <Button
-        android:id="@+id/map_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:text="Map View">
-    </Button>
--->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_alert"
         android:layout_width="wrap_content"

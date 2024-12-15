@@ -17,24 +17,6 @@
             android:layout_height="120dp">
         </androidx.viewpager2.widget.ViewPager2>
 
-        <!-- ShapeableImageView: Show first image from images of Ad -->
-       <!--
-        <ListView
-            android:id="@+id/imageSliderVp"
-            android:layout_width="120dp"
-            android:layout_height="120dp">
-        </ListView>
-
-        <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/imageIv"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginEnd="10dp"
-        android:background="#ADA6A4A4"
-        android:scaleType="fitCenter"
-        android:src="@drawable/image_white"
-        style="@style/ImageStyle_Corners_Rounded" />
-    -->
         <TextView
             android:id="@+id/titleTv"
             style="@style/TextAppearance.MaterialComponents.Body1"
