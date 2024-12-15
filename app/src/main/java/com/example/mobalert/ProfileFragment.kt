@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
 import io.ktor.http.HttpStatusCode
@@ -66,10 +67,15 @@ class ProfileFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val image = getImage(auth.uid.toString())
-                withContext(Dispatchers.Main) {
-                    Glide.with(requireContext())
-                        .load(image)
-                        .into(binding.profileIv)
+                if(image==null){
+                    binding.profileIv.setImageResource(R.drawable.person_black)
+                }
+                else {
+                    withContext(Dispatchers.Main) {
+                        Glide.with(requireContext())
+                            .load(image)
+                            .into(binding.profileIv)
+                    }
                 }
             } catch (e: Exception) {
                 // Handle exceptions if necessary
@@ -99,6 +105,9 @@ class ProfileFragment : Fragment() {
         }
 
         binding.deleteCv.setOnClickListener {
+
+            //TO-DO ELIMINARE ANCHE GLI ALERT E L IMMAGINE PROFILO
+
             reference.child(auth.uid.toString()).removeValue().addOnSuccessListener {
                 Log.d("LOGIN", "User deleted from database")
             }.addOnFailureListener {
@@ -109,7 +118,6 @@ class ProfileFragment : Fragment() {
             }.addOnFailureListener {e->
                 Log.d("LOGIN", "User not deleted from firebase $e")
             }
-
             parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
             val intent = Intent(activity, LoginActivity::class.java)
@@ -139,6 +147,20 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    suspend fun DeleteProfileImage(image: String) {
+        Log.d("LOGIN", "DeleteProfileImage: $image")
+        val url = "${MainActivity.url}/deleteimages/$image.jpg"
+        try {
+            val response: io.ktor.client.statement.HttpResponse = client.delete(url)
+            when (response.status) {
+                HttpStatusCode.OK -> Log.d("LOGIN", "Image con ID $image eliminato con successo.")
+                HttpStatusCode.NotFound -> Log.e("LOGIN", "Image con ID $image non trovato.")
+                else -> Log.e("LOGIN", "Errore nell'eliminazione: ${response.status}")
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta: $e")
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

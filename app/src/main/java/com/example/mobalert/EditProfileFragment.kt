@@ -3,6 +3,7 @@ package com.example.mobalert
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -30,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -50,16 +52,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.Calendar
 
 
 class EditProfileFragment : Fragment() {
     private lateinit var binding: FragmentEditProfileBinding
-    private lateinit var ImageProfile: Uri
+    private var ImageProfile: Uri?=null
     private val auth = Firebase.auth
     private var database = FirebaseDatabase.getInstance()
     private var reference = database.reference.child("Users")
     private var imageUri: Uri? = null
+    private var image: Bitmap?=null
+    private var delete: Boolean = false
 
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -91,11 +97,16 @@ class EditProfileFragment : Fragment() {
         // Inflate the layout for this fragment
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val image = getImage(auth.uid.toString())
+                image = getImage(auth.uid.toString())
+                if(image==null){
+                    binding.profileIv.setImageResource(R.drawable.person_black)
+                }
+                else{
                 withContext(Dispatchers.Main) {
                     Glide.with(requireContext())
                         .load(image)
                         .into(binding.profileIv)
+                }
                 }
             } catch (e: Exception) {
                 // Handle exceptions if necessary
@@ -119,41 +130,56 @@ class EditProfileFragment : Fragment() {
             .addOnFailureListener { e ->
                 Log.e("LOGIN", "updateUserInfo: ", e)
             }
-
-
-            val imageBytes = requireContext().contentResolver.openInputStream(ImageProfile)?.use { inputStream ->
-                inputStream.readBytes()
-            } ?: throw IllegalArgumentException("Unable to read bytes from input stream ")
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val response: io.ktor.client.statement.HttpResponse =
-                        client.post("${MainActivity.url}/InsertProfileImage") {
-                            contentType(ContentType.MultiPart.FormData)
-                            setBody(
-                                MultiPartFormDataContent(
-                                    formData {
-                                        append("file", imageBytes, Headers.build {
-                                            append(
-                                                HttpHeaders.ContentDisposition,
-                                                "filename=${auth.uid}.jpg"
-                                            )
-                                        })
-                                    }
+            Log.d("LOGIN", "ImageProfile: $ImageProfile")
+            Log.d("LOGIN", "Image: $image")
+            Log.d("LOGIN", "ImageUri: $imageUri")
+            if(ImageProfile!=null) {
+                val imageBytes = requireContext().contentResolver.openInputStream(ImageProfile!!)
+                    ?.use { inputStream ->
+                        inputStream.readBytes()
+                    } ?: throw IllegalArgumentException("Unable to read bytes from input stream ")
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val response: io.ktor.client.statement.HttpResponse =
+                            client.post("${MainActivity.url}/InsertProfileImage") {
+                                contentType(ContentType.MultiPart.FormData)
+                                setBody(
+                                    MultiPartFormDataContent(
+                                        formData {
+                                            append("file", imageBytes, Headers.build {
+                                                append(
+                                                    HttpHeaders.ContentDisposition,
+                                                    "filename=${auth.uid}.jpg"
+                                                )
+                                            })
+                                        }
+                                    )
                                 )
-                            )
-                        }
+                            }
 
-                    if (response.status == HttpStatusCode.Created) {
-                        val result = response.bodyAsText()
-                        Log.d("LOGIN", "Server response: $result")
-                    } else {
-                        Log.e("LOGIN", "Request error: ${response.status}")
+                        if (response.status == HttpStatusCode.Created) {
+                            val result = response.bodyAsText()
+                            Log.d("LOGIN", "Server response: $result")
+                        } else {
+                            Log.e("LOGIN", "Request error: ${response.status}")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("LOGIN", "Error during request: $e")
                     }
-                } catch (e: Exception) {
-                    Log.e("LOGIN", "Error during request: $e")
                 }
             }
-
+            else if(imageUri==null && delete==true){
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        DeleteProfileImage(auth.uid.toString())
+                    }
+                    catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Log.d("LOGIN", "Error: $e")
+                        }
+                    }
+                }
+            }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.Fragment, ProfileFragment())
                 .addToBackStack(null)
@@ -181,11 +207,18 @@ class EditProfileFragment : Fragment() {
             val popupMenu = PopupMenu(this.context, binding.imageButton)
             popupMenu.menu.add(Menu.NONE, 1, 1, "Camera")
             popupMenu.menu.add(Menu.NONE, 2, 2, "Gallery")
+            popupMenu.menu.add(Menu.NONE, 3, 3, "Edit")
+            popupMenu.menu.add(Menu.NONE, 4, 4, "Delete")
+            if(image == null){
+                popupMenu.menu.removeItem(4)
+                popupMenu.menu.removeItem(3)
+            }
             popupMenu.show()
 
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     1 -> {
+                        delete=false
                         Log.d("LOGIN", "imagePickDialog: Camera Clicked")
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             requestCameraPermission.launch(arrayOf(
@@ -201,6 +234,17 @@ class EditProfileFragment : Fragment() {
                     2 -> {
                         Log.d("LOGIN", "imagePickDialog: Gallery Clicked")
                         pickImageGallery()
+                        delete=false
+                    }
+                    3 -> {
+                        Log.d("LOGIN", "imagePickDialog: Edit Clicked")
+                        startCrop(bitmapToUri(requireContext(), image!!))
+                        delete=false
+                    }
+                    4 -> {
+                        Log.d("LOGIN", "imagePickDialog: Delete Clicked")
+                        binding.profileIv.setImageResource(R.drawable.person_black)
+                        delete=true
                     }
                 }
                 true
@@ -212,7 +256,23 @@ class EditProfileFragment : Fragment() {
     }
 
 
+    fun bitmapToUri(context: Context, bitmap: Bitmap): Uri? {
+        // Creare un file temporaneo nella cache directory
+        val file = File(context.cacheDir, "temp_image.png") // Nome del file
+        return try {
+            // Scrivere il bitmap nel file
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
 
+            // Restituire l'URI del file
+            Uri.fromFile(file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
 
 
     private val requestCameraPermission = registerForActivityResult(
@@ -341,6 +401,21 @@ class EditProfileFragment : Fragment() {
         } catch (e: Exception) {
             Log.e("LOGIN", "Errore durante la richiesta img: $e")
             return null
+        }
+    }
+
+    suspend fun DeleteProfileImage(image: String) {
+        Log.d("LOGIN", "DeleteProfileImage: $image")
+        val url = "${MainActivity.url}/deleteimages/$image.jpg"
+        try {
+            val response: io.ktor.client.statement.HttpResponse = client.delete(url)
+            when (response.status) {
+                HttpStatusCode.OK -> Log.d("LOGIN", "Image con ID $image eliminato con successo.")
+                HttpStatusCode.NotFound -> Log.e("LOGIN", "Image con ID $image non trovato.")
+                else -> Log.e("LOGIN", "Errore nell'eliminazione: ${response.status}")
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta: $e")
         }
     }
 
