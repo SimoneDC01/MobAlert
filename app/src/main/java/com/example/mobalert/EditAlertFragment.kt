@@ -54,30 +54,40 @@ class EditAlertFragment : Fragment() {
         binding.editTitle.setText(alertTitle)
         binding.editDescription.setText(alertDescription)
         binding.editAlertButton.setOnClickListener {
-
-            val updatedAlert = HomeFragment.UpdateAlert(
-                binding.editDescription.text.toString(),
-                binding.editCategory.text.toString(),
-                binding.editTitle.text.toString()
-            )
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    updateAlert(alertId!!, updatedAlert)
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Edited", Toast.LENGTH_SHORT).show()
-                        parentFragmentManager.popBackStack()
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.Fragment, AlertsFragment())
-                            .commit()
-                    }
-                }
-                catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
+            if (binding.editTitle.text.toString().isEmpty()) {
+            binding.editTitle.error = "Enter Title"
+            binding.editTitle.requestFocus()
+        }   else if (binding.editCategory.text.toString().isEmpty()) {
+                binding.editCategory.error = "Enter Category"
+                binding.editCategory.requestFocus()
+            }
+            else if (binding.editDescription.text.toString().isEmpty()) {
+                binding.editDescription.error = "Enter Description"
+                binding.editDescription.requestFocus()
+            }
+            else {
+                val updatedAlert = HomeFragment.UpdateAlert(
+                    binding.editDescription.text.toString(),
+                    binding.editCategory.text.toString(),
+                    binding.editTitle.text.toString()
+                )
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        updateAlert(alertId!!, updatedAlert)
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), "Edited", Toast.LENGTH_SHORT).show()
+                            parentFragmentManager.popBackStack()
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.Fragment, AlertsFragment())
+                                .commit()
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                        }
                     }
                 }
             }
         }
-
 
         // Inflate the layout for this fragment
         return binding.root

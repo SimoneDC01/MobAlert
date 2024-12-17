@@ -1,5 +1,7 @@
 package com.example.mobalert
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,15 +9,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.example.mobalert.databinding.FragmentChangePasswordBinding
 import com.example.mobalert.databinding.FragmentEditProfileBinding
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.statement.readBytes
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
 class ChangePasswordFragment : Fragment() {
     private lateinit var binding: FragmentChangePasswordBinding
     private val auth = Firebase.auth
+    private val client = HttpClient {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -23,7 +45,24 @@ class ChangePasswordFragment : Fragment() {
 
         binding = FragmentChangePasswordBinding.inflate(inflater, container, false);
 
-
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val image = getImage(auth.uid.toString())
+                if(image==null){
+                    binding.profileIv.setImageResource(R.drawable.person_black)
+                }
+                else {
+                    withContext(Dispatchers.Main) {
+                        Glide.with(requireContext())
+                            .load(image)
+                            .into(binding.profileIv)
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle exceptions if necessary
+                e.printStackTrace()
+            }
+        }
         binding.submitBtn.setOnClickListener{
             val currentPassword = binding. passwordEt.text.toString()
             val newPassword = binding. newPasswordEt.text. toString()
@@ -76,5 +115,25 @@ class ChangePasswordFragment : Fragment() {
 
         // Inflate the layout for this fragment
         return binding.root
+    }
+
+    private suspend fun getImage(image: String): Bitmap? {
+        var url : String
+        url = "${MainActivity.url}/images/$image.jpg"
+        try {
+            val response: io.ktor.client.statement.HttpResponse = client.get(url)
+            if (response.status == HttpStatusCode.OK) {
+                val bytes = response.readBytes()
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+                return bitmap
+            } else {
+                Log.e("LOGIN", "Errore nella richiesta img: ${response.status}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.e("LOGIN", "Errore durante la richiesta img: $e")
+            return null
+        }
     }
 }

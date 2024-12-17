@@ -107,11 +107,11 @@ class AlertsFragment : Fragment() {
                 when (item.itemId) {
                     1 -> {
                         Log.d("LOGIN", "Recent Date")
-                        adapter.sortByDate()
+                        adapter.sortByDateDesc()
                     }
                     2 -> {
                         Log.d("LOGIN", "Old Date")
-                        adapter.sortByDateDesc()
+                        adapter.sortByDate()
                     }
                 }
                 true

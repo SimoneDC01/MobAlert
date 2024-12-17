@@ -75,6 +75,13 @@ class ProfileFragment : Fragment() {
     ): View? {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
+        val user=auth.currentUser
+        if(user!=null && user.providerData[1]?.providerId=="google.com"){
+            binding.changePasswordCv.visibility = View.GONE
+        }
+        else{
+            binding.changePasswordCv.visibility = View.VISIBLE
+        }
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val image = getImage(auth.uid.toString())
@@ -117,7 +124,6 @@ class ProfileFragment : Fragment() {
 
         binding.deleteCv.setOnClickListener {
 
-            //TO-DO ELIMINARE ANCHE GLI ALERT E L IMMAGINE PROFILO
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {

@@ -109,37 +109,66 @@ class InsertAlertFragment : Fragment() {
             for (imagePicked in imagesPickedArrayList) {
                 images += imagePicked.id.toString()+".jpg,"
             }
-            images = images.substring(0, images.length - 1)
 
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val alert = HomeFragment.Alert(
-                        binding.editDateHour.text.toString(),
-                        binding.editDescription.text.toString(),
-                        0,
-                        auth.currentUser!!.uid,
-                        binding.editPosition.text.toString(),
-                        binding.editTitle.text.toString(),
-                        binding.editCategory.text.toString(),
-                        images
-                    )
+            val title = binding.editTitle.text.toString()
+            val category= binding.editCategory.text.toString()
+            val description = binding.editDescription.text.toString()
+            val date = binding.editDateHour.text.toString()
+            val position = binding.editPosition.text.toString()
 
-                    insertAlert(alert, imagesPickedArrayList[0])
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Insert", Toast.LENGTH_SHORT).show()
-                        parentFragmentManager.popBackStack()
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.Fragment, HomeFragment())
-                            .commit()
-                    }
-                }
-                catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Log.d("LOGIN", "Error: $e")
+            if (title.isEmpty()) {
+                binding.editTitle.error = "Enter Title"
+                binding.editTitle.requestFocus()
+            }
+            else if (category.isEmpty()) {
+                binding.editCategory.error = "Enter Category"
+                binding.editCategory.requestFocus()
+            }
+            else if (description.isEmpty()) {
+                binding.editDescription.error = "Enter Description"
+                binding.editDescription.requestFocus()
+            }
+            else if (date.isEmpty()) {
+                binding.editDateHour.error = "Enter Date"
+                binding.editDateHour.requestFocus()
+            }
+            else if (position.isEmpty()) {
+                binding.editPosition.error = "Enter Position"
+                binding.editPosition.requestFocus()
+            }
+            else if(images==""){
+                Toast.makeText(requireContext(), "Insert Images", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                images = images.substring(0, images.length - 1)
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val alert = HomeFragment.Alert(
+                            binding.editDateHour.text.toString(),
+                            binding.editDescription.text.toString(),
+                            0,
+                            auth.currentUser!!.uid,
+                            binding.editPosition.text.toString(),
+                            binding.editTitle.text.toString(),
+                            binding.editCategory.text.toString(),
+                            images
+                        )
+
+                        insertAlert(alert, imagesPickedArrayList[0])
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), "Insert", Toast.LENGTH_SHORT).show()
+                            parentFragmentManager.popBackStack()
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.Fragment, HomeFragment())
+                                .commit()
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Log.d("LOGIN", "Error: $e")
+                        }
                     }
                 }
             }
-
 
 
 

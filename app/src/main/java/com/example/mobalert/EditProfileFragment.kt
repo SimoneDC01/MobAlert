@@ -49,6 +49,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -130,9 +131,6 @@ class EditProfileFragment : Fragment() {
             .addOnFailureListener { e ->
                 Log.e("LOGIN", "updateUserInfo: ", e)
             }
-            Log.d("LOGIN", "ImageProfile: $ImageProfile")
-            Log.d("LOGIN", "Image: $image")
-            Log.d("LOGIN", "ImageUri: $imageUri")
             if(ImageProfile!=null) {
                 val imageBytes = requireContext().contentResolver.openInputStream(ImageProfile!!)
                     ?.use { inputStream ->
@@ -179,6 +177,9 @@ class EditProfileFragment : Fragment() {
                         }
                     }
                 }
+            }
+            runBlocking { // Avvia una coroutine di base
+                delay(200) // Pausa non bloccante di 1 secondo
             }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.Fragment, ProfileFragment())
