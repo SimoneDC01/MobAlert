@@ -1,5 +1,6 @@
 package com.example.mobalert
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -19,6 +20,12 @@ import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
 import com.example.mobalert.HomeFragment.Alert
 import com.example.mobalert.HomeFragment.HomeAlters
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.delete
@@ -127,11 +134,36 @@ class ProfileFragment : Fragment() {
             }.addOnFailureListener {
                 Log.d("LOGIN", "User not deleted from database")
             }
+            /*
             auth.currentUser!!.delete().addOnSuccessListener {
                 Log.d("LOGIN", "User deleted from firebase")
             }.addOnFailureListener {e->
                 Log.d("LOGIN", "User not deleted from firebase $e")
             }
+             */
+
+            val user = auth.currentUser
+
+            if (user != null) {
+                // Controlla il metodo di accesso attuale
+                val providerId = user.providerData[1]?.providerId
+
+                when (providerId) {
+                    "password" -> { // Utente autenticato con email e password
+                        deleteUserWithEmailPassword(user)
+                    }
+                    "google.com" -> { // Utente autenticato con Google
+                        //deleteUserWithGoogle(auth, requireContext(), user)
+                        renewGoogleTokenAndDeleteUser(auth, requireContext(), user)
+                    }
+                    else -> { // Altri metodi di autenticazione
+                        Log.e("LOGIN", "Unknown provider: $providerId")
+                    }
+                }
+            } else {
+                Log.e("LOGIN", "User is null")
+            }
+
             parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
             val intent = Intent(activity, LoginActivity::class.java)
@@ -139,6 +171,83 @@ class ProfileFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun renewGoogleTokenAndDeleteUser(auth: FirebaseAuth, context: Context, user: FirebaseUser) {
+        val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id)) // Sostituisci con il tuo client ID di Firebase
+            .requestEmail()
+            .build()
+
+        val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions)
+
+        googleSignInClient.silentSignIn()
+            .addOnSuccessListener { googleAccount: GoogleSignInAccount ->
+                // Ottieni il nuovo ID Token
+                val idToken = googleAccount.idToken
+                val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+                // Ri-autentica l'utente
+                user.reauthenticate(credential)
+                    .addOnSuccessListener {
+                        Log.d("DELETE_USER", "User re-authenticated successfully")
+
+                        // Ora elimina l'utente
+                        user.delete()
+                            .addOnSuccessListener {
+                                Log.d("DELETE_USER", "User deleted successfully")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("DELETE_USER", "Failed to delete user", e)
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("DELETE_USER", "Re-authentication failed", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("DELETE_USER", "Silent sign-in failed", e)
+            }
+    }
+
+    private fun deleteUserWithEmailPassword(user: FirebaseUser) {
+        user.delete()
+            .addOnSuccessListener {
+                Log.d("LOGIN", "User with email/password deleted successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e("LOGIN", "Failed to delete user with email/password", e)
+            }
+    }
+
+    // Elimina utenti autenticati con Google
+    private fun deleteUserWithGoogle(auth: FirebaseAuth, context: Context, user: FirebaseUser) {
+        // Ottieni l'account Google collegato
+        val googleAccount = GoogleSignIn.getLastSignedInAccount(context)
+
+        if (googleAccount != null) {
+            val googleCredential = GoogleAuthProvider.getCredential(googleAccount.idToken, null)
+
+            // Ri-autentica l'utente con le credenziali Google
+            user.reauthenticate(googleCredential)
+                .addOnSuccessListener {
+                    Log.d("LOGIN", "User re-authenticated with Google")
+
+                    // Ora elimina l'utente
+                    user.delete()
+                        .addOnSuccessListener {
+                            Log.d("LOGIN", "User with Google deleted successfully")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("LOGIN", "Failed to delete Google user", e)
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("DELETE_USER", "Re-authentication with Google failed", e)
+                }
+        } else {
+            Log.e("DELETE_USER", "No Google account found for re-authentication")
+        }
     }
 
     private suspend fun getImage(image: String): Bitmap? {
