@@ -20,8 +20,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.PopupWindow
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.mobalert.HomeFragment.Alert
@@ -53,8 +55,9 @@ class ListHomeFragment : Fragment() {
     private lateinit var binding: FragmentListHomeBinding
 
     private lateinit var adapter: AdAdapter
-
     private var alerts = mutableListOf<Alert>()
+    private var loadingSpinner: LoadingSpinner? = null
+    private lateinit var rootLayout: FrameLayout
 
     private var filters= mutableMapOf(
         "title" to "",
@@ -83,11 +86,14 @@ class ListHomeFragment : Fragment() {
     ): View? {
         binding = FragmentListHomeBinding.inflate(inflater, container, false);
         HomeFragment.homeBinding?.addAlert?.visibility = View.VISIBLE
-
+        rootLayout = binding.loadingSpinner
+        // Mostra il caricamento all'avvio
+        showLoading(true)
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 getAlerts()
                 withContext(Dispatchers.Main) {
+                    showLoading(false)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -223,6 +229,26 @@ class ListHomeFragment : Fragment() {
 
         return binding.root
     }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            if (loadingSpinner == null) {
+                loadingSpinner = LoadingSpinner(requireContext())
+                val params = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+                rootLayout.addView(loadingSpinner, params)
+            }
+            loadingSpinner?.visibility = View.VISIBLE
+        } else {
+            loadingSpinner?.let {
+                rootLayout.removeView(it) // Rimuovi dal layout
+                loadingSpinner = null
+            }
+        }
+    }
+
 
     private fun setUpCategory(elem: CheckBox, category: String){
         elem.isChecked = filters["category"]!!.contains(category)

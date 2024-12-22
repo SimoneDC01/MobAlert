@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import com.example.mobalert.databinding.FragmentProfileBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
@@ -46,6 +47,7 @@ class ProfileFragment : Fragment() {
     private val auth = Firebase.auth
     private var database = FirebaseDatabase.getInstance()
     private var reference = database.reference.child("Users")
+
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -55,20 +57,9 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d("LOGIN", "onStart")
-        reference.child(auth.uid.toString()).get().addOnSuccessListener {
-            binding.fullNameTv.text = it.child("name").value.toString()
-            binding.emailTv.text = it.child("email").value.toString()
-            val phone = it.child("phoneNumber").value.toString()
-            if(phone == "") binding.phoneTv.text = "Not Set"
-            else binding.phoneTv.text = phone
-            val dob = it.child("dob").value.toString()
-            if(dob == "") binding.dobTv.text = "Not Set"
-            else binding.dobTv.text = dob
-        }
-    }
+
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -82,19 +73,34 @@ class ProfileFragment : Fragment() {
         else{
             binding.changePasswordCv.visibility = View.VISIBLE
         }
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val image = getImage(auth.uid.toString())
-                if(image==null){
-                    binding.profileIv.setImageResource(R.drawable.person_black)
-                }
-                else {
                     withContext(Dispatchers.Main) {
-                        Glide.with(requireContext())
-                            .load(image)
-                            .into(binding.profileIv)
+
+
+                        if (image == null) {
+                            binding.profileIv.setImageResource(R.drawable.person_black)
+                        } else {
+                            Glide.with(requireContext())
+                                .load(image)
+                                .into(binding.profileIv)
+                        }
+
+                        Log.d("LOGIN", "onStart")
+                        reference.child(auth.uid.toString()).get().addOnSuccessListener {
+                            binding.fullNameTv.text = it.child("name").value.toString()
+                            binding.emailTv.text = it.child("email").value.toString()
+                            val phone = it.child("phoneNumber").value.toString()
+                            if(phone == "") binding.phoneTv.text = "Not Set"
+                            else binding.phoneTv.text = phone
+                            val dob = it.child("dob").value.toString()
+                            if(dob == "") binding.dobTv.text = "Not Set"
+                            else binding.dobTv.text = dob
+                        }
                     }
-                }
+
             } catch (e: Exception) {
                 // Handle exceptions if necessary
                 e.printStackTrace()
@@ -178,6 +184,7 @@ class ProfileFragment : Fragment() {
 
         return binding.root
     }
+
 
     private fun renewGoogleTokenAndDeleteUser(auth: FirebaseAuth, context: Context, user: FirebaseUser) {
         val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
