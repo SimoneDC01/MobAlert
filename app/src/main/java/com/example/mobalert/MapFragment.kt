@@ -191,7 +191,7 @@ class MapFragment : Fragment() {
             window.isFocusable = true
             window.isOutsideTouchable = true
             window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
-            val button = view.findViewById<Button>(R.id.submitFilter)
+
             val title = view.findViewById<EditText>(R.id.title)
             val username=view.findViewById<EditText>(R.id.username)
             val description = view.findViewById<EditText>(R.id.description)
@@ -259,9 +259,7 @@ class MapFragment : Fragment() {
             })
 
 
-            button.setOnClickListener {
-                window.dismiss()
-            }
+
 
             reset.setOnClickListener {
                 //TO-DO: RESETTARE LA UI

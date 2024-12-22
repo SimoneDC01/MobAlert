@@ -2,6 +2,7 @@ package com.example.mobalert
 
 import AdAdapter
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.graphics.Bitmap
@@ -123,7 +124,7 @@ class ListHomeFragment : Fragment() {
             window.isFocusable = true
             window.isOutsideTouchable = true
             window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
-            val button = view.findViewById<Button>(R.id.submitFilter)
+
             val title = view.findViewById<EditText>(R.id.title)
             val username=view.findViewById<EditText>(R.id.username)
             val description = view.findViewById<EditText>(R.id.description)
@@ -190,9 +191,7 @@ class ListHomeFragment : Fragment() {
                 }
             })
 
-            button.setOnClickListener {
-                window.dismiss()
-            }
+
 
             reset.setOnClickListener {
                 //TO-DO: RESETTARE LA UI
@@ -341,46 +340,62 @@ class ListHomeFragment : Fragment() {
 
 
 
-    private fun setupDateTimePicker(elem:EditText) {
+    private fun setupDateTimePicker(elem: EditText) {
         val calendar = Calendar.getInstance()
 
-        // Listener per clic su data/ora
+        // Listener per il clic su data/ora
         elem.setOnClickListener {
-            // Mostra DatePickerDialog
-            DatePickerDialog(
-                requireContext(),
-                { _, year, month, dayOfMonth ->
-                    // Aggiorna la data nel calendario
-                    calendar.set(Calendar.YEAR, year)
-                    calendar.set(Calendar.MONTH, month)
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            // Mostra un AlertDialog con opzioni
+            val options = arrayOf("Seleziona Data e Ora", "Cancella")
+            AlertDialog.Builder(requireContext())
+                .setTitle("Scegli un'opzione")
+                .setItems(options) { dialog, which ->
+                    when (which) {
+                        0 -> { // Seleziona Data e Ora
+                            // Mostra DatePickerDialog
+                            DatePickerDialog(
+                                requireContext(),
+                                { _, year, month, dayOfMonth ->
+                                    // Aggiorna la data nel calendario
+                                    calendar.set(Calendar.YEAR, year)
+                                    calendar.set(Calendar.MONTH, month)
+                                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-                    // Mostra TimePickerDialog
-                    TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            // Aggiorna l'ora nel calendario
-                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                            calendar.set(Calendar.MINUTE, minute)
+                                    // Mostra TimePickerDialog
+                                    TimePickerDialog(
+                                        requireContext(),
+                                        { _, hourOfDay, minute ->
+                                            // Aggiorna l'ora nel calendario
+                                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                                            calendar.set(Calendar.MINUTE, minute)
 
-                            // Formatta data e ora
-                            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                            val formattedDateTime = sdf.format(calendar.time)
+                                            // Formatta data e ora
+                                            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                                            val formattedDateTime = sdf.format(calendar.time)
 
-                            // Imposta il valore nel campo di testo
-                            elem.setText(formattedDateTime)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true // Usa formato 24 ore
-                    ).show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+                                            // Imposta il valore nel campo di testo
+                                            elem.setText(formattedDateTime)
+                                        },
+                                        calendar.get(Calendar.HOUR_OF_DAY),
+                                        calendar.get(Calendar.MINUTE),
+                                        true // Usa formato 24 ore
+                                    ).show()
+                                },
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
+                        }
+                        1 -> { // Cancella
+                            elem.setText("") // Resetta il campo di testo
+                        }
+
+                    }
+                }
+                .show()
         }
     }
+
 
 
 }

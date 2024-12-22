@@ -128,7 +128,6 @@ class AlertsFragment : Fragment() {
             window.isFocusable = true
             window.isOutsideTouchable = true
             window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
-            val button = view.findViewById<Button>(R.id.submitFilter)
             val editText = view.findViewById<EditText>(R.id.title)
             val username=view.findViewById<EditText>(R.id.username)
             username.visibility=View.GONE
@@ -266,14 +265,6 @@ class AlertsFragment : Fragment() {
                 }
             })
 
-            button.setOnClickListener {
-                val datefrom = view.findViewById<EditText>(R.id.dateFrom)
-                val dateto = view.findViewById<EditText>(R.id.dateTo)
-                filters["dateHour"] = "${datefrom.text},${dateto.text}"
-                adapter.filter(filters)
-                window.dismiss()
-            }
-
             reset.setOnClickListener {
                 filters["title"] = ""
                 filters["description"] = ""
@@ -338,7 +329,6 @@ class AlertsFragment : Fragment() {
 
     private fun setupDateTimePicker(elem:EditText) {
         val calendar = Calendar.getInstance()
-
         // Listener per clic su data/ora
         elem.setOnClickListener {
             // Mostra DatePickerDialog
