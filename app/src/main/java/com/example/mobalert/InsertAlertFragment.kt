@@ -2,6 +2,7 @@ package com.example.mobalert
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.ContentValues
 import android.content.Intent
@@ -18,7 +19,11 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.DatePicker
+import android.widget.EditText
 import android.widget.PopupMenu
+import android.widget.TextView
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -71,6 +76,8 @@ class InsertAlertFragment : Fragment() {
     private var reference = database.reference.child("Users")
     private var imageUri: Uri? = null
 
+    private lateinit var dialog: Dialog
+
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -92,10 +99,11 @@ class InsertAlertFragment : Fragment() {
 
         binding = FragmentInsertAlertBinding.inflate(inflater, container, false)
 
+        dialog = Dialog(requireContext())
 
         setupCategoryDropdown()
 
-        setupDateTimePicker()
+        setupDateTimePicker(binding.editDateHour)
 
         imagesPickedArrayList = ArrayList()
 
@@ -404,44 +412,46 @@ class InsertAlertFragment : Fragment() {
 
 
 
-    private fun setupDateTimePicker() {
-        val calendar = Calendar.getInstance()
+    private fun setupDateTimePicker(elem : EditText) {
+        elem.setOnClickListener {
+            dialog.setContentView(R.layout.date_hour)
+            dialog.setCancelable(false)
+            dialog.show()
+            val datePicker = dialog.findViewById<DatePicker>(R.id.datepicker)
+            val deleteDate = dialog.findViewById<TextView>(R.id.deleteDate)
+            val okDate = dialog.findViewById<TextView>(R.id.okDate)
+            val timePicker = dialog.findViewById<TimePicker>(R.id.timepicker)
+            val deleteTime = dialog.findViewById<TextView>(R.id.deleteTime)
+            val okTime = dialog.findViewById<TextView>(R.id.okTime)
 
-        // Listener per clic su data/ora
-        binding.editDateHour.setOnClickListener {
-            // Mostra DatePickerDialog
-            DatePickerDialog(
-                requireContext(),
-                { _, year, month, dayOfMonth ->
-                    // Aggiorna la data nel calendario
-                    calendar.set(Calendar.YEAR, year)
-                    calendar.set(Calendar.MONTH, month)
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            timePicker.setIs24HourView(true)
 
-                    // Mostra TimePickerDialog
-                    TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            // Aggiorna l'ora nel calendario
-                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                            calendar.set(Calendar.MINUTE, minute)
+            deleteDate.setOnClickListener {
+                elem.setText("")
+                dialog.hide()
+            }
+            deleteTime.setOnClickListener {
+                elem.setText("")
+                dialog.hide()
+            }
 
-                            // Formatta data e ora
-                            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                            val formattedDateTime = sdf.format(calendar.time)
+            okDate.setOnClickListener {
+                datePicker.visibility = View.GONE
+                timePicker.visibility = View.VISIBLE
+            }
 
-                            // Imposta il valore nel campo di testo
-                            binding.editDateHour.setText(formattedDateTime)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true // Usa formato 24 ore
-                    ).show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            okTime.setOnClickListener {
+                val calendar = Calendar.getInstance()
+                calendar.set(Calendar.YEAR,datePicker.year)
+                calendar.set(Calendar.MONTH,datePicker.month)
+                calendar.set(Calendar.DAY_OF_MONTH,datePicker.dayOfMonth)
+                calendar.set(Calendar.HOUR_OF_DAY,timePicker.hour)
+                calendar.set(Calendar.MINUTE,timePicker.minute)
+                val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                val parsedDate = sdf.format(calendar.time)
+                elem.setText(parsedDate)
+                dialog.hide()
+            }
         }
     }
 

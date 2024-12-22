@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <DatePicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/datepicker">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/deleteDate"
+                android:text="Delete"
+                android:textColor="#615A70"
+                android:textSize="20sp"
+                android:paddingEnd="20dp"
+                android:layout_centerHorizontal="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/okDate"
+                android:text="OK"
+                android:textColor="#615A70"
+                android:textSize="20sp"
+                android:layout_toRightOf="@id/deleteDate"/>
+        </RelativeLayout>
+    </DatePicker>
+
+    <TimePicker
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/timepicker"
+        android:visibility="gone"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/deleteTime"
+                android:text="Delete"
+                android:textColor="#615A70"
+                android:textSize="20sp"
+                android:paddingEnd="50dp"
+                android:layout_centerHorizontal="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/okTime"
+                android:text="OK"
+                android:textColor="#615A70"
+                android:textSize="20sp"
+                android:layout_toRightOf="@id/deleteTime"/>
+        </RelativeLayout>
+    </TimePicker>
+
+</RelativeLayout>

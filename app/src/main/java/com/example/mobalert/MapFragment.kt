@@ -2,6 +2,7 @@ package com.example.mobalert
 
 import AdAdapter
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -18,8 +19,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.PopupWindow
+import android.widget.TextView
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -73,6 +77,7 @@ class MapFragment : Fragment() {
     private lateinit var binding: FragmentMapBinding
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var dialog: Dialog
 
     private var pointAnnotationManager: PointAnnotationManager ?= null
 
@@ -112,6 +117,7 @@ class MapFragment : Fragment() {
     ): View? {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        dialog = Dialog(requireContext())
         HomeFragment.homeBinding?.addAlert?.visibility = View.GONE
         binding.listView.setOnClickListener {
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
@@ -400,6 +406,47 @@ class MapFragment : Fragment() {
     }
 
     private fun setupDateTimePicker(elem:EditText) {
+        elem.setOnClickListener {
+            dialog.setContentView(R.layout.date_hour)
+            dialog.setCancelable(false)
+            dialog.show()
+            val datePicker = dialog.findViewById<DatePicker>(R.id.datepicker)
+            val deleteDate = dialog.findViewById<TextView>(R.id.deleteDate)
+            val okDate = dialog.findViewById<TextView>(R.id.okDate)
+            val timePicker = dialog.findViewById<TimePicker>(R.id.timepicker)
+            val deleteTime = dialog.findViewById<TextView>(R.id.deleteTime)
+            val okTime = dialog.findViewById<TextView>(R.id.okTime)
+
+            timePicker.setIs24HourView(true)
+
+            deleteDate.setOnClickListener {
+                elem.setText("")
+                dialog.hide()
+            }
+            deleteTime.setOnClickListener {
+                elem.setText("")
+                dialog.hide()
+            }
+
+            okDate.setOnClickListener {
+                datePicker.visibility = View.GONE
+                timePicker.visibility = View.VISIBLE
+            }
+
+            okTime.setOnClickListener {
+                val calendar = Calendar.getInstance()
+                calendar.set(Calendar.YEAR,datePicker.year)
+                calendar.set(Calendar.MONTH,datePicker.month)
+                calendar.set(Calendar.DAY_OF_MONTH,datePicker.dayOfMonth)
+                calendar.set(Calendar.HOUR_OF_DAY,timePicker.hour)
+                calendar.set(Calendar.MINUTE,timePicker.minute)
+                val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                val parsedDate = sdf.format(calendar.time)
+                elem.setText(parsedDate)
+                dialog.hide()
+            }
+        }
+        /*
         val calendar = Calendar.getInstance()
 
         // Listener per clic su data/ora
@@ -438,6 +485,7 @@ class MapFragment : Fragment() {
                 calendar.get(Calendar.DAY_OF_MONTH)
             ).show()
         }
+         */
     }
 
     private suspend fun getImage(id : Int, image: String): Bitmap? {

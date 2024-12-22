@@ -18,7 +18,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -52,8 +51,6 @@ class AlertsFragment : Fragment() {
     private lateinit var binding: FragmentAlertsBinding
     private lateinit var adapter: AdAdapterMy
     private lateinit var auth: FirebaseAuth
-    private lateinit var rootLayout: FrameLayout
-    private var loadingSpinner: LoadingSpinner? = null
 
     private var filters= mutableMapOf(
         "title" to "",
@@ -89,13 +86,11 @@ class AlertsFragment : Fragment() {
     ): View? {
         binding = FragmentAlertsBinding.inflate(inflater, container, false);
         auth = FirebaseAuth.getInstance()
-        rootLayout = binding.MyAlerts
-        showLoading(true)
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 getAlerts()
                 withContext(Dispatchers.Main) {
-                    showLoading(false)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -284,25 +279,6 @@ class AlertsFragment : Fragment() {
 
 
         return binding.root
-    }
-
-    private fun showLoading(isLoading: Boolean) {
-        if (isLoading) {
-            if (loadingSpinner == null) {
-                loadingSpinner = LoadingSpinner(requireContext())
-                val params = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
-                rootLayout.addView(loadingSpinner, params)
-            }
-            loadingSpinner?.visibility = View.VISIBLE
-        } else {
-            loadingSpinner?.let {
-                rootLayout.removeView(it) // Rimuovi dal layout
-                loadingSpinner = null
-            }
-        }
     }
 
     private suspend fun getAlerts() {
