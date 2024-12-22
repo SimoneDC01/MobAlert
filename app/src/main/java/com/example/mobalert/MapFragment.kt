@@ -160,16 +160,22 @@ class MapFragment : Fragment() {
             }
 
             when (alert.type) {
-                "Info" -> {
+                "Natural environmental accident" -> {
                     convertAddressToCoordinates(alert.position, R.drawable.location_green, alert)
                 }
-                "Warning" -> {
+                "Anthropic environmental accident" -> {
                     convertAddressToCoordinates(alert.position, R.drawable.location_yellow, alert)
                 }
-                "Emergency" -> {
+                "Health and biological accident" -> {
                     convertAddressToCoordinates(alert.position, R.drawable.location_orange, alert)
                 }
-                "Critical" -> {
+                "Technological accident" -> {
+                    convertAddressToCoordinates(alert.position, R.drawable.location_red, alert)
+                }
+                "Urban and social accident" -> {
+                    convertAddressToCoordinates(alert.position, R.drawable.location_red, alert)
+                }
+                "Marine and aquatic accident" -> {
                     convertAddressToCoordinates(alert.position, R.drawable.location_red, alert)
                 }
             }
@@ -221,16 +227,22 @@ class MapFragment : Fragment() {
             }
 
             val cat1=view.findViewById<CheckBox>(R.id.Cat1)
-            setUpCategory(cat1,"Info",alerts)
+            setUpCategory(cat1,"Natural environmental accident",alerts)
 
             val cat2=view.findViewById<CheckBox>(R.id.Cat2)
-            setUpCategory(cat2,"Warning",alerts)
+            setUpCategory(cat2,"Anthropic environmental accident",alerts)
 
             val cat3=view.findViewById<CheckBox>(R.id.Cat3)
-            setUpCategory(cat3,"Emergency",alerts)
+            setUpCategory(cat3,"Health and biological accident",alerts)
 
             val cat4=view.findViewById<CheckBox>(R.id.Cat4)
-            setUpCategory(cat4,"Critical",alerts)
+            setUpCategory(cat4,"Technological accident",alerts)
+
+            val cat5=view.findViewById<CheckBox>(R.id.Cat5)
+            setUpCategory(cat5,"Urban and social accident",alerts)
+
+            val cat6=view.findViewById<CheckBox>(R.id.Cat6)
+            setUpCategory(cat6,"Marine and aquatic accident",alerts)
 
             setUpEditText(title, "title", alerts)
 
@@ -396,10 +408,12 @@ class MapFragment : Fragment() {
 
             if(visible){
                 when (ad.type) {
-                    "Info" -> convertAddressToCoordinates(ad.position, R.drawable.location_green, ad)
-                    "Warning" -> convertAddressToCoordinates(ad.position, R.drawable.location_yellow, ad)
-                    "Emergency" -> convertAddressToCoordinates(ad.position, R.drawable.location_orange, ad)
-                    "Critical" -> convertAddressToCoordinates(ad.position, R.drawable.location_red, ad)
+                    "Natural environmental accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_green, ad)
+                    "Anthropic environmental accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_yellow, ad)
+                    "Health and biological accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_orange, ad)
+                    "Technological accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_red, ad)
+                    "Urban and social accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_red, ad)
+                    "Marine and aquatic accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_red, ad)
                 }
             }
         }

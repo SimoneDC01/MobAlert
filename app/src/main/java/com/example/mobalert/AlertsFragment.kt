@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -51,6 +52,8 @@ class AlertsFragment : Fragment() {
     private lateinit var binding: FragmentAlertsBinding
     private lateinit var adapter: AdAdapterMy
     private lateinit var auth: FirebaseAuth
+    private lateinit var rootLayout: FrameLayout
+    private var loadingSpinner: LoadingSpinner? = null
 
     private var filters= mutableMapOf(
         "title" to "",
@@ -86,11 +89,13 @@ class AlertsFragment : Fragment() {
     ): View? {
         binding = FragmentAlertsBinding.inflate(inflater, container, false);
         auth = FirebaseAuth.getInstance()
-
+        rootLayout = binding.MyAlerts
+        showLoading(true)
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 getAlerts()
                 withContext(Dispatchers.Main) {
+                    showLoading(false)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -143,18 +148,18 @@ class AlertsFragment : Fragment() {
                 // Puoi controllare lo stato della checkbox manualmente
                 if (cat1.isChecked) {
                     if(filters["category"]==""){
-                        filters["category"]="Info"
+                        filters["category"]="Natural environmental accident"
                     }
                     else{
-                        filters["category"]+=",Info"
+                        filters["category"]+=",Natural environmental accident"
                     }
                     // Azione quando è selezionata
                     adapter.filter(filters)
                 } else {
 
 
-                    filters["category"] = filters["category"]!!.replace(",Info", "")
-                    filters["category"] = filters["category"]!!.replace("Info", "")
+                    filters["category"] = filters["category"]!!.replace(",Natural environmental accident", "")
+                    filters["category"] = filters["category"]!!.replace("Natural environmental accident", "")
                     adapter.filter(filters)
 
                 }
@@ -165,17 +170,17 @@ class AlertsFragment : Fragment() {
                 // Puoi controllare lo stato della checkbox manualmente
                 if (cat2.isChecked) {
                     if(filters["category"]==""){
-                        filters["category"]="Warning"
+                        filters["category"]="Anthropic environmental accident"
                     }
                     else{
-                        filters["category"]+=",Warning"
+                        filters["category"]+=",Anthropic environmental accident"
                     }
                     // Azione quando è selezionata
                     adapter.filter(filters)
                 } else {
 
-                    filters["category"] = filters["category"]!!.replace(",Warning", "")
-                    filters["category"] = filters["category"]!!.replace("Warning", "")
+                    filters["category"] = filters["category"]!!.replace(",Anthropic environmental accident", "")
+                    filters["category"] = filters["category"]!!.replace("Anthropic environmental accident", "")
                     adapter.filter(filters)
 
                 }
@@ -186,17 +191,17 @@ class AlertsFragment : Fragment() {
                 // Puoi controllare lo stato della checkbox manualmente
                 if (cat3.isChecked) {
                     if(filters["category"]==""){
-                        filters["category"]="Emergency"
+                        filters["category"]="Health and biological accident"
                     }
                     else{
-                        filters["category"]+=",Emergency"
+                        filters["category"]+=",Health and biological accident"
                     }
                     // Azione quando è selezionata
                     adapter.filter(filters)
                 } else {
 
-                    filters["category"] = filters["category"]!!.replace(",Emergency", "")
-                    filters["category"] = filters["category"]!!.replace("Emergency", "")
+                    filters["category"] = filters["category"]!!.replace(",Health and biological accident", "")
+                    filters["category"] = filters["category"]!!.replace("Health and biological accident", "")
                     adapter.filter(filters)
 
                 }
@@ -207,18 +212,60 @@ class AlertsFragment : Fragment() {
                 // Puoi controllare lo stato della checkbox manualmente
                 if (cat4.isChecked) {
                     if(filters["category"]==""){
-                        filters["category"]="Critical"
+                        filters["category"]="Technological accident"
                     }
                     else{
-                        filters["category"]+=",Critical"
+                        filters["category"]+=",Technological accident"
                     }
                     // Azione quando è selezionata
                     adapter.filter(filters)
                 } else {
 
 
-                    filters["category"] = filters["category"]!!.replace(",Critical", "")
-                    filters["category"] = filters["category"]!!.replace("Critical", "")
+                    filters["category"] = filters["category"]!!.replace(",Technological accident", "")
+                    filters["category"] = filters["category"]!!.replace("Technological accident", "")
+                    adapter.filter(filters)
+
+                }
+            }
+            val cat5=view.findViewById<CheckBox>(R.id.Cat5)
+            cat5.setOnClickListener {
+                // Puoi controllare lo stato della checkbox manualmente
+                if (cat5.isChecked) {
+                    if(filters["category"]==""){
+                        filters["category"]="Urban and social accident"
+                    }
+                    else{
+                        filters["category"]+=",Urban and social accident"
+                    }
+                    // Azione quando è selezionata
+                    adapter.filter(filters)
+                } else {
+
+
+                    filters["category"] = filters["category"]!!.replace(",Urban and social accident", "")
+                    filters["category"] = filters["category"]!!.replace("Urban and social accident", "")
+                    adapter.filter(filters)
+
+                }
+            }
+            val cat6=view.findViewById<CheckBox>(R.id.Cat6)
+            cat6.setOnClickListener {
+                // Puoi controllare lo stato della checkbox manualmente
+                if (cat6.isChecked) {
+                    if(filters["category"]==""){
+                        filters["category"]="Marine and aquatic accident"
+                    }
+                    else{
+                        filters["category"]+=",Marine and aquatic accident"
+                    }
+                    // Azione quando è selezionata
+                    adapter.filter(filters)
+                } else {
+
+
+                    filters["category"] = filters["category"]!!.replace(",Marine and aquatic accident", "")
+                    filters["category"] = filters["category"]!!.replace("Marine and aquatic accident", "")
                     adapter.filter(filters)
 
                 }
@@ -324,6 +371,25 @@ class AlertsFragment : Fragment() {
             }
         } catch (e: Exception) {
             Log.e("LOGIN", "Errore durante la richiesta: $e")
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            if (loadingSpinner == null) {
+                loadingSpinner = LoadingSpinner(requireContext())
+                val params = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+                rootLayout.addView(loadingSpinner, params)
+            }
+            loadingSpinner?.visibility = View.VISIBLE
+        } else {
+            loadingSpinner?.let {
+                rootLayout.removeView(it) // Rimuovi dal layout
+                loadingSpinner = null
+            }
         }
     }
 

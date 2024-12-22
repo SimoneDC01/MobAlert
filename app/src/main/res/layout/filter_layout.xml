@@ -294,7 +294,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/CategoryDesc"
             android:layout_marginLeft="20dp"
-            android:text="Info"
+            android:text="Natural environmental accident"
             android:checked="false" />
 
         <CheckBox
@@ -303,7 +303,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/Cat1"
             android:layout_marginLeft="20dp"
-            android:text="Warning"
+            android:text="Anthropic environmental accident"
             android:checked="false" />
 
         <CheckBox
@@ -312,7 +312,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/Cat2"
             android:layout_marginLeft="20dp"
-            android:text="Emergency"
+            android:text="Health and biological accident"
             android:checked="false" />
 
         <CheckBox
@@ -321,7 +321,25 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/Cat3"
             android:layout_marginLeft="20dp"
-            android:text="Critical"
+            android:text="Technological accident"
+            android:checked="false" />
+
+        <CheckBox
+            android:id="@+id/Cat5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/Cat4"
+            android:layout_marginLeft="20dp"
+            android:text="Urban and social accident"
+            android:checked="false" />
+
+        <CheckBox
+            android:id="@+id/Cat6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/Cat5"
+            android:layout_marginLeft="20dp"
+            android:text="Marine and aquatic accident"
             android:checked="false" />
 
 
@@ -329,7 +347,7 @@
             android:id="@+id/Reset"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/Cat4"
+            android:layout_below="@id/Cat6"
             android:layout_marginLeft="65dp"
             android:layout_marginTop="12dp"
             android:text="Reset"></Button>

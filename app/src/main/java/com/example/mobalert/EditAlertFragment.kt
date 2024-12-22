@@ -95,7 +95,7 @@ class EditAlertFragment : Fragment() {
 
     private fun setupCategoryDropdown(alertCategory: String) {
         // Lista di categorie predefinite
-        val categories = listOf("Emergency", "Warning", "Info", "Critical")
+        val categories = listOf("Natural environmental accident", "Anthropic environmental accident", "Health and biological accident", "Technological accident","Urban and social accident","Marine and aquatic accident")
 
         // Crea un adattatore per l'AutoCompleteTextView
         val adapter = ArrayAdapter(
@@ -107,10 +107,12 @@ class EditAlertFragment : Fragment() {
         // Imposta l'adattatore nell'AutoCompleteTextView
         binding.editCategory.setAdapter(adapter)
         when(alertCategory){
-            "Emergency" -> binding.editCategory.setText(categories[0], false)
-            "Warning" -> binding.editCategory.setText(categories[1], false)
-            "Info" -> binding.editCategory.setText(categories[2], false)
-            "Critical" -> binding.editCategory.setText(categories[3], false)
+            "Natural environmental accident" -> binding.editCategory.setText(categories[0], false)
+            "Anthropic environmental accident" -> binding.editCategory.setText(categories[1], false)
+            "Health and biological accident" -> binding.editCategory.setText(categories[2], false)
+            "Technological accident" -> binding.editCategory.setText(categories[3], false)
+            "Urban and social accident" -> binding.editCategory.setText(categories[4], false)
+            "Marine and aquatic accident" -> binding.editCategory.setText(categories[5], false)
         }
 
         // Apri sempre il dropdown quando l'utente clicca sul campo

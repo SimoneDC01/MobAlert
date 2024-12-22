@@ -385,7 +385,7 @@ class InsertAlertFragment : Fragment() {
 
     private fun setupCategoryDropdown() {
         // Lista di categorie predefinite
-        val categories = listOf("Emergency", "Warning", "Info", "Critical")
+        val categories = listOf("Natural environmental accident", "Anthropic environmental accident", "Health and biological accident", "Technological accident","Urban and social accident","Marine and aquatic accident")
 
         // Crea un adattatore per l'AutoCompleteTextView
         val adapter = ArrayAdapter(
