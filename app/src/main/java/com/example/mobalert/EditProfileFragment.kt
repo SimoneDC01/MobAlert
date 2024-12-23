@@ -119,19 +119,23 @@ class EditProfileFragment : Fragment() {
 
 
         binding.updateProfileButton.setOnClickListener {
+            if (binding.editName.text.toString() == "") {
+                binding.editName.error = "Please enter a name"
+                binding.editName.requestFocus()
+            }
+            else{
             val hashMap = HashMap<String, Any>()
             hashMap["name"] = binding.editName.text.toString()
             hashMap["phoneNumber"] = binding.editPhone.text.toString()
             hashMap["dob"] = binding.editDob.text.toString()
 
-            reference.child(auth.uid.toString()).updateChildren(hashMap).
-            addOnSuccessListener {
+            reference.child(auth.uid.toString()).updateChildren(hashMap).addOnSuccessListener {
                 Log.d("LOGIN", "updateUserInfo: Info saved")
             }
-            .addOnFailureListener { e ->
-                Log.e("LOGIN", "updateUserInfo: ", e)
-            }
-            if(ImageProfile!=null) {
+                .addOnFailureListener { e ->
+                    Log.e("LOGIN", "updateUserInfo: ", e)
+                }
+            if (ImageProfile != null) {
                 val imageBytes = requireContext().contentResolver.openInputStream(ImageProfile!!)
                     ?.use { inputStream ->
                         inputStream.readBytes()
@@ -165,13 +169,11 @@ class EditProfileFragment : Fragment() {
                         Log.e("LOGIN", "Error during request: $e")
                     }
                 }
-            }
-            else if(imageUri==null && delete==true){
+            } else if (imageUri == null && delete == true) {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         DeleteProfileImage(auth.uid.toString())
-                    }
-                    catch (e: Exception) {
+                    } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
                             Log.d("LOGIN", "Error: $e")
                         }
@@ -179,12 +181,13 @@ class EditProfileFragment : Fragment() {
                 }
             }
             runBlocking { // Avvia una coroutine di base
-                delay(200) // Pausa non bloccante di 1 secondo
+                delay(200)
             }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.Fragment, ProfileFragment())
                 .addToBackStack(null)
                 .commit()
+        }
         }
 
         binding.editDob.setOnClickListener {

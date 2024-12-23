@@ -3,6 +3,7 @@ package com.example.mobalert
 import AdAdapter
 import AdAdapterMy
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -17,11 +18,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.PopupWindow
 import android.widget.TextView
+import android.widget.TimePicker
 import androidx.core.content.ContextCompat
 import com.example.mobalert.HomeFragment.Alert
 import com.example.mobalert.HomeFragment.HomeAlters
@@ -54,6 +57,7 @@ class AlertsFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var rootLayout: FrameLayout
     private var loadingSpinner: LoadingSpinner? = null
+    private lateinit var dialog: Dialog
 
     private var filters= mutableMapOf(
         "title" to "",
@@ -87,6 +91,7 @@ class AlertsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        dialog = Dialog(requireContext())
         binding = FragmentAlertsBinding.inflate(inflater, container, false);
         auth = FirebaseAuth.getInstance()
         rootLayout = binding.MyAlerts
@@ -141,8 +146,22 @@ class AlertsFragment : Fragment() {
             val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
             val reset=view.findViewById<Button>(R.id.Reset)
             val elemTo=view.findViewById<EditText>(R.id.dateTo)
+            val description = view.findViewById<EditText>(R.id.description)
+
             setupDateTimePicker(elemFrom)
             setupDateTimePicker(elemTo)
+
+            editText.setText(filters["title"])
+            description.setText(filters["description"])
+            if(filters["dateHour"]!="") {
+                elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                elemTo.setText(filters["dateHour"]!!.split(",")[1])
+            }
+            else{
+                elemFrom.setText("")
+                elemTo.setText("")
+            }
+
             val cat1=view.findViewById<CheckBox>(R.id.Cat1)
             cat1.setOnClickListener {
                 // Puoi controllare lo stato della checkbox manualmente
@@ -291,7 +310,6 @@ class AlertsFragment : Fragment() {
             })
 
 
-            val description = view.findViewById<EditText>(R.id.description)
 
             description.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -309,6 +327,32 @@ class AlertsFragment : Fragment() {
                     if (s != null) {
                         println("Il testo è ora: $s")
                     }
+                }
+            })
+
+            elemFrom.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    filters["dateHour"] = "${s.toString()},${elemTo.text}"
+                    adapter.filter(filters)
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                }
+            })
+
+            elemTo.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    filters["dateHour"] = "${elemFrom.text},${s.toString()}"
+                    adapter.filter(filters)
+                }
+
+                override fun afterTextChanged(s: Editable?) {
                 }
             })
 
@@ -393,43 +437,46 @@ class AlertsFragment : Fragment() {
         }
     }
 
-    private fun setupDateTimePicker(elem:EditText) {
-        val calendar = Calendar.getInstance()
-        // Listener per clic su data/ora
+    private fun setupDateTimePicker(elem : EditText) {
         elem.setOnClickListener {
-            // Mostra DatePickerDialog
-            DatePickerDialog(
-                requireContext(),
-                { _, year, month, dayOfMonth ->
-                    // Aggiorna la data nel calendario
-                    calendar.set(Calendar.YEAR, year)
-                    calendar.set(Calendar.MONTH, month)
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            dialog.setContentView(R.layout.date_hour)
+            dialog.setCancelable(false)
+            dialog.show()
+            val datePicker = dialog.findViewById<DatePicker>(R.id.datepicker)
+            val deleteDate = dialog.findViewById<TextView>(R.id.deleteDate)
+            val okDate = dialog.findViewById<TextView>(R.id.okDate)
+            val timePicker = dialog.findViewById<TimePicker>(R.id.timepicker)
+            val deleteTime = dialog.findViewById<TextView>(R.id.deleteTime)
+            val okTime = dialog.findViewById<TextView>(R.id.okTime)
 
-                    // Mostra TimePickerDialog
-                    TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            // Aggiorna l'ora nel calendario
-                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                            calendar.set(Calendar.MINUTE, minute)
+            timePicker.setIs24HourView(true)
 
-                            // Formatta data e ora
-                            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                            val formattedDateTime = sdf.format(calendar.time)
+            deleteDate.setOnClickListener {
+                elem.setText("")
+                dialog.hide()
+            }
+            deleteTime.setOnClickListener {
+                elem.setText("")
+                dialog.hide()
+            }
 
-                            // Imposta il valore nel campo di testo
-                            elem.setText(formattedDateTime)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true // Usa formato 24 ore
-                    ).show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            okDate.setOnClickListener {
+                datePicker.visibility = View.GONE
+                timePicker.visibility = View.VISIBLE
+            }
+
+            okTime.setOnClickListener {
+                val calendar = Calendar.getInstance()
+                calendar.set(Calendar.YEAR,datePicker.year)
+                calendar.set(Calendar.MONTH,datePicker.month)
+                calendar.set(Calendar.DAY_OF_MONTH,datePicker.dayOfMonth)
+                calendar.set(Calendar.HOUR_OF_DAY,timePicker.hour)
+                calendar.set(Calendar.MINUTE,timePicker.minute)
+                val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                val parsedDate = sdf.format(calendar.time)
+                elem.setText(parsedDate)
+                dialog.hide()
+            }
         }
     }
 

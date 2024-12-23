@@ -33,11 +33,15 @@ class SignupActivity : AppCompatActivity() {
         reference = database.reference.child("Users")
 
         binding.signupButton.setOnClickListener {
+            val username = binding.signupusername.text.toString()
             val email = binding.signupEmail.text.toString()
             val password = binding.signupPassword.text.toString()
             val cPassword = binding.signupConfirmPassword.text.toString()
-
-            if (!Patterns.EMAIL_ADDRESS.matcher(email) .matches()){
+            if(username.isEmpty()){
+                binding.signupusername.error = "Enter Username"
+                binding.signupusername.requestFocus()
+            }
+            else if (!Patterns.EMAIL_ADDRESS.matcher(email) .matches()){
                 binding.signupEmail.error = "Invalid Email Pattern"
                 binding.signupEmail.requestFocus()
             } else if (password.isEmpty()){
@@ -53,7 +57,7 @@ class SignupActivity : AppCompatActivity() {
                         val hashMap = HashMap<String, Any>()
                         hashMap["uid"] = "$auth.uid"
                         hashMap["email"] = email
-                        hashMap["name"] = ""
+                        hashMap["name"] = username
                         hashMap["phoneNumber"] = ""
                         hashMap["dob"] = ""
 

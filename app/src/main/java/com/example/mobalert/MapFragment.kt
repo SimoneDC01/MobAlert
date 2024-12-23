@@ -1,9 +1,7 @@
 package com.example.mobalert
 
 import AdAdapter
-import android.app.DatePickerDialog
 import android.app.Dialog
-import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -173,10 +171,10 @@ class MapFragment : Fragment() {
                     convertAddressToCoordinates(alert.position, R.drawable.location_red, alert)
                 }
                 "Urban and social accident" -> {
-                    convertAddressToCoordinates(alert.position, R.drawable.location_red, alert)
+                    convertAddressToCoordinates(alert.position, R.drawable.location_blue, alert)
                 }
                 "Marine and aquatic accident" -> {
-                    convertAddressToCoordinates(alert.position, R.drawable.location_red, alert)
+                    convertAddressToCoordinates(alert.position, R.drawable.location_water, alert)
                 }
             }
         }
@@ -412,8 +410,8 @@ class MapFragment : Fragment() {
                     "Anthropic environmental accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_yellow, ad)
                     "Health and biological accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_orange, ad)
                     "Technological accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_red, ad)
-                    "Urban and social accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_red, ad)
-                    "Marine and aquatic accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_red, ad)
+                    "Urban and social accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_blue, ad)
+                    "Marine and aquatic accident" -> convertAddressToCoordinates(ad.position, R.drawable.location_water, ad)
                 }
             }
         }
