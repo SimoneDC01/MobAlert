@@ -89,7 +89,7 @@
             android:layout_below="@id/descriptionTv"
             android:ellipsize="end"
             android:lines="1"
-            android:background="@drawable/position_black"
+            android:drawableStart="@drawable/position_black"
             android:layout_marginStart="20dp">
         </TextView>
 

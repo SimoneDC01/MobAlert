@@ -1,27 +1,26 @@
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
-import android.view.GestureDetector
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.imageview.ShapeableImageView
 import android.widget.TextView
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager2.widget.ViewPager2
 import com.example.mobalert.AdapterImageSlider
 import com.example.mobalert.HomeFragment
+import com.example.mobalert.MainActivity
+import com.example.mobalert.MapFragment
 import com.example.mobalert.ModelImageSlider
 import com.example.mobalert.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.math.abs
 
-class AdAdapter(private val context: Context, private val ads: MutableList<HomeFragment.HomeAlters>) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
+class AdAdapter(private val context: Context, private val mapFragmentManager: FragmentManager? ,private val ads: MutableList<HomeFragment.HomeAlters>, private val alerts: MutableList<HomeFragment.Alert>?) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
 
     // ViewHolder per gli elementi della RecyclerView
     class AdViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -52,6 +51,7 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
         holder.dateTv.text = ad.datehour
         holder.categoryTv.text = ad.type
 
+
         if (ad.visible) {
             holder.root.visibility = View.VISIBLE
         }
@@ -66,6 +66,20 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
         }
         var adapter = AdapterImageSlider(context, images)
         holder.imageIv.adapter = adapter
+
+        holder.positionTv.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putSerializable("alerts", ArrayList(alerts))
+            bundle.putString("position", ad.position)
+
+            val fragment = MapFragment()
+            fragment.arguments = bundle
+
+            val transaction = mapFragmentManager?.beginTransaction()
+            transaction?.replace(R.id.alerts_fragment, fragment)
+            transaction?.addToBackStack(null)
+            transaction?.commit()
+        }
 
         holder.root.setOnClickListener {
             Log.d("LOGIN", "CLICK ${holder.imageIv.layoutParams.width}")
@@ -94,6 +108,8 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
                 params = holder.dateTv.layoutParams as RelativeLayout.LayoutParams
                 params.removeRule(RelativeLayout.END_OF)
                 holder.dateTv.layoutParams = params
+
+                holder.positionTv.text = ad.position
             }
             else{
                 holder.imageIv.layoutParams.width = 360
@@ -120,6 +136,7 @@ class AdAdapter(private val context: Context, private val ads: MutableList<HomeF
                 params.addRule(RelativeLayout.END_OF, R.id.imageIv)
                 holder.dateTv.layoutParams = params
 
+                holder.positionTv.text = ""
             }
 
             holder.imageIv.requestLayout()

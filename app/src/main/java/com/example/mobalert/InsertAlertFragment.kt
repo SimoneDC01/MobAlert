@@ -6,6 +6,8 @@ import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.ContentValues
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -26,13 +28,20 @@ import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.mobalert.MapFragment.GeocodingService
 import com.example.mobalert.databinding.FragmentInsertAlertBinding
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.primitives.Bytes
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.plugin.animation.flyTo
+import com.mapbox.maps.plugin.locationcomponent.location
 import com.yalantis.ucrop.UCrop
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -75,6 +84,8 @@ class InsertAlertFragment : Fragment() {
     private var database = FirebaseDatabase.getInstance()
     private var reference = database.reference.child("Users")
     private var imageUri: Uri? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
 
     private lateinit var dialog: Dialog
 
@@ -101,6 +112,8 @@ class InsertAlertFragment : Fragment() {
 
         dialog = Dialog(requireContext())
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
         setupCategoryDropdown()
 
         setupDateTimePicker(binding.editDateHour)
@@ -109,6 +122,69 @@ class InsertAlertFragment : Fragment() {
 
         binding.IAButtonAlert.setOnClickListener{
             Log.d("LOGIN", "IA Help")
+        }
+        binding.pickPosition.setOnClickListener{
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Permessi non concessi, non dovrebbe mai arrivare qui
+                Toast.makeText(requireContext(), "Permessi non concessi!", Toast.LENGTH_SHORT).show()
+            }
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        val latitude = location.latitude
+                        val longitude = location.longitude
+                        val retrofit = Retrofit.Builder()
+                            .baseUrl("https://api.mapbox.com/")
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build()
+
+                        val service = retrofit.create(com.example.mobalert.MapFragment.GeocodingService::class.java)
+                        val call = service.getAddress(longitude, latitude, "sk.eyJ1IjoiaXByb2JhYmlsaXNzaW1pMyIsImEiOiJjbTRsOXM1cDkxMGhiMmtyM3N1MHJjNHgyIn0.BbTuFcHNuFteXvY7GFXUrw")
+
+                        call.enqueue(object : Callback<Map<String, Any>> {
+                            override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
+                                if (response.isSuccessful) {
+                                    val body = response.body()
+                                    val features = (body?.get("features") as? List<*>)?.filterIsInstance<Map<String, Any>>()
+                                    if (!features.isNullOrEmpty()) {
+                                        val address = features[0]["place_name"] as? String
+                                        //convertAddressToCoordinates(address!!)
+                                        binding.editPosition.setText(address)
+                                    } else {
+                                        Log.d("LOGIN", "Nessun indirizzo trovato.")
+                                    }
+                                } else {
+                                    Log.e("LOGIN", "Errore nella risposta: ${response.errorBody()?.string()}")
+                                }
+                            }
+
+                            override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
+                                Log.e("LOGIN", "Errore: ${t.message}")
+                            }
+                        })
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Impossibile ottenere la posizione.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(
+                        requireContext(),
+                        "Errore nel rilevamento della posizione: ${exception.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
 
         binding.InsertAlertButton.setOnClickListener {

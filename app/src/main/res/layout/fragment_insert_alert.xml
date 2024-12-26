@@ -201,6 +201,12 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="text"/>
+                            <Button
+                                android:id="@+id/pickPosition"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="pick"
+                                />
 
                         </com.google.android.material.textfield.TextInputLayout>
 

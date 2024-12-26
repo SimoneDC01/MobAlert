@@ -84,6 +84,7 @@ class MapFragment : Fragment() {
 
     private var database = FirebaseDatabase.getInstance()
     private var reference = database.reference.child("Users")
+    private lateinit var position: String
 
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -125,6 +126,10 @@ class MapFragment : Fragment() {
         }
 
         val alerts = arguments?.getSerializable("alerts") as ArrayList<HomeFragment.Alert>
+        position = ""
+        position = arguments?.getString("position").toString()
+        Log.d("LOGIN","position: $position")
+
 
 
         // Usa la lista come preferisci
@@ -180,7 +185,8 @@ class MapFragment : Fragment() {
         }
 
         // Controlla e richiedi i permessi
-        checkAndRequestPermissions()
+        checkAndRequestPermissions(position)
+
 
         // Carica lo stile della mappa
         binding.mapView.getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS) {
@@ -458,46 +464,6 @@ class MapFragment : Fragment() {
                 dialog.hide()
             }
         }
-        /*
-        val calendar = Calendar.getInstance()
-
-        // Listener per clic su data/ora
-        elem.setOnClickListener {
-            // Mostra DatePickerDialog
-            DatePickerDialog(
-                requireContext(),
-                { _, year, month, dayOfMonth ->
-                    // Aggiorna la data nel calendario
-                    calendar.set(Calendar.YEAR, year)
-                    calendar.set(Calendar.MONTH, month)
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-
-                    // Mostra TimePickerDialog
-                    TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            // Aggiorna l'ora nel calendario
-                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                            calendar.set(Calendar.MINUTE, minute)
-
-                            // Formatta data e ora
-                            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                            val formattedDateTime = sdf.format(calendar.time)
-
-                            // Imposta il valore nel campo di testo
-                            elem.setText(formattedDateTime)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true // Usa formato 24 ore
-                    ).show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
-         */
     }
 
     private suspend fun getImage(id : Int, image: String): Bitmap? {
@@ -521,7 +487,7 @@ class MapFragment : Fragment() {
         }
     }
 
-    private fun checkAndRequestPermissions() {
+    private fun checkAndRequestPermissions(position: String) {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -541,7 +507,7 @@ class MapFragment : Fragment() {
             )
         } else {
             // Permessi già concessi
-            getLastKnownLocation()
+            getLastKnownLocation(position)
         }
     }
 
@@ -557,7 +523,7 @@ class MapFragment : Fragment() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permesso concesso
                 Toast.makeText(requireContext(), "Permesso concesso!", Toast.LENGTH_SHORT).show()
-                getLastKnownLocation()
+                getLastKnownLocation(position)
             } else {
                 // Permesso negato
                 Toast.makeText(requireContext(), "Permesso negato!", Toast.LENGTH_SHORT).show()
@@ -566,7 +532,7 @@ class MapFragment : Fragment() {
     }
 
 
-    private fun getLastKnownLocation() {
+    private fun getLastKnownLocation(position: String) {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -584,27 +550,79 @@ class MapFragment : Fragment() {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 if (location != null) {
-                    val latitude = location.latitude
-                    val longitude = location.longitude
-                    Log.d("LOGIN", "Lat: $latitude, Lon: $longitude")
-                    Toast.makeText(
-                        requireContext(),
-                        "Lat: $latitude, Lon: $longitude",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    if (position.isEmpty()) {
+                        val latitude = location.latitude
+                        val longitude = location.longitude
+                        Log.d("LOGIN", "Lat: $latitude, Lon: $longitude")
+                        Toast.makeText(
+                            requireContext(),
+                            "Lat: $latitude, Lon: $longitude",
+                            Toast.LENGTH_SHORT
+                        ).show()
 
-                    val mapboxMap = binding.mapView.getMapboxMap()
-                    val cameraOptions = CameraOptions.Builder()
-                        .center(com.mapbox.geojson.Point.fromLngLat(longitude, latitude))
-                        .zoom(14.0)
+                        val mapboxMap = binding.mapView.getMapboxMap()
+                        val cameraOptions = CameraOptions.Builder()
+                            .center(com.mapbox.geojson.Point.fromLngLat(longitude, latitude))
+                            .zoom(14.0)
+                            .build()
+
+                        mapboxMap.flyTo(cameraOptions)
+                        binding.mapView.location.pulsingEnabled = true
+                        //binding.mapView.location.enabled = false
+                        //addMarker(longitude, latitude)
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Impossibile ottenere la posizione.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                else{
+                    val retrofit = Retrofit.Builder()
+                        .baseUrl("https://api.mapbox.com/")
+                        .addConverterFactory(GsonConverterFactory.create())
                         .build()
 
-                    mapboxMap.flyTo(cameraOptions)
-                    binding.mapView.location.pulsingEnabled = true
-                    //binding.mapView.location.enabled = false
-                    //addMarker(longitude, latitude)
-                } else {
-                    Toast.makeText(requireContext(), "Impossibile ottenere la posizione.", Toast.LENGTH_SHORT).show()
+                    val service = retrofit.create(GeocodingService::class.java)
+                    val call = service.getCoordinates(position, "sk.eyJ1IjoiaXByb2JhYmlsaXNzaW1pMyIsImEiOiJjbTRsOXM1cDkxMGhiMmtyM3N1MHJjNHgyIn0.BbTuFcHNuFteXvY7GFXUrw")
+
+                    call.enqueue(object : Callback<Map<String, Any>> {
+                        override fun onResponse(
+                            call: Call<Map<String, Any>>,
+                            response: Response<Map<String, Any>>
+                        ) {
+                            if (response.isSuccessful) {
+                                val body = response.body()
+                                val features =
+                                    (body?.get("features") as? List<*>)?.filterIsInstance<Map<String, Any>>()
+                                if (!features.isNullOrEmpty()) {
+                                    val geometry = features[0]["geometry"] as? Map<String, Any>
+                                    val coordinates = geometry?.get("coordinates") as? List<Double>
+                                    if (coordinates != null && coordinates.size >= 2) {
+                                        val longitude = coordinates[0]
+                                        val latitude = coordinates[1]
+                                        val mapboxMap = binding.mapView.getMapboxMap()
+                                        val cameraOptions = CameraOptions.Builder()
+                                            .center(
+                                                com.mapbox.geojson.Point.fromLngLat(
+                                                    longitude,
+                                                    latitude
+                                                )
+                                            )
+                                            .zoom(14.0)
+                                            .build()
+
+                                        mapboxMap.flyTo(cameraOptions)
+                                    }
+                                }
+                            }
+                        }
+
+                        override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
+                            TODO("Not yet implemented")
+                        }
+                    })
                 }
             }
             .addOnFailureListener { exception ->
@@ -664,7 +682,7 @@ class MapFragment : Fragment() {
                 imagesAlert[alert.id]!!,
                 true
             )
-            val adapter = AdAdapter(requireContext(), mutableListOf(payload))
+            val adapter = AdAdapter(requireContext(),null,  mutableListOf(payload),null)
             binding.alertsRv.adapter = adapter
             /*
             binding.include.usernameTv.text = alert?.iduser

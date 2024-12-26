@@ -2,13 +2,9 @@ package com.example.mobalert
 
 import AdAdapter
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.app.DatePickerDialog
 import android.app.Dialog
-import android.app.TimePickerDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.http.HttpResponseCache.install
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -27,14 +23,13 @@ import android.widget.PopupMenu
 import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.TimePicker
-import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import com.example.mobalert.HomeFragment.Alert
 import com.example.mobalert.HomeFragment.HomeAlters
 import com.example.mobalert.databinding.FragmentListHomeBinding
 import com.google.firebase.database.FirebaseDatabase
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
@@ -47,7 +42,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -62,6 +56,7 @@ class ListHomeFragment : Fragment() {
     private var alerts = mutableListOf<Alert>()
     private lateinit var rootLayout: FrameLayout
     private var loadingSpinner: LoadingSpinner? = null
+    private lateinit var mapFragmentManager: FragmentManager
 
     private var filters= mutableMapOf(
         "title" to "",
@@ -104,6 +99,9 @@ class ListHomeFragment : Fragment() {
                 }
             }
         }
+
+        mapFragmentManager = requireActivity().supportFragmentManager
+
 
         binding.orderBy.setOnClickListener { view ->
             val popupMenu = PopupMenu(view.context, binding.orderBy)
@@ -231,7 +229,7 @@ class ListHomeFragment : Fragment() {
             val fragment = MapFragment()
             fragment.arguments = bundle
 
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            val transaction = mapFragmentManager.beginTransaction()
             transaction.replace(R.id.alerts_fragment, fragment)
             transaction.addToBackStack(null)
             transaction.commit()
@@ -335,7 +333,7 @@ class ListHomeFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     if(isAdded){
                         while(homealerts.size<alerts.size) {delay(100)}
-                            adapter = AdAdapter(requireContext(), homealerts)
+                            adapter = AdAdapter(requireContext(),mapFragmentManager, homealerts, alerts)
                             binding.alertsRv.adapter = adapter
                     }
                     else{
