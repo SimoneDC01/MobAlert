@@ -1,16 +1,20 @@
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager2.widget.ViewPager2
@@ -19,6 +23,7 @@ import com.example.mobalert.AlertsFragment
 import com.example.mobalert.EditAlertFragment
 import com.example.mobalert.HomeFragment
 import com.example.mobalert.InsertAlertFragment
+import com.example.mobalert.LoadingSpinner
 import com.example.mobalert.MainActivity
 import com.example.mobalert.ModelImageSlider
 import com.example.mobalert.R
@@ -33,11 +38,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class AdAdapterMy(private val context: Context, private val ads: MutableList<HomeFragment.HomeAlters>,
                   private val parentFragment: Fragment) : RecyclerView.Adapter<AdAdapterMy.AdViewHolder>() {
+
 
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -68,6 +77,8 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
     }
 
     override fun onBindViewHolder(holder: AdViewHolder, position: Int) {
+
+
         // Popola i dati
         val ad = ads[position]
         Log.d("LOGIN", "onBindViewHolder: $ad")
@@ -76,6 +87,21 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
         holder.descriptionTv.text = ad.description
         holder.dateTv.text = ad.datehour
         holder.categoryTv.text = ad.type
+        holder.positionTv.text = ad.position
+
+        if (ad.visible) {
+            holder.root.visibility = View.VISIBLE
+        }
+        else {
+            Log.d("LOGIN", "GONE")
+            holder.root.visibility = View.GONE
+        }
+        var images = ArrayList<ModelImageSlider>()
+        for (image in ad.image) {
+            images.add(ModelImageSlider(image!!))
+        }
+        var adapter = AdapterImageSlider(context, images)
+        holder.imageIv.adapter = adapter
 
         holder.optionsButton.setOnClickListener { view ->
             val popupMenu = PopupMenu(view.context, holder.optionsButton)
@@ -83,6 +109,7 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
             popupMenu.menu.add(Menu.NONE, 2, 2, "Delete Alert")
 
             popupMenu.setOnMenuItemClickListener { item ->
+
                 when (item.itemId) {
                     1 -> {
                         Log.d("LOGIN", "Edit Alert")
@@ -95,21 +122,30 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
                         // Passa dati se necessario (ad esempio l'ID dell'alert)
                         val bundle = Bundle()
                         bundle.putInt("alertId", ad.id)
+                        bundle.putString("alertPosition", ad.position)
+                        bundle.putString("alertDate", ad.datehour)
                         bundle.putString("alertTitle", ad.title)
                         bundle.putString("alertDescription", ad.description)
                         bundle.putString("alertCategory", ad.type)
+                        var uriStringList = ArrayList<String>()
+                        for (image in ad.image) {
+                            uriStringList.add(bitmapToUri(context, image!!).toString())
+                        }
+                        bundle.putStringArrayList("alertImages", uriStringList);
                         fragment.arguments = bundle
-
                         // Sostituisci il Fragment corrente con quello nuovo
                         transaction.replace(R.id.Fragment, fragment)
                         transaction.addToBackStack(null) // Aggiungi alla backstack per consentire il "torna indietro"
                         transaction.commit()
+
                     }
                     2 -> {
+
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
                                 deleteAlert(ad.id)
                                 withContext(Dispatchers.Main) {
+
                                     Log.d("LOGIN", "Delete Alert")
                                     parentFragment.parentFragmentManager.beginTransaction()
                                         .replace(R.id.Fragment, AlertsFragment())
@@ -130,19 +166,6 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
             // Mostra il menu popup
             popupMenu.show()
         }
-        if (ad.visible) {
-            holder.root.visibility = View.VISIBLE
-        }
-        else {
-            Log.d("LOGIN", "GONE")
-            holder.root.visibility = View.GONE
-        }
-        var images = ArrayList<ModelImageSlider>()
-        for (image in ad.image) {
-            images.add(ModelImageSlider(image!!))
-        }
-        var adapter = AdapterImageSlider(context, images)
-        holder.imageIv.adapter = adapter
 
         holder.root.setOnClickListener {
             Log.d("LOGIN", "CLICK ${holder.imageIv.layoutParams.width}")
@@ -286,6 +309,24 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
         updateList(newList)
     }
 
+    fun bitmapToUri(context: Context, bitmap: Bitmap): Uri? {
+        // Creare un file temporaneo nella cache directory
+        val file = File(context.cacheDir, "image_" + System.currentTimeMillis() + ".png") // Nome del file
+        return try {
+            // Scrivere il bitmap nel file
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+
+            // Restituire l'URI del file
+            Uri.fromFile(file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 
     fun sortByDate() {
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
@@ -306,8 +347,6 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
         ads.addAll(newAds)
         diffResult.dispatchUpdatesTo(this)
     }
-
-
 
     // DiffUtil Callback per calcolare le differenze tra vecchia e nuova lista
     class AdDiffCallback(

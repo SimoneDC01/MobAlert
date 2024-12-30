@@ -12,15 +12,57 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="150dp"
         android:padding="10dp">
 
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/imagesNsv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- TextView: Just to show a labeled text -->
+                <TextView
+                    android:id="@+id/imagesLabelTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="Modify images"
+                    style="@style/TextAppearance.MaterialComponents.Body1"/>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/imageButtonAlert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/add_image_black"
+                    app:fabCustomSize="35dp"
+                    android:layout_alignEnd="@id/imagesLabelTv"
+                    android:layout_above="@id/imagesRv"
+                    >
+                </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/imagesRv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/imagesLabelTv"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    tools:listitem="@layout/row_images"
+                    app:spanCount="4"/>
+
+            </RelativeLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/TitleTil"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/imagesNsv"
             android:layout_marginTop="4dp"
             android:hint="       Title"
             app:boxCornerRadiusTopStart="8dp"
