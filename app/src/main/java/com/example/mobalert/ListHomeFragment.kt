@@ -57,6 +57,7 @@ class ListHomeFragment : Fragment() {
     private lateinit var rootLayout: FrameLayout
     private var loadingSpinner: LoadingSpinner? = null
     private lateinit var mapFragmentManager: FragmentManager
+    private lateinit var position: String
 
     private var filters= mutableMapOf(
         "title" to "",
@@ -88,6 +89,10 @@ class ListHomeFragment : Fragment() {
         HomeFragment.homeBinding?.addAlert?.visibility = View.VISIBLE
         rootLayout = binding.loadingSpinner
         showLoading(true)
+
+        position = arguments?.getString("position").toString()
+        Log.d("LOGIN", "position list home $position")
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 getAlerts()
@@ -101,6 +106,7 @@ class ListHomeFragment : Fragment() {
         }
 
         mapFragmentManager = requireActivity().supportFragmentManager
+
 
 
         binding.orderBy.setOnClickListener { view ->
@@ -333,15 +339,25 @@ class ListHomeFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     if(isAdded){
                         while(homealerts.size<alerts.size) {delay(100)}
-                            adapter = AdAdapter(requireContext(),mapFragmentManager, homealerts, alerts)
-                            binding.alertsRv.adapter = adapter
+
+                        adapter = AdAdapter(requireContext(),mapFragmentManager, homealerts, alerts)
+                        binding.alertsRv.adapter = adapter
                     }
                     else{
                         Log.d("LOGIN", "Fragment is not attached to the activity")
                     }
                 }
 
-                Log.d("LOGIN", "alerts: $alerts")
+                if(position != "null") {
+                    val bundle = Bundle()
+                    bundle.putSerializable("alerts", ArrayList(alerts))
+                    bundle.putString("position", position)
+                    val fragment = MapFragment()
+                    fragment.arguments = bundle
+                    val transaction = mapFragmentManager.beginTransaction()
+                    transaction.replace(R.id.alerts_fragment, fragment)
+                    transaction.commit()
+                }
             } else {
                 Log.e("LOGIN", "Errore nella richiesta: ${response.status}")
             }

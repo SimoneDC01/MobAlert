@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapFragment">
+    tools:context=".MapFragment"
+    android:id="@+id/root">
 
     <Button
         android:id="@+id/filter"
@@ -53,5 +54,15 @@
         tools:listitem="@layout/alert_el"
         tools:itemCount="1">
     </androidx.recyclerview.widget.RecyclerView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/my_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        app:shapeAppearanceOverlay="@style/ImageStyle_Circle"
+        android:src="@drawable/my_position_black"
+        android:layout_above="@id/alertsRv"
+        android:layout_marginBottom="10dp"/>
 
 </RelativeLayout>

@@ -16,6 +16,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import android.widget.TextView
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager2.widget.ViewPager2
 import com.example.mobalert.AdapterImageSlider
@@ -23,8 +24,10 @@ import com.example.mobalert.AlertsFragment
 import com.example.mobalert.EditAlertFragment
 import com.example.mobalert.HomeFragment
 import com.example.mobalert.InsertAlertFragment
+import com.example.mobalert.ListHomeFragment
 import com.example.mobalert.LoadingSpinner
 import com.example.mobalert.MainActivity
+import com.example.mobalert.MapFragment
 import com.example.mobalert.ModelImageSlider
 import com.example.mobalert.R
 import io.ktor.client.HttpClient
@@ -44,7 +47,7 @@ import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class AdAdapterMy(private val context: Context, private val ads: MutableList<HomeFragment.HomeAlters>,
+class AdAdapterMy(private val context: Context, private val mapFragmentManager: FragmentManager?, private val ads: MutableList<HomeFragment.HomeAlters>,
                   private val parentFragment: Fragment) : RecyclerView.Adapter<AdAdapterMy.AdViewHolder>() {
 
 
@@ -87,7 +90,6 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
         holder.descriptionTv.text = ad.description
         holder.dateTv.text = ad.datehour
         holder.categoryTv.text = ad.type
-        holder.positionTv.text = ad.position
 
         if (ad.visible) {
             holder.root.visibility = View.VISIBLE
@@ -102,6 +104,19 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
         }
         var adapter = AdapterImageSlider(context, images)
         holder.imageIv.adapter = adapter
+
+        holder.positionTv.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("position", ad.position)
+
+            val fragment = HomeFragment()
+            fragment.arguments = bundle
+
+            val transaction = mapFragmentManager?.beginTransaction()
+            transaction?.replace(R.id.Fragment, fragment)
+            transaction?.addToBackStack(null)
+            transaction?.commit()
+        }
 
         holder.optionsButton.setOnClickListener { view ->
             val popupMenu = PopupMenu(view.context, holder.optionsButton)
@@ -190,13 +205,14 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
 
                 params = holder.dateTv.layoutParams as RelativeLayout.LayoutParams
                 params.removeRule(RelativeLayout.END_OF)
+                params.addRule(RelativeLayout.BELOW,R.id.mydescriptionTv)
                 holder.dateTv.layoutParams = params
 
-                holder.imageIv.requestLayout()
-                holder.titleTv.requestLayout()
-                holder.descriptionTv.requestLayout()
-                holder.categoryTv.requestLayout()
-                holder.dateTv.requestLayout()
+                params = holder.positionTv.layoutParams as RelativeLayout.LayoutParams
+                params.addRule(RelativeLayout.BELOW,R.id.mydescriptionTv)
+                holder.positionTv.layoutParams = params
+
+                holder.positionTv.text = ad.position
             }
             else{
                 holder.imageIv.layoutParams.width = 360
@@ -206,7 +222,6 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
                 params.removeRule(RelativeLayout.BELOW)
                 params.addRule(RelativeLayout.END_OF, R.id.myimageIv)
                 holder.titleTv.layoutParams = params
-
 
                 params = holder.descriptionTv.layoutParams as RelativeLayout.LayoutParams
                 params.addRule(RelativeLayout.END_OF, R.id.myimageIv)
@@ -218,8 +233,14 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
 
                 params = holder.dateTv.layoutParams as RelativeLayout.LayoutParams
                 params.addRule(RelativeLayout.END_OF, R.id.myimageIv)
+                params.addRule(RelativeLayout.BELOW,R.id.myimageIv)
                 holder.dateTv.layoutParams = params
 
+                params = holder.positionTv.layoutParams as RelativeLayout.LayoutParams
+                params.addRule(RelativeLayout.BELOW,R.id.myimageIv)
+                holder.positionTv.layoutParams = params
+
+                holder.positionTv.text = ""
             }
 
             holder.imageIv.requestLayout()
@@ -227,6 +248,7 @@ class AdAdapterMy(private val context: Context, private val ads: MutableList<Hom
             holder.descriptionTv.requestLayout()
             holder.categoryTv.requestLayout()
             holder.dateTv.requestLayout()
+            holder.positionTv.requestLayout()
         }
 
     }

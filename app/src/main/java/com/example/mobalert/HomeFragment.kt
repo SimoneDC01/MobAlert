@@ -89,6 +89,21 @@ class HomeFragment : Fragment() {
         database = FirebaseDatabase.getInstance()
         referece = database.reference.child("Users")
 
+        var position = arguments?.getString("position").toString()
+        if(position != "null"){
+            val bundle = Bundle()
+            bundle.putString("position", position)
+
+            val fragment = ListHomeFragment()
+            fragment.arguments = bundle
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.alerts_fragment, fragment) // Sostituisci il fragment attuale
+                .addToBackStack(null) // Opzionale, aggiunge il fragment alla back stack
+                .commit() // Applica la transazione
+        }
+
+
         binding.addAlert.setOnClickListener {
             goToFragment2(InsertAlertFragment())
         }

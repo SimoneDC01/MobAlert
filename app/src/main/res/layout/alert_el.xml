@@ -77,9 +77,8 @@
             android:ellipsize="end"
             android:lines="1"
             android:text="04/12/2024"
-            android:textColor="#787878">
+            android:textColor="#787878" />
 
-        </TextView>
         <TextView
             android:id="@+id/positionTv"
             style="@style/TextAppearance.MaterialComponents.Body2"
@@ -92,7 +91,5 @@
             android:drawableStart="@drawable/position_black"
             android:layout_marginStart="20dp">
         </TextView>
-
-        </RelativeLayout>
-
-        </com.google.android.material.card.MaterialCardView>
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

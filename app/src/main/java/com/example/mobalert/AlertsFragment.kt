@@ -26,6 +26,7 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.TimePicker
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import com.example.mobalert.HomeFragment.Alert
 import com.example.mobalert.HomeFragment.HomeAlters
 import com.example.mobalert.databinding.FragmentAlertsBinding
@@ -58,6 +59,8 @@ class AlertsFragment : Fragment() {
     private lateinit var rootLayout: FrameLayout
     private var loadingSpinner: LoadingSpinner? = null
     private lateinit var dialog: Dialog
+
+    private lateinit var mapFragmentManager: FragmentManager
 
     private var filters= mutableMapOf(
         "title" to "",
@@ -95,6 +98,8 @@ class AlertsFragment : Fragment() {
         binding = FragmentAlertsBinding.inflate(inflater, container, false);
         auth = FirebaseAuth.getInstance()
         rootLayout = binding.MyAlerts
+        mapFragmentManager = requireActivity().supportFragmentManager
+
         showLoading(true)
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -405,7 +410,7 @@ class AlertsFragment : Fragment() {
                 }
                 withContext(Dispatchers.Main) {
                     Log.d("LOGIN", "homealerts: $homealerts")
-                    adapter = AdAdapterMy(requireContext(),homealerts,this@AlertsFragment)
+                    adapter = AdAdapterMy(requireContext(), mapFragmentManager, homealerts,this@AlertsFragment)
                     binding.MyAlertsRv.adapter = adapter
                 }
 

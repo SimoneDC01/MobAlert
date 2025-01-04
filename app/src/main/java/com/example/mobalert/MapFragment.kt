@@ -2,12 +2,16 @@ package com.example.mobalert
 
 import AdAdapter
 import android.app.Dialog
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -23,6 +27,7 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -125,9 +130,15 @@ class MapFragment : Fragment() {
             transaction.commit()
         }
 
-        val alerts = arguments?.getSerializable("alerts") as ArrayList<HomeFragment.Alert>
-        position = ""
+        val alerts = arguments?.getSerializable("alerts") as? ArrayList<HomeFragment.Alert>
+        if (alerts == null) {
+            Log.e("LOGIN", "L'argomento 'alerts' è nullo o mancante.")
+            return null // Oppure gestisci il caso in modo appropriato
+        }
+        else{
+            position = ""
         position = arguments?.getString("position").toString()
+            }
         Log.d("LOGIN","position: $position")
 
 
@@ -193,6 +204,10 @@ class MapFragment : Fragment() {
             // Inizializza il PointAnnotationManager
             val annotationPlugin = binding.mapView.annotations
             pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
+        }
+
+        binding.myPosition.setOnClickListener {
+            checkAndRequestPermissions("null")
         }
 
         binding.mapView.getMapboxMap().addOnMapClickListener { point ->
@@ -487,6 +502,22 @@ class MapFragment : Fragment() {
         }
     }
 
+    private fun isLocationEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    private fun showLocationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Attivare la posizione")
+            .setMessage("La posizione è disattivata.")
+            .setNegativeButton("Ok") { dialog, _ ->
+                dialog.dismiss() // Chiudi il dialogo
+            }
+            .show()
+    }
+
     private fun checkAndRequestPermissions(position: String) {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -497,7 +528,7 @@ class MapFragment : Fragment() {
                 android.Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Richiedi i permessi
+            Log.d("Permissions", "Permessi non concessi, li richiedo...")
             requestPermissions(
                 arrayOf(
                     android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -505,11 +536,13 @@ class MapFragment : Fragment() {
                 ),
                 LOCATION_PERMISSION_REQUEST_CODE
             )
-        } else {
-            // Permessi già concessi
+        }
+        else {
+            Log.d("Permissions", "Permessi già concessi, avvio gli aggiornamenti.")
             getLastKnownLocation(position)
         }
     }
+
 
     @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(
@@ -546,92 +579,107 @@ class MapFragment : Fragment() {
             Toast.makeText(requireContext(), "Permessi non concessi!", Toast.LENGTH_SHORT).show()
             return
         }
+        val mapboxMap = binding.mapView.getMapboxMap()
+        if (position != "null"){
+            Log.d("LOGIN", "sono qua: $position")
+            val retrofit = Retrofit.Builder()
+                .baseUrl("https://api.mapbox.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
 
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                if (location != null) {
-                    if (position.isEmpty()) {
-                        val latitude = location.latitude
-                        val longitude = location.longitude
-                        Log.d("LOGIN", "Lat: $latitude, Lon: $longitude")
-                        Toast.makeText(
-                            requireContext(),
-                            "Lat: $latitude, Lon: $longitude",
-                            Toast.LENGTH_SHORT
-                        ).show()
+            val service = retrofit.create(GeocodingService::class.java)
+            val call = service.getCoordinates(position, "sk.eyJ1IjoiaXByb2JhYmlsaXNzaW1pMyIsImEiOiJjbTRsOXM1cDkxMGhiMmtyM3N1MHJjNHgyIn0.BbTuFcHNuFteXvY7GFXUrw")
 
-                        val mapboxMap = binding.mapView.getMapboxMap()
-                        val cameraOptions = CameraOptions.Builder()
-                            .center(com.mapbox.geojson.Point.fromLngLat(longitude, latitude))
-                            .zoom(14.0)
-                            .build()
+            call.enqueue(object : Callback<Map<String, Any>> {
+                override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
+                    if (response.isSuccessful) {
+                        val body = response.body()
+                        val features = (body?.get("features") as? List<*>)?.filterIsInstance<Map<String, Any>>()
+                        if (!features.isNullOrEmpty()) {
+                            val geometry = features[0]["geometry"] as? Map<String, Any>
+                            val coordinates = geometry?.get("coordinates") as? List<Double>
+                            if (coordinates != null && coordinates.size >= 2) {
+                                val cameraOptions = CameraOptions.Builder()
+                                    .center(
+                                        com.mapbox.geojson.Point.fromLngLat(
+                                            coordinates[0],
+                                            coordinates[1]
+                                        )
+                                    )
+                                    .zoom(18.0)
+                                    .build()
 
-                        mapboxMap.flyTo(cameraOptions)
-                        binding.mapView.location.pulsingEnabled = true
-                        //binding.mapView.location.enabled = false
-                        //addMarker(longitude, latitude)
+                                mapboxMap.flyTo(cameraOptions)
+                                Log.d("LOGIN", "Coordinate trovate: Lat: ${coordinates[0]}, Lon: ${coordinates[1]}")
+                            } else {
+                                Log.d("LOGIN", "Impossibile trovare le coordinate.")
+                            }
+                        } else {
+                            Log.d("LOGIN", "Nessun risultato trovato.")
+                        }
                     } else {
+                        Log.e("LOGIN", "Errore nella risposta: ${response.errorBody()?.string()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
+                    Log.e("LOGIN", "Errore: ${t.message}")
+                }
+            })
+        }
+        else {
+            if (!isLocationEnabled(requireContext())) {
+                // Mostra il dialogo se la posizione è disabilitata
+                showLocationDialog()
+            }
+            else {
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        if (location != null) {
+                            Log.d(
+                                "LocationSuccess",
+                                "Lat: ${location.latitude}, Lon: ${location.longitude}"
+                            )
+                            Toast.makeText(
+                                requireContext(),
+                                "Lat: ${location.latitude}, Lon: ${location.longitude}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            val cameraOptions = CameraOptions.Builder()
+                                .center(
+                                    com.mapbox.geojson.Point.fromLngLat(
+                                        location.longitude,
+                                        location.latitude
+                                    )
+                                )
+                                .zoom(18.0)
+                                .build()
+
+                            mapboxMap.flyTo(cameraOptions)
+                        } else {
+                            Log.e("LocationError", "Posizione non disponibile")
+                            Toast.makeText(
+                                requireContext(),
+                                "Impossibile ottenere la posizione.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e(
+                            "LocationError",
+                            "Errore durante il rilevamento della posizione: ${exception.message}"
+                        )
                         Toast.makeText(
                             requireContext(),
-                            "Impossibile ottenere la posizione.",
+                            "Errore nel rilevamento della posizione: ${exception.message}",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                }
-                else{
-                    val retrofit = Retrofit.Builder()
-                        .baseUrl("https://api.mapbox.com/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-
-                    val service = retrofit.create(GeocodingService::class.java)
-                    val call = service.getCoordinates(position, "sk.eyJ1IjoiaXByb2JhYmlsaXNzaW1pMyIsImEiOiJjbTRsOXM1cDkxMGhiMmtyM3N1MHJjNHgyIn0.BbTuFcHNuFteXvY7GFXUrw")
-
-                    call.enqueue(object : Callback<Map<String, Any>> {
-                        override fun onResponse(
-                            call: Call<Map<String, Any>>,
-                            response: Response<Map<String, Any>>
-                        ) {
-                            if (response.isSuccessful) {
-                                val body = response.body()
-                                val features =
-                                    (body?.get("features") as? List<*>)?.filterIsInstance<Map<String, Any>>()
-                                if (!features.isNullOrEmpty()) {
-                                    val geometry = features[0]["geometry"] as? Map<String, Any>
-                                    val coordinates = geometry?.get("coordinates") as? List<Double>
-                                    if (coordinates != null && coordinates.size >= 2) {
-                                        val longitude = coordinates[0]
-                                        val latitude = coordinates[1]
-                                        val mapboxMap = binding.mapView.getMapboxMap()
-                                        val cameraOptions = CameraOptions.Builder()
-                                            .center(
-                                                com.mapbox.geojson.Point.fromLngLat(
-                                                    longitude,
-                                                    latitude
-                                                )
-                                            )
-                                            .zoom(14.0)
-                                            .build()
-
-                                        mapboxMap.flyTo(cameraOptions)
-                                    }
-                                }
-                            }
-                        }
-
-                        override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
-                            TODO("Not yet implemented")
-                        }
-                    })
-                }
             }
-            .addOnFailureListener { exception ->
-                Toast.makeText(
-                    requireContext(),
-                    "Errore nel rilevamento della posizione: ${exception.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        }
+
     }
 
     private fun addMarker(longitude: Double, latitude: Double, drawable: Int, alert: HomeFragment.Alert) {
@@ -768,8 +816,6 @@ class MapFragment : Fragment() {
             }
         })
     }
-
-
 
     fun convertAddressToCoordinates(address: String, drawable: Int, alert: HomeFragment.Alert) {
         val retrofit = Retrofit.Builder()

@@ -75,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/myimageIv"
-            android:layout_below="@id/mydescriptionTv"
+            android:layout_below="@id/myimageIv"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="04/12/2024"
@@ -87,10 +87,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/mydateTv"
-            android:layout_below="@id/mydescriptionTv"
+            android:layout_below="@id/myimageIv"
             android:ellipsize="end"
             android:lines="1"
-            android:background="@drawable/position_black"
+            android:drawableStart="@drawable/position_black"
             android:layout_marginStart="20dp">
         </TextView>
     </RelativeLayout>
