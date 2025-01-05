@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager2.widget.ViewPager2
 import com.example.mobalert.AdapterImageSlider
 import com.example.mobalert.HomeFragment
-import com.example.mobalert.MainActivity
 import com.example.mobalert.MapFragment
 import com.example.mobalert.ModelImageSlider
 import com.example.mobalert.R

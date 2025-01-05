@@ -3,8 +3,6 @@ package com.example.mobalert
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,8 +17,6 @@ import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.net.toUri
-import com.example.mobalert.databinding.FragmentAlertsBinding
 import com.example.mobalert.databinding.FragmentEditAlertBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -30,14 +26,10 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
-import io.ktor.client.request.get
 import io.ktor.client.request.post
-import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.client.statement.readBytes
-import io.ktor.client.utils.EmptyContent.contentType
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -232,10 +224,6 @@ class EditAlertFragment : Fragment() {
             startCrop(imageUri)
 
         }
-        else{
-            Log.d("LOGIN", "Image Pick Cancelled")
-            Toast.makeText(this.activity, "Image Pick Cancelled", Toast.LENGTH_SHORT).show()
-        }
     }
 
 
@@ -252,10 +240,6 @@ class EditAlertFragment : Fragment() {
             startCrop(imageUri)
 
 
-        }
-        else{
-            Log.d("LOGIN", "Image Pick Cancelled")
-            Toast.makeText(this.activity, "Image Pick Cancelled", Toast.LENGTH_SHORT).show()
         }
     }
 

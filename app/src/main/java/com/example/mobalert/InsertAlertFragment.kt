@@ -120,10 +120,7 @@ class InsertAlertFragment : Fragment() {
 
         imagesPickedArrayList = ArrayList()
 
-        binding.IAButtonAlert.setOnClickListener{
-            Log.d("LOGIN", "IA Help")
-        }
-        binding.pickPosition.setOnClickListener {
+        binding.pickPosition.setOnClickListener{
             if (ActivityCompat.checkSelfPermission(
                     requireContext(),
                     android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -133,69 +130,58 @@ class InsertAlertFragment : Fragment() {
                     android.Manifest.permission.ACCESS_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                // Permessi non concessi, richiedili
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION
-                    ),
-                    PERMISSION_REQUEST_LOCATION
-                )
-            } else {
-                // Permessi già concessi, procedi
-                fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location: Location? ->
-                        if (location != null) {
-                            val latitude = location.latitude
-                            val longitude = location.longitude
-                            val retrofit = Retrofit.Builder()
-                                .baseUrl("https://api.mapbox.com/")
-                                .addConverterFactory(GsonConverterFactory.create())
-                                .build()
+                // Permessi non concessi, non dovrebbe mai arrivare qui
+                Toast.makeText(requireContext(), "Permessi non concessi!", Toast.LENGTH_SHORT).show()
+            }
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        val latitude = location.latitude
+                        val longitude = location.longitude
+                        val retrofit = Retrofit.Builder()
+                            .baseUrl("https://api.mapbox.com/")
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build()
 
-                            val service = retrofit.create(com.example.mobalert.MapFragment.GeocodingService::class.java)
-                            val call = service.getAddress(
-                                longitude, latitude,
-                                "sk.eyJ1IjoiaXByb2JhYmlsaXNzaW1pMyIsImEiOiJjbTRsOXM1cDkxMGhiMmtyM3N1MHJjNHgyIn0.BbTuFcHNuFteXvY7GFXUrw"
-                            )
+                        val service = retrofit.create(com.example.mobalert.MapFragment.GeocodingService::class.java)
+                        val call = service.getAddress(longitude, latitude, "sk.eyJ1IjoiaXByb2JhYmlsaXNzaW1pMyIsImEiOiJjbTRsOXM1cDkxMGhiMmtyM3N1MHJjNHgyIn0.BbTuFcHNuFteXvY7GFXUrw")
 
-                            call.enqueue(object : Callback<Map<String, Any>> {
-                                override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
-                                    if (response.isSuccessful) {
-                                        val body = response.body()
-                                        val features = (body?.get("features") as? List<*>)?.filterIsInstance<Map<String, Any>>()
-                                        if (!features.isNullOrEmpty()) {
-                                            val address = features[0]["place_name"] as? String
-                                            binding.editPosition.setText(address)
-                                        } else {
-                                            Log.d("LOGIN", "Nessun indirizzo trovato.")
-                                        }
+                        call.enqueue(object : Callback<Map<String, Any>> {
+                            override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
+                                if (response.isSuccessful) {
+                                    val body = response.body()
+                                    val features = (body?.get("features") as? List<*>)?.filterIsInstance<Map<String, Any>>()
+                                    if (!features.isNullOrEmpty()) {
+                                        val address = features[0]["place_name"] as? String
+                                        //convertAddressToCoordinates(address!!)
+                                        binding.editPosition.setText(address)
                                     } else {
-                                        Log.e("LOGIN", "Errore nella risposta: ${response.errorBody()?.string()}")
+                                        Log.d("LOGIN", "Nessun indirizzo trovato.")
                                     }
+                                } else {
+                                    Log.e("LOGIN", "Errore nella risposta: ${response.errorBody()?.string()}")
                                 }
+                            }
 
-                                override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
-                                    Log.e("LOGIN", "Errore: ${t.message}")
-                                }
-                            })
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Impossibile ottenere la posizione.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                    .addOnFailureListener { exception ->
+                            override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
+                                Log.e("LOGIN", "Errore: ${t.message}")
+                            }
+                        })
+                    } else {
                         Toast.makeText(
                             requireContext(),
-                            "Errore nel rilevamento della posizione: ${exception.message}",
+                            "Impossibile ottenere la posizione.",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-            }
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(
+                        requireContext(),
+                        "Errore nel rilevamento della posizione: ${exception.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
 
         binding.InsertAlertButton.setOnClickListener {
@@ -307,23 +293,6 @@ class InsertAlertFragment : Fragment() {
 
         // Restituisci la vista associata al binding
         return binding.root
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_LOCATION) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permessi concessi, puoi procedere con l'operazione
-                Toast.makeText(requireContext(), "Permessi concessi!", Toast.LENGTH_SHORT).show()
-            } else {
-                // Permessi negati
-                Toast.makeText(requireContext(), "Permessi negati. Non è possibile accedere alla posizione.", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private val requestCameraPermission = registerForActivityResult(
@@ -652,9 +621,6 @@ class InsertAlertFragment : Fragment() {
 
         recyclerView.adapter = adapter
 
-    }
-    companion object {
-        private const val PERMISSION_REQUEST_LOCATION = 1001
     }
 
 

@@ -11,13 +11,11 @@
 
     <TextView
         android:id="@+id/main_title"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="top"
-        android:text="Alert!"
-        android:textStyle="bold"
-        android:textSize="40sp"
-        android:textAlignment="center">
+        android:background="@drawable/logo"
+        android:layout_centerHorizontal="true">
     </TextView>
 
     <androidx.fragment.app.FragmentContainerView

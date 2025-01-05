@@ -55,7 +55,7 @@
                     android:id="@+id/imagesLabelTv"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:text="Pick upto 10 images"
+                    android:text="Pick up to 10 images"
                     style="@style/TextAppearance.MaterialComponents.Body1"/>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -69,15 +69,6 @@
                     >
                 </com.google.android.material.floatingactionbutton.FloatingActionButton>
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/IAButtonAlert"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@id/imagesRv"
-                    android:layout_toLeftOf="@id/imageButtonAlert"
-                    app:fabCustomSize="35dp">
-
-                </com.google.android.material.floatingactionbutton.FloatingActionButton>
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/imagesRv"
                     android:layout_width="match_parent"

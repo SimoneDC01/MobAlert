@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MobAlert</string>
+    <string name="app_name">Alert</string>
     <string name="login">Login</string>
     <string name="signup">Signup</string>
     <string name="login_with_google">Login with Google</string>

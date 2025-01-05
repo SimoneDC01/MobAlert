@@ -58,7 +58,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -640,11 +639,6 @@ class MapFragment : Fragment() {
                                 "LocationSuccess",
                                 "Lat: ${location.latitude}, Lon: ${location.longitude}"
                             )
-                            Toast.makeText(
-                                requireContext(),
-                                "Lat: ${location.latitude}, Lon: ${location.longitude}",
-                                Toast.LENGTH_SHORT
-                            ).show()
 
                             val cameraOptions = CameraOptions.Builder()
                                 .center(
@@ -706,7 +700,6 @@ class MapFragment : Fragment() {
             }
             catch (e: Exception){
                 Log.e("LOGIN", "Errore nell'aggiunta del marker $e")
-                Toast.makeText(requireContext(), "Errore nell'aggiunta del marker", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -739,7 +732,6 @@ class MapFragment : Fragment() {
             binding.include.descriptionTv.text = alert?.description
             binding.include.dateTv.text = alert?.datehour
             */
-            Toast.makeText(requireContext(), "Marker cliccato con ID: ${alert?.id}", Toast.LENGTH_SHORT).show()
             true // Ritorna true per consumare l'evento
         }
     }
@@ -761,7 +753,6 @@ class MapFragment : Fragment() {
         binding.alertsRv.adapter = null
 
         Log.d("MAP_CLICK", "Lat: $latitude, Lon: $longitude")
-        Toast.makeText(requireContext(), "Punto cliccato: Lat: $latitude, Lon: $longitude", Toast.LENGTH_SHORT).show()
 
         // Aggiungi un marker nel punto cliccato
         //addMarker(longitude, latitude)

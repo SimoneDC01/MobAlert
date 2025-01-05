@@ -1,10 +1,7 @@
 package com.example.mobalert
 
-import AdAdapter
 import AdAdapterMy
-import android.app.DatePickerDialog
 import android.app.Dialog
-import android.app.TimePickerDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -30,8 +27,6 @@ import androidx.fragment.app.FragmentManager
 import com.example.mobalert.HomeFragment.Alert
 import com.example.mobalert.HomeFragment.HomeAlters
 import com.example.mobalert.databinding.FragmentAlertsBinding
-import com.example.mobalert.ListHomeFragment
-import com.example.mobalert.databinding.FragmentListHomeBinding
 import com.google.firebase.auth.FirebaseAuth
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -146,8 +141,6 @@ class AlertsFragment : Fragment() {
             val editText = view.findViewById<EditText>(R.id.title)
             val username=view.findViewById<EditText>(R.id.username)
             username.visibility=View.GONE
-            val usernameEdit=view.findViewById<TextView>(R.id.usernameDesc)
-            usernameEdit.visibility=View.GONE
             val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
             val reset=view.findViewById<Button>(R.id.Reset)
             val elemTo=view.findViewById<EditText>(R.id.dateTo)

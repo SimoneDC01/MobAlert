@@ -3,6 +3,7 @@
     <style name="Base.Theme.MobAlert" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/black</item>
+        <item name="android:windowBackground">@color/white</item>
     </style>
 
     <style name="Theme.MobAlert" parent="Base.Theme.MobAlert" />

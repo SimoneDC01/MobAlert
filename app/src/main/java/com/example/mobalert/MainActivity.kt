@@ -3,15 +3,11 @@ package com.example.mobalert
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.example.mobalert.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity() {
@@ -40,12 +36,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
-
-        /*binding.goToLoginButton.setOnClickListener {
-            Toast.makeText(this, "Go to login button clicked", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-        }*/
 
         binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
             val currentFragment = supportFragmentManager.findFragmentById(R.id.Fragment)

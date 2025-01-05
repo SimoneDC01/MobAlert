@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.mobalert.databinding.FragmentChangePasswordBinding
-import com.example.mobalert.databinding.FragmentEditProfileBinding
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase

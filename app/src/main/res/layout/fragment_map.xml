@@ -12,16 +12,18 @@
         android:id="@+id/filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter">
-    </Button>
+        android:backgroundTint="#FFFFFF"
+        android:text="Filter"
+        android:textColor="@color/black"></Button>
 
     <Button
         android:id="@+id/list_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:text="List View">
-    </Button>
+        android:backgroundTint="#FFFFFF"
+        android:text="List View"
+        android:textColor="@color/black"></Button>
 
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"

@@ -10,13 +10,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import com.example.mobalert.databinding.FragmentProfileBinding
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
-import java.lang.Thread.sleep
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
 import com.example.mobalert.HomeFragment.Alert

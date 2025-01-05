@@ -18,15 +18,11 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
-import com.example.mobalert.HomeFragment.Alert
-import com.example.mobalert.HomeFragment.HomeAlters
 import com.example.mobalert.databinding.FragmentEditProfileBinding
 import com.yalantis.ucrop.UCrop
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpResponse
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import io.ktor.client.HttpClient
@@ -316,9 +312,6 @@ class EditProfileFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             Log.d("LOGIN", "Image Uri: $imageUri")
             startCrop(imageUri)
-        } else {
-            Log.d("LOGIN", "Image Pick Cancelled")
-            Toast.makeText(this.activity, "Image Pick Cancelled", Toast.LENGTH_SHORT).show()
         }
     }
 

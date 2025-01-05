@@ -14,23 +14,30 @@
         android:id="@+id/filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter">
+        android:backgroundTint="#FFFFFF"
+        android:text="Filter"
+        android:textColor="@color/black">
     </Button>
+
     <Button
         android:id="@+id/order_by"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="Order by">
+        android:backgroundTint="#FFFFFF"
+        android:text="Order by"
+        android:textColor="@color/black">
     </Button>
+
     <Button
         android:id="@+id/map_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:text="Map View">
+        android:backgroundTint="#FFFFFF"
+        android:text="Map View"
+        android:textColor="@color/black">
     </Button>
-
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/alertsRv"
