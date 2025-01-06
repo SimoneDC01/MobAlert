@@ -16,8 +16,10 @@
         android:layout_height="wrap_content"
         android:backgroundTint="#FFFFFF"
         android:text="Filter"
-        android:textColor="@color/black">
-    </Button>
+        android:textColor="@color/black"
+        app:icon="@drawable/filter_outlined"
+        app:iconPadding="2dp"
+        app:iconTint="#000000"></Button>
 
     <Button
         android:id="@+id/order_by"
@@ -26,8 +28,10 @@
         android:layout_centerHorizontal="true"
         android:backgroundTint="#FFFFFF"
         android:text="Order by"
-        android:textColor="@color/black">
-    </Button>
+        android:textColor="@color/black"
+        app:icon="@drawable/sort"
+        app:iconPadding="2dp"
+        app:iconTint="#000000"></Button>
 
     <Button
         android:id="@+id/map_view"
@@ -36,8 +40,10 @@
         android:layout_alignParentEnd="true"
         android:backgroundTint="#FFFFFF"
         android:text="Map View"
-        android:textColor="@color/black">
-    </Button>
+        android:textColor="@color/black"
+        app:icon="@drawable/position_black"
+        app:iconPadding="2dp"
+        app:iconTint="#000000"></Button>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/alertsRv"

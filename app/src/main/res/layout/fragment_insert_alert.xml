@@ -5,9 +5,9 @@
     android:id="@+id/mainAlert"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:backgroundTint="#FFFFFF"
     android:fitsSystemWindows="true"
     tools:context=".EditProfileFragment">
-
 
 
     <RelativeLayout
@@ -25,8 +25,7 @@
             android:layout_marginVertical="20dp"
             android:background="@color/white"
             android:src="@drawable/alert_black"
-            app:shapeAppearanceOverlay="@style/ImageStyle_Circle">
-        </com.google.android.material.imageview.ShapeableImageView>
+            app:shapeAppearanceOverlay="@style/ImageStyle_Circle"></com.google.android.material.imageview.ShapeableImageView>
 
     </RelativeLayout>
 
@@ -35,191 +34,194 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbarRlAlert">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dp">
-
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/imagesNsv"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:padding="10dp">
 
-            <RelativeLayout
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/imagesNsv"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:padding="10dp">
 
-                <!-- TextView: Just to show a labeled text -->
-                <TextView
-                    android:id="@+id/imagesLabelTv"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:text="Pick up to 10 images"
-                    style="@style/TextAppearance.MaterialComponents.Body1"/>
+                    android:layout_height="wrap_content">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/imageButtonAlert"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/add_image_black"
-                    app:fabCustomSize="35dp"
-                    android:layout_alignEnd="@id/imagesLabelTv"
-                    android:layout_above="@id/imagesRv"
-                    >
-                </com.google.android.material.floatingactionbutton.FloatingActionButton>
+                    <!-- TextView: Just to show a labeled text -->
+                    <TextView
+                        android:id="@+id/imagesLabelTv"
+                        style="@style/TextAppearance.MaterialComponents.Body1"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:text="Pick up to 10 images" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/imagesRv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/imagesLabelTv"
-                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                    tools:listitem="@layout/row_images"
-                    app:spanCount="4"/>
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/imageButtonAlert"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@id/imagesRv"
+                        android:layout_alignEnd="@id/imagesLabelTv"
+                        android:src="@drawable/add_image_black"
+                        app:fabCustomSize="35dp"></com.google.android.material.floatingactionbutton.FloatingActionButton>
 
-            </RelativeLayout>
-
-        </androidx.core.widget.NestedScrollView>
-
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/TitleTil"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:hint="       Title"
-                            android:layout_below="@id/imagesNsv"
-                            app:boxCornerRadiusTopStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusBottomEnd="8dp">
-
-                            <EditText
-                                android:id="@+id/editTitle"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="text"/>
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/CategoryTil"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/TitleTil"
-                            android:layout_marginTop="4dp"
-                            android:hint="       Category"
-                            app:boxCornerRadiusTopStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusBottomEnd="8dp">
-
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/editCategory"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:height="55dp"
-                                android:focusable="true"
-                                android:focusableInTouchMode="true"
-                                android:inputType="none"
-                                android:paddingStart="16dp" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/DescriptionTil"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/CategoryTil"
-                            android:layout_marginTop="4dp"
-                            android:hint="       Description"
-                            app:boxCornerRadiusTopStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusBottomEnd="8dp">
-
-                            <EditText
-                                android:id="@+id/editDescription"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="text"/>
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/DateHourTil"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/DescriptionTil"
-                            android:layout_marginTop="4dp"
-                            android:hint="       Date and Hour"
-                            app:boxCornerRadiusTopStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusBottomEnd="8dp"
-                            app:startIconDrawable="@drawable/calendar_black">
-
-                            <EditText
-                                android:id="@+id/editDateHour"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:focusable="false"
-                                android:inputType="none"/>
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/PositionTil"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/DateHourTil"
-                            android:layout_marginTop="4dp"
-                            android:hint="       Position"
-                            app:boxCornerRadiusTopStart="8dp"
-                            app:boxCornerRadiusTopEnd="8dp"
-                            app:boxCornerRadiusBottomStart="8dp"
-                            app:boxCornerRadiusBottomEnd="8dp">
-
-                            <EditText
-                                android:id="@+id/editPosition"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="text"/>
-                            <Button
-                                android:id="@+id/pickPosition"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="pick"
-                                />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recyclerViewSuggestions"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/PositionTil"
-                            android:visibility="gone" />
-
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/InsertAlertButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:minHeight="@dimen/m_button_height"
-                            android:text="Insert Alert"
-                            android:layout_below="@id/recyclerViewSuggestions"
-                            android:layout_marginTop="25dp"
-                            />
-
-                    </RelativeLayout>
-    </androidx.core.widget.NestedScrollView>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/imagesRv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/imagesLabelTv"
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                        app:spanCount="4"
+                        tools:listitem="@layout/row_images" />
 
                 </RelativeLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/TitleTil"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/imagesNsv"
+                android:layout_marginTop="4dp"
+                android:hint="       Title"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp">
+
+                <EditText
+                    android:id="@+id/editTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/CategoryTil"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/TitleTil"
+                android:layout_marginTop="4dp"
+                android:hint="       Category"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/editCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:height="55dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:inputType="none"
+                    android:paddingStart="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/DescriptionTil"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/CategoryTil"
+                android:layout_marginTop="4dp"
+                android:hint="       Description"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp">
+
+                <EditText
+                    android:id="@+id/editDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/DateHourTil"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/DescriptionTil"
+                android:layout_marginTop="4dp"
+                android:hint="       Date and Hour"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp"
+                app:startIconDrawable="@drawable/calendar_black">
+
+                <EditText
+                    android:id="@+id/editDateHour"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/PositionLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/DateHourTil">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/PositionTil"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:hint="       Position"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusTopStart="8dp">
+
+                <EditText
+                    android:id="@+id/editPosition"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+                <Button
+                    android:id="@+id/pickPosition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="pick"/>
+            </LinearLayout>
+
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewSuggestions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/PositionLayout"
+                android:visibility="gone" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/InsertAlertButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/recyclerViewSuggestions"
+                android:layout_marginTop="25dp"
+                android:minHeight="@dimen/m_button_height"
+                android:text="Insert Alert" />
+
+        </RelativeLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</RelativeLayout>

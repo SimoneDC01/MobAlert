@@ -14,7 +14,12 @@
         android:layout_height="wrap_content"
         android:backgroundTint="#FFFFFF"
         android:text="Filter"
-        android:textColor="@color/black"></Button>
+        android:textColor="@color/black"
+        mapbox:icon="@drawable/filter_outlined"
+        mapbox:iconPadding="2dp"
+        mapbox:iconTint="#000000">
+
+    </Button>
 
     <Button
         android:id="@+id/list_view"
@@ -23,7 +28,11 @@
         android:layout_alignParentEnd="true"
         android:backgroundTint="#FFFFFF"
         android:text="List View"
-        android:textColor="@color/black"></Button>
+        android:textColor="@color/black"
+        mapbox:icon="@drawable/list"
+        mapbox:iconPadding="2dp"
+        mapbox:iconTint="#000000">
+    </Button>
 
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"
@@ -63,7 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         app:shapeAppearanceOverlay="@style/ImageStyle_Circle"
-        android:src="@drawable/my_position_black"
+        android:src="@drawable/rotation"
         android:layout_above="@id/my_position"
         android:layout_marginBottom="10dp"/>
 

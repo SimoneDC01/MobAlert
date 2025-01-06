@@ -283,9 +283,9 @@ class MapFragment : Fragment() {
             window.isOutsideTouchable = true
             window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
 
-            val title = view.findViewById<EditText>(R.id.title)
-            val username=view.findViewById<EditText>(R.id.username)
-            val description = view.findViewById<EditText>(R.id.description)
+            val title = view.findViewById<EditText>(R.id.editTitle)
+            val username=view.findViewById<EditText>(R.id.editUsername)
+            val description = view.findViewById<EditText>(R.id.editDescription)
             val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
             val reset=view.findViewById<Button>(R.id.Reset)
             val elemTo=view.findViewById<EditText>(R.id.dateTo)
