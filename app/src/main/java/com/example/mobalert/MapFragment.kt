@@ -8,6 +8,10 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -107,11 +111,63 @@ class MapFragment : Fragment() {
         "category" to ""
     )
 
+    private lateinit var sensorManager: SensorManager
+    private lateinit var rotationVectorSensor: Sensor
+
+    private var currentAzimuth: Float = 0f
+    private var rotate = false
+    private val sensorEventListener = object : SensorEventListener {
+        private val rotationMatrix = FloatArray(9)
+        private val orientationAngles = FloatArray(3)
+
+        override fun onSensorChanged(event: SensorEvent) {
+            if (event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
+                SensorManager.getOrientation(rotationMatrix, orientationAngles)
+
+                val azimuth = Math.toDegrees(orientationAngles[0].toDouble()).toFloat()
+                currentAzimuth = (azimuth + 360) % 360
+
+                updateMapBearing(currentAzimuth)
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
+    private fun updateMapBearing(bearing: Float) {
+        if(rotate) {
+            val mapboxMap = binding.mapView.getMapboxMap()
+            val cameraOptions = CameraOptions.Builder()
+                .bearing(bearing.toDouble())
+                .build()
+
+            mapboxMap.setCamera(cameraOptions)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
 
         }
+        sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)!!
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sensorManager.registerListener(
+            sensorEventListener,
+            rotationVectorSensor,
+            SensorManager.SENSOR_DELAY_UI
+        )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(sensorEventListener)
     }
 
     override fun onCreateView(
@@ -122,6 +178,11 @@ class MapFragment : Fragment() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         dialog = Dialog(requireContext())
         HomeFragment.homeBinding?.addAlert?.visibility = View.GONE
+
+        binding.rotateCamera.setOnClickListener {
+            rotate = !rotate
+        }
+
         binding.listView.setOnClickListener {
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
             transaction.replace(R.id.alerts_fragment, ListHomeFragment())

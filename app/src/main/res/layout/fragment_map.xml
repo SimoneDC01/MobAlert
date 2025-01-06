@@ -58,6 +58,16 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/rotateCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        app:shapeAppearanceOverlay="@style/ImageStyle_Circle"
+        android:src="@drawable/my_position_black"
+        android:layout_above="@id/my_position"
+        android:layout_marginBottom="10dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/my_position"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
