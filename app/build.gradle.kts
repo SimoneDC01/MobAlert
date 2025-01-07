@@ -76,4 +76,5 @@ dependencies {
     implementation("com.mapbox.maps:android:11.8.1")
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:6.5.0")
     implementation ("com.github.yalantis:ucrop:2.2.10")
+    implementation ("com.google.android.material:material:1.9.0")
 }

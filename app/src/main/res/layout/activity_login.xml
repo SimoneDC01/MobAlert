@@ -54,7 +54,10 @@
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusTopStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
-            app:startIconDrawable="@drawable/email_black">
+            app:startIconDrawable="@drawable/email_black"
+            android:textColorHint="@color/hint"
+            app:boxStrokeColor="@color/border"
+            >
 
             <EditText
                 android:id="@+id/loginEmail"
@@ -78,7 +81,10 @@
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
-            app:startIconDrawable="@drawable/lock_black">
+            app:startIconDrawable="@drawable/lock_black"
+            android:textColorHint="@color/hint"
+            app:boxStrokeColor="@color/border"
+            >
 
             <EditText
                 android:id="@+id/loginPassword"
@@ -96,7 +102,9 @@
             android:layout_marginTop="40dp"
             android:minHeight="@dimen/m_button_height"
             android:text="Login"
-            app:icon="@drawable/key_black" />
+            app:icon="@drawable/key_black"
+            android:backgroundTint="?attr/colorSecondary"
+            />
 
         <TextView
             android:id="@+id/goToSignupButton"
@@ -115,6 +123,7 @@
             android:text="@string/login_with_google"
             android:layout_alignParentBottom="true"
             app:icon="@drawable/google"
+            android:backgroundTint="?attr/colorSecondary"
             />
 
     </RelativeLayout>

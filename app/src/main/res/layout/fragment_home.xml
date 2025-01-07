@@ -16,8 +16,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginEnd="10dp"
         app:shapeAppearanceOverlay="@style/ImageStyle_Circle"
-        app:maxImageSize="50dp">
-    </com.google.android.material.floatingactionbutton.FloatingActionButton>
+        app:maxImageSize="50dp"/>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/alerts_fragment"
@@ -26,16 +25,4 @@
         android:layout_height="match_parent"
         />
 
-
-    <!--
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/alertsRv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/alert_el">
-
-    </androidx.recyclerview.widget.RecyclerView>
--->
 </RelativeLayout>

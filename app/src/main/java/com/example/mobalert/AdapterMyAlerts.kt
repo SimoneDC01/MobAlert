@@ -185,10 +185,14 @@ class AdAdapterMy(private val context: Context, private val mapFragmentManager: 
         holder.root.setOnClickListener {
             Log.d("LOGIN", "CLICK ${holder.imageIv.layoutParams.width}")
             if(holder.imageIv.layoutParams.width == 360) {
+
+
                 holder.imageIv.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
                 holder.imageIv.layoutParams.height = 1000
+                var params = holder.imageIv.layoutParams as RelativeLayout.LayoutParams
+                params.removeRule(RelativeLayout.CENTER_VERTICAL)
 
-                var params = holder.titleTv.layoutParams as RelativeLayout.LayoutParams
+                params = holder.titleTv.layoutParams as RelativeLayout.LayoutParams
                 params.removeRule(RelativeLayout.END_OF)
                 params.addRule(RelativeLayout.BELOW, R.id.myimageIv)
                 holder.titleTv.layoutParams = params
@@ -217,8 +221,11 @@ class AdAdapterMy(private val context: Context, private val mapFragmentManager: 
             else{
                 holder.imageIv.layoutParams.width = 360
                 holder.imageIv.layoutParams.height = 360
+                var params = holder.imageIv.layoutParams as RelativeLayout.LayoutParams
+                params.addRule(RelativeLayout.CENTER_VERTICAL)
+                holder.imageIv.layoutParams = params
 
-                var params = holder.titleTv.layoutParams as RelativeLayout.LayoutParams
+                params = holder.titleTv.layoutParams as RelativeLayout.LayoutParams
                 params.removeRule(RelativeLayout.BELOW)
                 params.addRule(RelativeLayout.END_OF, R.id.myimageIv)
                 holder.titleTv.layoutParams = params

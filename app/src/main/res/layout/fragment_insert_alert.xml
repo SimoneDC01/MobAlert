@@ -91,7 +91,10 @@
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusTopStart="8dp">
+                app:boxCornerRadiusTopStart="8dp"
+                android:textColorHint="@color/hint"
+                app:boxStrokeColor="@color/border"
+                >
 
                 <EditText
                     android:id="@+id/editTitle"
@@ -112,7 +115,10 @@
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusTopStart="8dp">
+                app:boxCornerRadiusTopStart="8dp"
+                android:textColorHint="@color/hint"
+                app:boxStrokeColor="@color/border"
+                >
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/editCategory"
@@ -137,7 +143,10 @@
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusTopStart="8dp">
+                app:boxCornerRadiusTopStart="8dp"
+                android:textColorHint="@color/hint"
+                app:boxStrokeColor="@color/border"
+                >
 
                 <EditText
                     android:id="@+id/editDescription"
@@ -159,7 +168,10 @@
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
-                app:startIconDrawable="@drawable/calendar_black">
+                app:startIconDrawable="@drawable/calendar_black"
+                android:textColorHint="@color/hint"
+                app:boxStrokeColor="@color/border"
+                >
 
                 <EditText
                     android:id="@+id/editDateHour"
@@ -189,7 +201,10 @@
                     app:boxCornerRadiusBottomEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
                     app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp">
+                    app:boxCornerRadiusTopStart="8dp"
+                    android:textColorHint="@color/hint"
+                    app:boxStrokeColor="@color/border"
+                    >
 
                     <EditText
                         android:id="@+id/editPosition"
@@ -226,7 +241,9 @@
                 android:layout_below="@id/recyclerViewSuggestions"
                 android:layout_marginTop="25dp"
                 android:minHeight="@dimen/m_button_height"
-                android:text="Insert Alert" />
+                android:text="Insert Alert"
+                android:backgroundTint="?attr/colorSecondary"
+                />
 
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>

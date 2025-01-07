@@ -8,7 +8,7 @@ import android.view.View
 class LoadingSpinner(context: Context) : View(context) {
 
     private val paint = Paint().apply {
-        color = 0xFF6200EE.toInt() // Colore viola
+        color = R.color.red_pink.toInt()
         style = Paint.Style.STROKE
         strokeWidth = 10f
         isAntiAlias = true
