@@ -55,7 +55,8 @@
                         style="@style/TextAppearance.MaterialComponents.Body1"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
-                        android:text="Pick up to 10 images" />
+                        android:text="Pick up to 10 images"
+                        android:layout_marginTop="10dp"/>
 
                     <com.google.android.material.floatingactionbutton.FloatingActionButton
                         android:id="@+id/imageButtonAlert"
@@ -94,6 +95,7 @@
                 app:boxCornerRadiusTopStart="8dp"
                 android:textColorHint="@color/hint"
                 app:boxStrokeColor="@color/border"
+                app:hintTextColor="@color/hint"
                 >
 
                 <EditText
@@ -118,6 +120,7 @@
                 app:boxCornerRadiusTopStart="8dp"
                 android:textColorHint="@color/hint"
                 app:boxStrokeColor="@color/border"
+                app:hintTextColor="@color/hint"
                 >
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -146,6 +149,7 @@
                 app:boxCornerRadiusTopStart="8dp"
                 android:textColorHint="@color/hint"
                 app:boxStrokeColor="@color/border"
+                app:hintTextColor="@color/hint"
                 >
 
                 <EditText
@@ -163,7 +167,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/DescriptionTil"
                 android:layout_marginTop="4dp"
-                android:hint="       Date and Hour"
+                android:hint="Date and Hour"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -171,6 +175,7 @@
                 app:startIconDrawable="@drawable/calendar_black"
                 android:textColorHint="@color/hint"
                 app:boxStrokeColor="@color/border"
+                app:hintTextColor="@color/hint"
                 >
 
                 <EditText
@@ -204,6 +209,7 @@
                     app:boxCornerRadiusTopStart="8dp"
                     android:textColorHint="@color/hint"
                     app:boxStrokeColor="@color/border"
+                    app:hintTextColor="@color/hint"
                     >
 
                     <EditText
@@ -219,7 +225,8 @@
                     android:layout_height="wrap_content"
                     app:icon="@drawable/my_position_black"
                     app:iconPadding="0dp"
-                    app:iconGravity="textStart" />
+                    app:iconGravity="textStart"
+                    android:backgroundTint="@color/selected_nav"/>
 
             </LinearLayout>
 

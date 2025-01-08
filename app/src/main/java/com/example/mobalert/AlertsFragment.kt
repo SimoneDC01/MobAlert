@@ -106,7 +106,7 @@ class AlertsFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     showLoading(false)
 
-                    binding.MyOrderBy.setOnClickListener { view ->
+                   /* binding.MyOrderBy.setOnClickListener { view ->
                         val popupMenu = PopupMenu(view.context, binding.MyOrderBy)
                         popupMenu.menu.add(Menu.NONE, 1, 1, "Recent Date")
                         popupMenu.menu.add(Menu.NONE, 2, 2, "Old Date")
@@ -361,7 +361,270 @@ class AlertsFragment : Fragment() {
 
                         window.showAsDropDown(binding.MyFilter)
                     }
+*/
+                    binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.MyOrder_by -> {
+                                val popupMenu = PopupMenu(requireContext(), binding.bottomNavigationView.findViewById(R.id.MyOrder_by))
+                                popupMenu.menu.add(Menu.NONE, 1, 1, "Recent Date")
+                                popupMenu.menu.add(Menu.NONE, 2, 2, "Old Date")
 
+                                popupMenu.setOnMenuItemClickListener { item ->
+                                    when (item.itemId) {
+                                        1 -> {
+                                            Log.d("LOGIN", "Recent Date")
+                                            adapter.sortByDateDesc()
+                                        }
+                                        2 -> {
+                                            Log.d("LOGIN", "Old Date")
+                                            adapter.sortByDate()
+                                        }
+                                    }
+                                    true
+                                }
+
+                                // Mostra il menu popup
+                                popupMenu.show()
+                            }
+
+                            R.id.MyFilter -> {
+                                val window = PopupWindow(requireContext())
+                                val view = layoutInflater.inflate(R.layout.filter_layout, null)
+                                window.contentView = view
+                                window.isFocusable = true
+                                window.isOutsideTouchable = true
+                                window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
+                                val editText = view.findViewById<EditText>(R.id.editTitle)
+                                val username=view.findViewById<EditText>(R.id.editUsername)
+                                username.visibility=View.GONE
+                                val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
+                                val reset=view.findViewById<Button>(R.id.Reset)
+                                val elemTo=view.findViewById<EditText>(R.id.dateTo)
+                                val description = view.findViewById<EditText>(R.id.editDescription)
+
+                                setupDateTimePicker(elemFrom)
+                                setupDateTimePicker(elemTo)
+
+                                editText.setText(filters["title"])
+                                description.setText(filters["description"])
+                                if(filters["dateHour"]!="") {
+                                    elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                                    elemTo.setText(filters["dateHour"]!!.split(",")[1])
+                                }
+                                else{
+                                    elemFrom.setText("")
+                                    elemTo.setText("")
+                                }
+
+                                val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+                                cat1.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat1.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Natural environmental accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Natural environmental accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+
+                                        filters["category"] = filters["category"]!!.replace(",Natural environmental accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Natural environmental accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+
+                                val cat2=view.findViewById<CheckBox>(R.id.Cat2)
+                                cat2.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat2.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Anthropic environmental accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Anthropic environmental accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+                                        filters["category"] = filters["category"]!!.replace(",Anthropic environmental accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Anthropic environmental accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+
+                                val cat3=view.findViewById<CheckBox>(R.id.Cat3)
+                                cat3.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat3.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Health and biological accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Health and biological accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+                                        filters["category"] = filters["category"]!!.replace(",Health and biological accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Health and biological accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+
+                                val cat4=view.findViewById<CheckBox>(R.id.Cat4)
+                                cat4.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat4.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Technological accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Technological accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+
+                                        filters["category"] = filters["category"]!!.replace(",Technological accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Technological accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+                                val cat5=view.findViewById<CheckBox>(R.id.Cat5)
+                                cat5.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat5.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Urban and social accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Urban and social accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+
+                                        filters["category"] = filters["category"]!!.replace(",Urban and social accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Urban and social accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+                                val cat6=view.findViewById<CheckBox>(R.id.Cat6)
+                                cat6.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat6.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Marine and aquatic accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Marine and aquatic accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+
+                                        filters["category"] = filters["category"]!!.replace(",Marine and aquatic accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Marine and aquatic accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+
+                                editText.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                        // Azioni prima che il testo cambi
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        // Azioni mentre il testo sta cambiando
+                                        filters["title"] = s.toString()
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                        // Azioni dopo che il testo è cambiato
+                                        if (s != null) {
+                                            println("Il testo è ora: $s")
+                                        }
+                                    }
+                                })
+
+
+
+                                description.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                        // Azioni prima che il testo cambi
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        // Azioni mentre il testo sta cambiando
+                                        filters["description"] = s.toString()
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                        // Azioni dopo che il testo è cambiato
+                                        if (s != null) {
+                                            println("Il testo è ora: $s")
+                                        }
+                                    }
+                                })
+
+                                elemFrom.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        filters["dateHour"] = "${s.toString()},${elemTo.text}"
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                    }
+                                })
+
+                                elemTo.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        filters["dateHour"] = "${elemFrom.text},${s.toString()}"
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                    }
+                                })
+
+                                reset.setOnClickListener {
+                                    filters["title"] = ""
+                                    filters["description"] = ""
+                                    filters["dateHour"] = ""
+                                    filters["category"] = ""
+                                    adapter.filter(filters)
+                                }
+
+                                window.showAsDropDown(binding.bottomNavigationView.findViewById(R.id.MyFilter))
+
+                            }
+                        }
+
+                        true
+                    }
 
                 }
             } catch (e: Exception) {
@@ -371,46 +634,25 @@ class AlertsFragment : Fragment() {
         }
 
         //Listener sul movimento del dito verso il basso
-        rootLayout.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    // Memorizza la posizione Y iniziale
-                    initialY = event.y
-                    isLongPress = false
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    // Se si sta muovendo verso il basso
-                    if (event.y > initialY + 500) {  // Modifica il valore 100 come desiderato
-                        if (!isLongPress) {
-                            isLongPress = true
-                            refreshFragment()  // Richiama il metodo di refresh
-                        }
-                    }
-                }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    // Se il movimento è stato interrotto
-                    initialY = 0f
-                }
-            }
-            true
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            refreshData()
         }
 
         return binding.root
     }
 
     //Funzione che ricarica il fragment
-    private fun refreshFragment() {
-        binding.MyOrderBy.setOnClickListener(null)
-        binding.MyFilter.setOnClickListener(null)
+    private fun refreshData() {
+        binding.swipeRefreshLayout.isRefreshing = true
+        binding.bottomNavigationView.setOnItemSelectedListener(null)
         adapter = AdAdapterMy(requireContext(), mapFragmentManager, mutableListOf<HomeAlters>(),this@AlertsFragment)
         binding.MyAlertsRv.adapter = adapter
-        showLoading(true)
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 getAlerts()
                 withContext(Dispatchers.Main) {
-                    showLoading(false)
-
+                    binding.swipeRefreshLayout.isRefreshing = false
+/*
                     binding.MyOrderBy.setOnClickListener { view ->
                         val popupMenu = PopupMenu(view.context, binding.MyOrderBy)
                         popupMenu.menu.add(Menu.NONE, 1, 1, "Recent Date")
@@ -667,7 +909,270 @@ class AlertsFragment : Fragment() {
                         window.showAsDropDown(binding.MyFilter)
                     }
 
+*/
+                    binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.MyOrder_by -> {
+                                val popupMenu = PopupMenu(requireContext(), binding.bottomNavigationView.findViewById(R.id.MyOrder_by))
+                                popupMenu.menu.add(Menu.NONE, 1, 1, "Recent Date")
+                                popupMenu.menu.add(Menu.NONE, 2, 2, "Old Date")
 
+                                popupMenu.setOnMenuItemClickListener { item ->
+                                    when (item.itemId) {
+                                        1 -> {
+                                            Log.d("LOGIN", "Recent Date")
+                                            adapter.sortByDateDesc()
+                                        }
+                                        2 -> {
+                                            Log.d("LOGIN", "Old Date")
+                                            adapter.sortByDate()
+                                        }
+                                    }
+                                    true
+                                }
+
+                                // Mostra il menu popup
+                                popupMenu.show()
+                            }
+
+                            R.id.MyFilter -> {
+                                val window = PopupWindow(requireContext())
+                                val view = layoutInflater.inflate(R.layout.filter_layout, null)
+                                window.contentView = view
+                                window.isFocusable = true
+                                window.isOutsideTouchable = true
+                                window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
+                                val editText = view.findViewById<EditText>(R.id.editTitle)
+                                val username=view.findViewById<EditText>(R.id.editUsername)
+                                username.visibility=View.GONE
+                                val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
+                                val reset=view.findViewById<Button>(R.id.Reset)
+                                val elemTo=view.findViewById<EditText>(R.id.dateTo)
+                                val description = view.findViewById<EditText>(R.id.editDescription)
+
+                                setupDateTimePicker(elemFrom)
+                                setupDateTimePicker(elemTo)
+
+                                editText.setText(filters["title"])
+                                description.setText(filters["description"])
+                                if(filters["dateHour"]!="") {
+                                    elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                                    elemTo.setText(filters["dateHour"]!!.split(",")[1])
+                                }
+                                else{
+                                    elemFrom.setText("")
+                                    elemTo.setText("")
+                                }
+
+                                val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+                                cat1.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat1.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Natural environmental accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Natural environmental accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+
+                                        filters["category"] = filters["category"]!!.replace(",Natural environmental accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Natural environmental accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+
+                                val cat2=view.findViewById<CheckBox>(R.id.Cat2)
+                                cat2.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat2.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Anthropic environmental accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Anthropic environmental accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+                                        filters["category"] = filters["category"]!!.replace(",Anthropic environmental accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Anthropic environmental accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+
+                                val cat3=view.findViewById<CheckBox>(R.id.Cat3)
+                                cat3.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat3.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Health and biological accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Health and biological accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+                                        filters["category"] = filters["category"]!!.replace(",Health and biological accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Health and biological accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+
+                                val cat4=view.findViewById<CheckBox>(R.id.Cat4)
+                                cat4.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat4.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Technological accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Technological accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+
+                                        filters["category"] = filters["category"]!!.replace(",Technological accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Technological accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+                                val cat5=view.findViewById<CheckBox>(R.id.Cat5)
+                                cat5.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat5.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Urban and social accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Urban and social accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+
+                                        filters["category"] = filters["category"]!!.replace(",Urban and social accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Urban and social accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+                                val cat6=view.findViewById<CheckBox>(R.id.Cat6)
+                                cat6.setOnClickListener {
+                                    // Puoi controllare lo stato della checkbox manualmente
+                                    if (cat6.isChecked) {
+                                        if(filters["category"]==""){
+                                            filters["category"]="Marine and aquatic accident"
+                                        }
+                                        else{
+                                            filters["category"]+=",Marine and aquatic accident"
+                                        }
+                                        // Azione quando è selezionata
+                                        adapter.filter(filters)
+                                    } else {
+
+
+                                        filters["category"] = filters["category"]!!.replace(",Marine and aquatic accident", "")
+                                        filters["category"] = filters["category"]!!.replace("Marine and aquatic accident", "")
+                                        adapter.filter(filters)
+
+                                    }
+                                }
+
+                                editText.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                        // Azioni prima che il testo cambi
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        // Azioni mentre il testo sta cambiando
+                                        filters["title"] = s.toString()
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                        // Azioni dopo che il testo è cambiato
+                                        if (s != null) {
+                                            println("Il testo è ora: $s")
+                                        }
+                                    }
+                                })
+
+
+
+                                description.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                        // Azioni prima che il testo cambi
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        // Azioni mentre il testo sta cambiando
+                                        filters["description"] = s.toString()
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                        // Azioni dopo che il testo è cambiato
+                                        if (s != null) {
+                                            println("Il testo è ora: $s")
+                                        }
+                                    }
+                                })
+
+                                elemFrom.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        filters["dateHour"] = "${s.toString()},${elemTo.text}"
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                    }
+                                })
+
+                                elemTo.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        filters["dateHour"] = "${elemFrom.text},${s.toString()}"
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                    }
+                                })
+
+                                reset.setOnClickListener {
+                                    filters["title"] = ""
+                                    filters["description"] = ""
+                                    filters["dateHour"] = ""
+                                    filters["category"] = ""
+                                    adapter.filter(filters)
+                                }
+
+                                window.showAsDropDown(binding.bottomNavigationView.findViewById(R.id.MyFilter))
+
+                            }
+                        }
+
+                        true
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

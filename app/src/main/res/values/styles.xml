@@ -14,20 +14,27 @@
     </style>
 
     <style name="CustomMaterialCardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/color3</item>
+        <item name="cardBackgroundColor">@color/alerts_day</item>
     </style>
 
     <style name="CustomFloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
-        <item name="backgroundTint">?attr/colorSecondary</item> <!-- Colore di sfondo del FAB -->
-        <item name="tint">?attr/colorOnSecondary</item> <!-- Colore dell'icona -->
+        <item name="backgroundTint">@color/selected_nav</item> <!-- Colore di sfondo del FAB -->
+        <item name="tint">@color/black</item> <!-- Colore dell'icona -->
     </style>
 
 
 
     <style name="CustomBottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
         <item name="backgroundColor">@color/white</item> <!-- Colore di sfondo -->
-        <item name="itemIconTint">@color/blue</item> <!-- Colore delle icone -->
         <item name="itemTextColor">@color/light_gray</item> <!-- Colore del testo -->
+        <item name="itemShapeAppearanceOverlay">@null</item> <!-- Rimuove l'ellisse -->
+        <item name="itemRippleColor">@android:color/transparent</item> <!-- Disabilita l'effetto ripple -->
+    </style>
+
+    <style name="CustomTopNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="backgroundColor">@color/selected_nav</item> <!-- Colore di sfondo -->
+        <item name="itemIconTint">@color/selected_nav</item> <!-- Colore delle icone -->
+        <item name="itemTextColor">@color/selected_nav</item> <!-- Colore del testo -->
         <item name="itemShapeAppearanceOverlay">@null</item> <!-- Rimuove l'ellisse -->
         <item name="itemRippleColor">@android:color/transparent</item> <!-- Disabilita l'effetto ripple -->
     </style>

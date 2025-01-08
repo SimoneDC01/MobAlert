@@ -27,7 +27,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:src="@drawable/person_black"
-                android:background="?attr/colorOnPrimary"
+                android:background="@color/white"
                 android:scaleType="centerCrop"
                 app:shapeAppearanceOverlay="@style/ImageStyle_Circle"
                 android:layout_centerHorizontal="true"

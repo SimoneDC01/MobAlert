@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide
 import com.example.mobalert.databinding.FragmentEditProfileBinding
 import com.yalantis.ucrop.UCrop
@@ -200,7 +202,14 @@ class EditProfileFragment : Fragment() {
                 },
                 year, month, day
             )
-            datePickerDialog.show()
+            datePickerDialog.create()
+
+        datePickerDialog.setOnShowListener {
+            datePickerDialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.BLACK) // Rosso
+            datePickerDialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(Color.BLACK) // Rosso
+        }
+
+        datePickerDialog.show()
         }
 
         binding.imageButton.setOnClickListener {

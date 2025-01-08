@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:gravity="top"
         android:background="@drawable/logo"
+        android:backgroundTint="@color/selected_nav"
         android:layout_centerHorizontal="true">
     </TextView>
 

@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="10dp"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    android:background="?attr/colorPrimary"
+    >
 
     <RelativeLayout
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <View
+            android:id="@+id/horizontal_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/navbar"
+            android:layout_marginTop="0dp" />
+
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/imageIv"
@@ -93,4 +102,4 @@
             android:layout_marginStart="20dp">
         </TextView>
     </RelativeLayout>
-</com.google.android.material.card.MaterialCardView>
+</RelativeLayout>

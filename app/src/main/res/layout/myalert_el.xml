@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardCornerRadius="10dp"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    android:background="?attr/colorPrimary">
 
     <RelativeLayout
         android:id="@+id/myroot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <View
+            android:id="@+id/horizontal_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/navbar"
+            android:layout_marginTop="0dp" />
 
         <!-- ImageView -->
         <androidx.viewpager2.widget.ViewPager2
@@ -95,4 +102,4 @@
             android:layout_marginStart="20dp">
         </TextView>
     </RelativeLayout>
-</com.google.android.material.card.MaterialCardView>
+</RelativeLayout>

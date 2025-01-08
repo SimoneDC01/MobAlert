@@ -25,6 +25,8 @@ import android.widget.TextView
 import android.widget.TimePicker
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mobalert.HomeFragment.Alert
 import com.example.mobalert.HomeFragment.HomeAlters
 import com.example.mobalert.databinding.FragmentListHomeBinding
@@ -46,6 +48,7 @@ import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
 
 
 class ListHomeFragment : Fragment() {
@@ -92,13 +95,16 @@ class ListHomeFragment : Fragment() {
 
         position = arguments?.getString("position").toString()
         Log.d("LOGIN", "position list home $position")
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            refreshData()
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 getAlerts()
                 withContext(Dispatchers.Main) {
                     showLoading(false)
-                    binding.orderBy.setOnClickListener { view ->
+                    /*binding.orderBy.setOnClickListener { view ->
                         val popupMenu = PopupMenu(view.context, binding.orderBy)
                         popupMenu.menu.add(Menu.NONE, 1, 1, "Recent Date")
                         popupMenu.menu.add(Menu.NONE, 2, 2, "Old Date")
@@ -229,6 +235,143 @@ class ListHomeFragment : Fragment() {
                         transaction.addToBackStack(null)
                         transaction.commit()
                     }
+*/
+                    binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.order_by -> {
+                                val popupMenu = PopupMenu(requireContext(), binding.bottomNavigationView.findViewById(R.id.order_by))
+                                popupMenu.menu.add(Menu.NONE, 1, 1, "Recent Date")
+                                popupMenu.menu.add(Menu.NONE, 2, 2, "Old Date")
+
+                                popupMenu.setOnMenuItemClickListener { item ->
+                                    when (item.itemId) {
+                                        1 -> {
+                                            Log.d("LOGIN", "Recent Date")
+                                            adapter.sortByDateDesc()
+                                        }
+                                        2 -> {
+                                            Log.d("LOGIN", "Old Date")
+                                            adapter.sortByDate()
+                                        }
+                                    }
+                                    true
+                                }
+                                popupMenu.show()
+                            }
+
+                            R.id.filter -> {
+                                val window = PopupWindow(requireContext())
+                                val view = layoutInflater.inflate(R.layout.filter_layout, null)
+                                window.contentView = view
+                                window.isFocusable = true
+                                window.isOutsideTouchable = true
+                                window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
+
+                                val title = view.findViewById<EditText>(R.id.editTitle)
+                                val username=view.findViewById<EditText>(R.id.editUsername)
+                                val description = view.findViewById<EditText>(R.id.editDescription)
+                                val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
+                                val reset=view.findViewById<Button>(R.id.Reset)
+                                val elemTo=view.findViewById<EditText>(R.id.dateTo)
+                                setupDateTimePicker(elemFrom)
+                                setupDateTimePicker(elemTo)
+
+                                title.setText(filters["title"])
+                                username.setText(filters["username"])
+                                description.setText(filters["description"])
+                                if(filters["dateHour"]!="") {
+                                    elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                                    elemTo.setText(filters["dateHour"]!!.split(",")[1])
+                                }
+                                else{
+                                    elemFrom.setText("")
+                                    elemTo.setText("")
+                                }
+
+                                val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+                                setUpCategory(cat1,"Natural environmental accident")
+
+                                val cat2=view.findViewById<CheckBox>(R.id.Cat2)
+                                setUpCategory(cat2,"Anthropic environmental accident")
+
+                                val cat3=view.findViewById<CheckBox>(R.id.Cat3)
+                                setUpCategory(cat3,"Health and biological accident")
+
+                                val cat4=view.findViewById<CheckBox>(R.id.Cat4)
+                                setUpCategory(cat4,"Technological accident")
+
+                                val cat5=view.findViewById<CheckBox>(R.id.Cat5)
+                                setUpCategory(cat5,"Urban and social accident")
+
+                                val cat6=view.findViewById<CheckBox>(R.id.Cat6)
+                                setUpCategory(cat6,"Marine and aquatic accident")
+
+
+                                setUpEditText(title, "title")
+
+                                setUpEditText(username, "username")
+
+                                setUpEditText(description, "description")
+
+                                elemFrom.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        filters["dateHour"] = "${s.toString()},${elemTo.text}"
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                    }
+                                })
+
+                                elemTo.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        filters["dateHour"] = "${elemFrom.text},${s.toString()}"
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                    }
+                                })
+
+
+
+                                reset.setOnClickListener {
+                                    //TO-DO: RESETTARE LA UI
+                                    filters["title"] = ""
+                                    filters["description"] = ""
+                                    filters["username"] = ""
+                                    filters["dateHour"] = ""
+                                    filters["category"] = ""
+                                    adapter.filter(filters)
+                                    window.dismiss()
+                                }
+
+                                window.showAsDropDown(binding.bottomNavigationView.findViewById(R.id.filter))
+
+                            }
+
+                            R.id.map_view -> {
+                                val bundle = Bundle()
+                                bundle.putSerializable("alerts", ArrayList(alerts))
+
+                                val fragment = MapFragment()
+                                fragment.arguments = bundle
+
+                                val transaction = mapFragmentManager.beginTransaction()
+                                transaction.replace(R.id.alerts_fragment, fragment)
+                                transaction.addToBackStack(null)
+                                transaction.commit()
+                            }
+                        }
+
+                        true
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -244,6 +387,300 @@ class ListHomeFragment : Fragment() {
 
         return binding.root
     }
+
+    private fun refreshData() {
+        // Mostra una ProgressBar o un'animazione personalizzata
+        binding.swipeRefreshLayout.isRefreshing = true
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                /*binding.orderBy.setOnClickListener(null)
+                binding.filter.setOnClickListener(null)
+                binding.mapView.setOnClickListener(null)
+                */
+                binding.bottomNavigationView.setOnItemSelectedListener(null)
+                getAlerts()
+                withContext(Dispatchers.Main) {
+                    Log.d("LOGIN","Qua")
+                    binding.swipeRefreshLayout.isRefreshing = false
+                    /*binding.orderBy.setOnClickListener { view ->
+                        val popupMenu = PopupMenu(view.context, binding.orderBy)
+                        popupMenu.menu.add(Menu.NONE, 1, 1, "Recent Date")
+                        popupMenu.menu.add(Menu.NONE, 2, 2, "Old Date")
+
+                        popupMenu.setOnMenuItemClickListener { item ->
+                            when (item.itemId) {
+                                1 -> {
+                                    Log.d("LOGIN", "Recent Date")
+                                    adapter.sortByDateDesc()
+                                }
+                                2 -> {
+                                    Log.d("LOGIN", "Old Date")
+                                    adapter.sortByDate()
+                                }
+                            }
+                            true
+                        }
+                        popupMenu.show()
+                    }
+
+
+                    binding.filter.setOnClickListener {
+                        val window = PopupWindow(requireContext())
+                        val view = layoutInflater.inflate(R.layout.filter_layout, null)
+                        window.contentView = view
+                        window.isFocusable = true
+                        window.isOutsideTouchable = true
+                        window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
+
+                        val title = view.findViewById<EditText>(R.id.editTitle)
+                        val username=view.findViewById<EditText>(R.id.editUsername)
+                        val description = view.findViewById<EditText>(R.id.editDescription)
+                        val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
+                        val reset=view.findViewById<Button>(R.id.Reset)
+                        val elemTo=view.findViewById<EditText>(R.id.dateTo)
+                        setupDateTimePicker(elemFrom)
+                        setupDateTimePicker(elemTo)
+
+                        title.setText(filters["title"])
+                        username.setText(filters["username"])
+                        description.setText(filters["description"])
+                        if(filters["dateHour"]!="") {
+                            elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                            elemTo.setText(filters["dateHour"]!!.split(",")[1])
+                        }
+                        else{
+                            elemFrom.setText("")
+                            elemTo.setText("")
+                        }
+
+                        val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+                        setUpCategory(cat1,"Natural environmental accident")
+
+                        val cat2=view.findViewById<CheckBox>(R.id.Cat2)
+                        setUpCategory(cat2,"Anthropic environmental accident")
+
+                        val cat3=view.findViewById<CheckBox>(R.id.Cat3)
+                        setUpCategory(cat3,"Health and biological accident")
+
+                        val cat4=view.findViewById<CheckBox>(R.id.Cat4)
+                        setUpCategory(cat4,"Technological accident")
+
+                        val cat5=view.findViewById<CheckBox>(R.id.Cat5)
+                        setUpCategory(cat5,"Urban and social accident")
+
+                        val cat6=view.findViewById<CheckBox>(R.id.Cat6)
+                        setUpCategory(cat6,"Marine and aquatic accident")
+
+
+                        setUpEditText(title, "title")
+
+                        setUpEditText(username, "username")
+
+                        setUpEditText(description, "description")
+
+                        elemFrom.addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                            }
+
+                            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                filters["dateHour"] = "${s.toString()},${elemTo.text}"
+                                adapter.filter(filters)
+                            }
+
+                            override fun afterTextChanged(s: Editable?) {
+                            }
+                        })
+
+                        elemTo.addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                            }
+
+                            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                filters["dateHour"] = "${elemFrom.text},${s.toString()}"
+                                adapter.filter(filters)
+                            }
+
+                            override fun afterTextChanged(s: Editable?) {
+                            }
+                        })
+
+
+
+                        reset.setOnClickListener {
+                            //TO-DO: RESETTARE LA UI
+                            filters["title"] = ""
+                            filters["description"] = ""
+                            filters["username"] = ""
+                            filters["dateHour"] = ""
+                            filters["category"] = ""
+                            adapter.filter(filters)
+                            window.dismiss()
+                        }
+
+                        window.showAsDropDown(binding.filter)
+                    }
+
+                    binding.mapView.setOnClickListener{
+
+                        val bundle = Bundle()
+                        bundle.putSerializable("alerts", ArrayList(alerts))
+
+                        val fragment = MapFragment()
+                        fragment.arguments = bundle
+
+                        val transaction = mapFragmentManager.beginTransaction()
+                        transaction.replace(R.id.alerts_fragment, fragment)
+                        transaction.addToBackStack(null)
+                        transaction.commit()
+                    }
+                */
+
+                    binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.order_by -> {
+                                val popupMenu = PopupMenu(requireContext(), binding.bottomNavigationView.findViewById(R.id.order_by))
+                                popupMenu.menu.add(Menu.NONE, 1, 1, "Recent Date")
+                                popupMenu.menu.add(Menu.NONE, 2, 2, "Old Date")
+
+                                popupMenu.setOnMenuItemClickListener { item ->
+                                    when (item.itemId) {
+                                        1 -> {
+                                            Log.d("LOGIN", "Recent Date")
+                                            adapter.sortByDateDesc()
+                                        }
+                                        2 -> {
+                                            Log.d("LOGIN", "Old Date")
+                                            adapter.sortByDate()
+                                        }
+                                    }
+                                    true
+                                }
+                                popupMenu.show()
+                            }
+
+                            R.id.filter -> {
+                                val window = PopupWindow(requireContext())
+                                val view = layoutInflater.inflate(R.layout.filter_layout, null)
+                                window.contentView = view
+                                window.isFocusable = true
+                                window.isOutsideTouchable = true
+                                window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
+
+                                val title = view.findViewById<EditText>(R.id.editTitle)
+                                val username=view.findViewById<EditText>(R.id.editUsername)
+                                val description = view.findViewById<EditText>(R.id.editDescription)
+                                val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
+                                val reset=view.findViewById<Button>(R.id.Reset)
+                                val elemTo=view.findViewById<EditText>(R.id.dateTo)
+                                setupDateTimePicker(elemFrom)
+                                setupDateTimePicker(elemTo)
+
+                                title.setText(filters["title"])
+                                username.setText(filters["username"])
+                                description.setText(filters["description"])
+                                if(filters["dateHour"]!="") {
+                                    elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                                    elemTo.setText(filters["dateHour"]!!.split(",")[1])
+                                }
+                                else{
+                                    elemFrom.setText("")
+                                    elemTo.setText("")
+                                }
+
+                                val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+                                setUpCategory(cat1,"Natural environmental accident")
+
+                                val cat2=view.findViewById<CheckBox>(R.id.Cat2)
+                                setUpCategory(cat2,"Anthropic environmental accident")
+
+                                val cat3=view.findViewById<CheckBox>(R.id.Cat3)
+                                setUpCategory(cat3,"Health and biological accident")
+
+                                val cat4=view.findViewById<CheckBox>(R.id.Cat4)
+                                setUpCategory(cat4,"Technological accident")
+
+                                val cat5=view.findViewById<CheckBox>(R.id.Cat5)
+                                setUpCategory(cat5,"Urban and social accident")
+
+                                val cat6=view.findViewById<CheckBox>(R.id.Cat6)
+                                setUpCategory(cat6,"Marine and aquatic accident")
+
+
+                                setUpEditText(title, "title")
+
+                                setUpEditText(username, "username")
+
+                                setUpEditText(description, "description")
+
+                                elemFrom.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        filters["dateHour"] = "${s.toString()},${elemTo.text}"
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                    }
+                                })
+
+                                elemTo.addTextChangedListener(object : TextWatcher {
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                                    }
+
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                        filters["dateHour"] = "${elemFrom.text},${s.toString()}"
+                                        adapter.filter(filters)
+                                    }
+
+                                    override fun afterTextChanged(s: Editable?) {
+                                    }
+                                })
+
+
+
+                                reset.setOnClickListener {
+                                    //TO-DO: RESETTARE LA UI
+                                    filters["title"] = ""
+                                    filters["description"] = ""
+                                    filters["username"] = ""
+                                    filters["dateHour"] = ""
+                                    filters["category"] = ""
+                                    adapter.filter(filters)
+                                    window.dismiss()
+                                }
+
+                                window.showAsDropDown(binding.bottomNavigationView.findViewById(R.id.filter))
+
+                            }
+
+                            R.id.map_view -> {
+                                val bundle = Bundle()
+                                bundle.putSerializable("alerts", ArrayList(alerts))
+
+                                val fragment = MapFragment()
+                                fragment.arguments = bundle
+
+                                val transaction = mapFragmentManager.beginTransaction()
+                                transaction.replace(R.id.alerts_fragment, fragment)
+                                transaction.addToBackStack(null)
+                                transaction.commit()
+                            }
+                        }
+
+                        true
+                    }
+
+
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                }
+            }
+        }
+    }
+
 
     private fun showLoading(isLoading: Boolean) {
         if (isLoading) {

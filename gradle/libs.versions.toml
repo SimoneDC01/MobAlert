@@ -34,6 +34,7 @@ playServicesLocation = "21.3.0"
 recyclerview = "1.3.2"
 runtimeAndroid = "1.7.6"
 uiAndroid = "1.7.6"
+swiperefreshlayout = "1.1.0"
 
 [libraries]
 android = { module = "com.mapbox.maps:android", version.ref = "android" }
@@ -69,6 +70,7 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
 androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

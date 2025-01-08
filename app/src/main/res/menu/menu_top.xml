@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/filter"
+        android:title="Filter"
+        android:icon="@drawable/filter_outlined">
+    </item>
+    <item
+        android:id="@+id/order_by"
+        android:title="Order by"
+        android:icon="@drawable/sort">
+    </item>
+    <item
+        android:id="@+id/map_view"
+        android:title="Map View"
+        android:icon="@drawable/position_black">
+    </item>
+</menu>

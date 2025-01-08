@@ -70,6 +70,7 @@
             app:startIconDrawable="@drawable/person_black"
             android:textColorHint="@color/hint"
             app:boxStrokeColor="@color/border"
+            app:hintTextColor="@color/hint"
             >
 
             <EditText
@@ -95,6 +96,7 @@
             app:startIconDrawable="@drawable/calendar_black"
             android:textColorHint="@color/hint"
             app:boxStrokeColor="@color/border"
+            app:hintTextColor="@color/hint"
             >
 
             <EditText
@@ -121,6 +123,7 @@
             app:startIconDrawable="@drawable/phone_black"
             android:textColorHint="@color/hint"
             app:boxStrokeColor="@color/border"
+            app:hintTextColor="@color/hint"
             >
 
             <EditText

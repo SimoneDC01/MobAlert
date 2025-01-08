@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -183,13 +184,6 @@ class MapFragment : Fragment() {
             rotate = !rotate
         }
 
-        binding.listView.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.alerts_fragment, ListHomeFragment())
-            transaction.addToBackStack(null)
-            transaction.commit()
-        }
-
         val alerts = arguments?.getSerializable("alerts") as? ArrayList<HomeFragment.Alert>
         if (alerts == null) {
             Log.e("LOGIN", "L'argomento 'alerts' è nullo o mancante.")
@@ -275,6 +269,7 @@ class MapFragment : Fragment() {
             true
         }
 
+        /*
         binding.filter.setOnClickListener {
             val window = PopupWindow(requireContext())
             val view = layoutInflater.inflate(R.layout.filter_layout, null)
@@ -370,6 +365,123 @@ class MapFragment : Fragment() {
             }
 
             window.showAsDropDown(binding.filter)
+        }
+         */
+
+        /*binding.listView.setOnClickListener {
+            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.alerts_fragment, ListHomeFragment())
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }*/
+
+        binding.bottomNavigationView.setOnItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.list_view -> {
+                    val transaction = requireActivity().supportFragmentManager.beginTransaction()
+                    transaction.replace(R.id.alerts_fragment, ListHomeFragment())
+                    transaction.addToBackStack(null)
+                    transaction.commit()
+                }
+                R.id.filter_map -> {
+                    val window = PopupWindow(requireContext())
+                    val view = layoutInflater.inflate(R.layout.filter_layout, null)
+                    window.contentView = view
+                    window.isFocusable = true
+                    window.isOutsideTouchable = true
+                    window.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), android.R.color.white))
+
+                    val title = view.findViewById<EditText>(R.id.editTitle)
+                    val username=view.findViewById<EditText>(R.id.editUsername)
+                    val description = view.findViewById<EditText>(R.id.editDescription)
+                    val elemFrom=view.findViewById<EditText>(R.id.dateFrom)
+                    val reset=view.findViewById<Button>(R.id.Reset)
+                    val elemTo=view.findViewById<EditText>(R.id.dateTo)
+                    setupDateTimePicker(elemFrom)
+                    setupDateTimePicker(elemTo)
+
+                    title.setText(filters["title"])
+                    username.setText(filters["username"])
+                    description.setText(filters["description"])
+                    if(filters["dateHour"]!="") {
+
+                        elemFrom.setText(filters["dateHour"]!!.split(",")[0])
+                        elemTo.setText(filters["dateHour"]!!.split(",")[1])
+                    }
+                    else{
+                        elemFrom.setText("")
+                        elemTo.setText("")
+                    }
+
+                    val cat1=view.findViewById<CheckBox>(R.id.Cat1)
+                    setUpCategory(cat1,"Natural environmental accident",alerts)
+
+                    val cat2=view.findViewById<CheckBox>(R.id.Cat2)
+                    setUpCategory(cat2,"Anthropic environmental accident",alerts)
+
+                    val cat3=view.findViewById<CheckBox>(R.id.Cat3)
+                    setUpCategory(cat3,"Health and biological accident",alerts)
+
+                    val cat4=view.findViewById<CheckBox>(R.id.Cat4)
+                    setUpCategory(cat4,"Technological accident",alerts)
+
+                    val cat5=view.findViewById<CheckBox>(R.id.Cat5)
+                    setUpCategory(cat5,"Urban and social accident",alerts)
+
+                    val cat6=view.findViewById<CheckBox>(R.id.Cat6)
+                    setUpCategory(cat6,"Marine and aquatic accident",alerts)
+
+                    setUpEditText(title, "title", alerts)
+
+                    setUpEditText(username, "username", alerts)
+
+                    setUpEditText(description, "description", alerts)
+
+                    elemFrom.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        }
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            filters["dateHour"] = "${s.toString()},${elemTo.text}"
+                            filter(filters, alerts)
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                        }
+                    })
+
+                    elemTo.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        }
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            filters["dateHour"] = "${elemFrom.text},${s.toString()}"
+                            filter(filters, alerts)
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                        }
+                    })
+
+
+
+
+                    reset.setOnClickListener {
+                        //TO-DO: RESETTARE LA UI
+                        filters["title"] = ""
+                        filters["description"] = ""
+                        filters["username"] = ""
+                        filters["dateHour"] = ""
+                        filters["category"] = ""
+                        filter(filters, alerts)
+                        window.dismiss()
+                    }
+
+                    window.showAsDropDown(binding.bottomNavigationView.findViewById(R.id.filter_map))
+                }
+            }
+
+            true
         }
 
         return binding.root
@@ -569,13 +681,18 @@ class MapFragment : Fragment() {
     }
 
     private fun showLocationDialog() {
-        AlertDialog.Builder(requireContext())
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Attivare la posizione")
             .setMessage("La posizione è disattivata.")
             .setNegativeButton("Ok") { dialog, _ ->
                 dialog.dismiss() // Chiudi il dialogo
-            }
-            .show()
+            }.create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.BLACK) // Rosso
+        }
+
+            dialog.show()
     }
 
     private fun checkAndRequestPermissions(position: String) {

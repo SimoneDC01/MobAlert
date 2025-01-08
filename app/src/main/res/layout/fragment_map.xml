@@ -8,6 +8,7 @@
     tools:context=".MapFragment"
     android:id="@+id/root">
 
+    <!--
     <Button
         android:id="@+id/filter"
         android:layout_width="wrap_content"
@@ -33,12 +34,26 @@
         mapbox:iconPadding="2dp"
         mapbox:iconTint="#000000">
     </Button>
+    -->
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        app:menu="@menu/menu_top_map"
+        app:labelVisibilityMode="labeled"
+        android:background="?attr/colorSecondary"
+        app:itemIconTint="?attr/colorPrimary"
+        app:itemTextColor="?attr/colorPrimary"
+        style="@style/CustomBottomNavigationView"
+        />
 
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/filter"
+        android:layout_below="@id/bottomNavigationView"
         app:mapbox_cameraTargetLat="41.8820214"
         app:mapbox_cameraTargetLng="12.5032939"
         app:mapbox_cameraZoom="18.0"
