@@ -159,6 +159,7 @@ class EditProfileFragment : Fragment() {
 
                         if (response.status == HttpStatusCode.Created) {
                             val result = response.bodyAsText()
+
                             Log.d("LOGIN", "Server response: $result")
                         } else {
                             Log.e("LOGIN", "Request error: ${response.status}")
@@ -166,11 +167,24 @@ class EditProfileFragment : Fragment() {
                     } catch (e: Exception) {
                         Log.e("LOGIN", "Error during request: $e")
                     }
+                    withContext(Dispatchers.Main) {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.Fragment, ProfileFragment())
+                            .addToBackStack(null)
+                            .commit()
+                    }
                 }
+
             } else if (imageUri == null && delete == true) {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         DeleteProfileImage(auth.uid.toString())
+                        withContext(Dispatchers.Main) {
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.Fragment, ProfileFragment())
+                                .addToBackStack(null)
+                                .commit()
+                        }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
                             Log.d("LOGIN", "Error: $e")
@@ -178,13 +192,7 @@ class EditProfileFragment : Fragment() {
                     }
                 }
             }
-            runBlocking { // Avvia una coroutine di base
-                delay(200)
-            }
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.Fragment, ProfileFragment())
-                .addToBackStack(null)
-                .commit()
+
         }
         }
 

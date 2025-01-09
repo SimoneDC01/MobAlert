@@ -616,6 +616,7 @@ class AlertsFragment : Fragment() {
                                     filters["dateHour"] = ""
                                     filters["category"] = ""
                                     adapter.filter(filters)
+                                    window.dismiss()
                                 }
 
                                 window.showAsDropDown(binding.bottomNavigationView.findViewById(R.id.MyFilter))
