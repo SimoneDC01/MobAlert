@@ -14,12 +14,27 @@
     </style>
 
     <style name="CustomMaterialCardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/alerts_day</item>
+        <item name="cardBackgroundColor">?attr/colorSecondary</item>
     </style>
 
     <style name="CustomFloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="backgroundTint">@color/selected_nav</item> <!-- Colore di sfondo del FAB -->
         <item name="tint">@color/black</item> <!-- Colore dell'icona -->
+    </style>
+    <style name="CustomCheckBoxStyle" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
+        <item name="colorOnPrimary">@color/navbar</item>
+    </style>
+
+    <style name="CustomTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Colore del bordo quando è attivato -->
+        <item name="boxStrokeColor">@color/textinput_hint_color</item>
+        <!-- Colore del testo dell'etichetta (hint) -->
+        <item name="hintTextColor">@color/textinput_hint_color</item>
+        <!-- Colore del testo dell'etichetta (hint) -->
+        <item name="android:textColorHint">@color/textinput_hint_color</item>
+        <item name="cursorColor">?attr/colorTertiary</item>
+        <!-- Colore del testo
+        <item name="android:textColor">@color/textinput_text_color</item> -->
     </style>
 
 

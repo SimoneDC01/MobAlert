@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+ <!-- Colore dell'hint quando il campo è attivo (focus o testo presente) -->
+ <item android:color="?attr/colorTertiary" android:state_focused="true" />
+ <!-- Colore dell'hint quando c'è del testo presente -->
+ <item android:color="?attr/colorTertiary" android:state_empty="false" />
+ <!-- Colore dell'hint quando il campo è inattivo e vuoto -->
+ <item android:color="?attr/colorTertiary" />
+</selector>

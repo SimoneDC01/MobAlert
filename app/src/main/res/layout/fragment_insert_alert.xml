@@ -83,7 +83,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/TitleTil"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/imagesNsv"
@@ -93,9 +93,6 @@
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
-                android:textColorHint="@color/hint"
-                app:boxStrokeColor="@color/border"
-                app:hintTextColor="@color/hint"
                 >
 
                 <EditText
@@ -108,7 +105,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/CategoryTil"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/TitleTil"
@@ -118,9 +115,6 @@
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
-                android:textColorHint="@color/hint"
-                app:boxStrokeColor="@color/border"
-                app:hintTextColor="@color/hint"
                 >
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -137,7 +131,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/DescriptionTil"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/CategoryTil"
@@ -147,9 +141,6 @@
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
-                android:textColorHint="@color/hint"
-                app:boxStrokeColor="@color/border"
-                app:hintTextColor="@color/hint"
                 >
 
                 <EditText
@@ -162,7 +153,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/DateHourTil"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/DescriptionTil"
@@ -173,9 +164,6 @@
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
                 app:startIconDrawable="@drawable/calendar_black"
-                android:textColorHint="@color/hint"
-                app:boxStrokeColor="@color/border"
-                app:hintTextColor="@color/hint"
                 >
 
                 <EditText
@@ -197,7 +185,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/PositionTil"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -207,9 +195,6 @@
                     app:boxCornerRadiusBottomStart="8dp"
                     app:boxCornerRadiusTopEnd="8dp"
                     app:boxCornerRadiusTopStart="8dp"
-                    android:textColorHint="@color/hint"
-                    app:boxStrokeColor="@color/border"
-                    app:hintTextColor="@color/hint"
                     >
 
                     <EditText

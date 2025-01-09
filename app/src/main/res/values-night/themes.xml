@@ -4,11 +4,13 @@
         <item name="colorPrimary">@color/alerts_night</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/navbar</item>
+        <item name="colorTertiary">@color/white</item>
+        <item name="materialCardViewStyle">@style/CustomMaterialCardView</item>
         <item name="colorOnSecondary">@color/alerts_night</item>
         <item name="android:windowBackground">@color/alerts_night</item>
-        <!--<item name="materialCardViewStyle">@style/CustomMaterialCardView</item>-->
+        <item name="textInputStyle">@style/CustomTextInputLayoutStyle</item>
         <item name="floatingActionButtonStyle">@style/CustomFloatingActionButton</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:textColorPrimary">@color/black</item> <!-- Colore per il testo primario(alert) -->
         <item name="android:textColorSecondary">@color/white</item>
         <item name="iconTint">@color/white</item>

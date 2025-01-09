@@ -79,7 +79,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/TitleTil"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/imagesNsv"
@@ -89,9 +89,6 @@
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
-            android:textColorHint="@color/hint"
-            app:boxStrokeColor="@color/border"
-            app:hintTextColor="@color/hint"
             >
 
             <EditText
@@ -104,7 +101,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/CategoryTil"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/TitleTil"
@@ -114,9 +111,6 @@
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
-            android:textColorHint="@color/hint"
-            app:boxStrokeColor="@color/border"
-            app:hintTextColor="@color/hint"
             >
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -134,7 +128,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/DescriptionTil"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/CategoryTil"
@@ -144,9 +138,6 @@
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
-            android:textColorHint="@color/hint"
-            app:boxStrokeColor="@color/border"
-            app:hintTextColor="@color/hint"
             >
 
             <EditText

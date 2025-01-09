@@ -12,7 +12,6 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/title"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -23,9 +22,7 @@
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
-            android:textColorHint="@color/hint"
-            app:boxStrokeColor="@color/border"
-            app:hintTextColor="@color/hint">
+            >
 
             <EditText
                 android:id="@+id/editTitle"
@@ -37,7 +34,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/description"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
             android:layout_width="match_parent"
             android:layout_below="@id/title"
             android:layout_marginLeft="10dp"
@@ -48,10 +45,7 @@
             app:boxCornerRadiusTopStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp"
-            android:textColorHint="@color/hint"
-            app:boxStrokeColor="@color/border"
-            app:hintTextColor="@color/hint">
+            app:boxCornerRadiusBottomEnd="8dp">
 
             <EditText
                 android:id="@+id/editDescription"
@@ -63,7 +57,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
             android:layout_width="match_parent"
             android:layout_below="@id/description"
             android:layout_marginLeft="10dp"
@@ -75,15 +69,14 @@
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
-            android:textColorHint="@color/hint"
-            app:boxStrokeColor="@color/border"
-            app:hintTextColor="@color/hint">
+            >
 
             <EditText
                 android:id="@+id/editUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"/>
+                android:inputType="text"
+                />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -99,7 +92,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/DateHourFromTil"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/dateDesc"
@@ -109,10 +102,7 @@
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
             android:layout_marginTop="2dp"
-            app:startIconDrawable="@drawable/calendar_black"
-            android:textColorHint="@color/hint"
-            app:boxStrokeColor="@color/border"
-            app:hintTextColor="@color/hint">
+            app:startIconDrawable="@drawable/calendar_black">
 
             <EditText
                 android:id="@+id/dateFrom"
@@ -198,7 +188,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/DateHourToTil"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/dateDesc"
@@ -209,10 +199,7 @@
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusBottomEnd="8dp"
             android:layout_marginTop="2dp"
-            app:startIconDrawable="@drawable/calendar_black"
-            android:textColorHint="@color/hint"
-            app:boxStrokeColor="@color/border"
-            app:hintTextColor="@color/hint">
+            app:startIconDrawable="@drawable/calendar_black">
 
             <EditText
                 android:id="@+id/dateTo"
@@ -314,7 +301,7 @@
             android:layout_below="@id/CategoryDesc"
             android:layout_marginLeft="20dp"
             android:text="Natural environmental accident"
-            android:checked="false" />
+            android:checked="false"/>
 
         <CheckBox
             android:id="@+id/Cat2"
@@ -323,7 +310,8 @@
             android:layout_below="@id/Cat1"
             android:layout_marginLeft="20dp"
             android:text="Anthropic environmental accident"
-            android:checked="false" />
+            android:checked="false"
+           />
 
         <CheckBox
             android:id="@+id/Cat3"
