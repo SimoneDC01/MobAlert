@@ -222,8 +222,13 @@ class EditAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()
     ){ result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            sleep(700)
-            startCrop(imageUri)
+            if (imageUri != null) {
+                sleep(700)
+                startCrop(imageUri)
+            }
+            else {
+                Toast.makeText(requireContext(), "Please, retake image", Toast.LENGTH_SHORT).show()
+            }
 
         }
     }
@@ -239,8 +244,13 @@ class EditAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             imageUri = result.data?.data
-            sleep(700)
-            startCrop(imageUri)
+            if (imageUri != null) {
+                sleep(700)
+                startCrop(imageUri)
+            }
+            else {
+                Toast.makeText(requireContext(), "Please, retake image", Toast.LENGTH_SHORT).show()
+            }
 
 
         }
