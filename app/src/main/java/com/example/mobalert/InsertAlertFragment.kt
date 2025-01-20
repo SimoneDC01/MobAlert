@@ -77,6 +77,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.lang.Thread.sleep
 
 class InsertAlertFragment : Fragment() {
     private lateinit var binding: FragmentInsertAlertBinding
@@ -330,6 +331,7 @@ class InsertAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()
     ){ result ->
         if (result.resultCode == Activity.RESULT_OK) {
+            sleep(700)
             startCrop(imageUri)
 
         }
@@ -349,6 +351,7 @@ class InsertAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             imageUri = result.data?.data
+            sleep(700)
             startCrop(imageUri)
 
 

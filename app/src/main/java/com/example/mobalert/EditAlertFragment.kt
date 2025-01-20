@@ -43,6 +43,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.lang.Thread.sleep
 
 
 class EditAlertFragment : Fragment() {
@@ -221,6 +222,7 @@ class EditAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()
     ){ result ->
         if (result.resultCode == Activity.RESULT_OK) {
+            sleep(700)
             startCrop(imageUri)
 
         }
@@ -237,6 +239,7 @@ class EditAlertFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             imageUri = result.data?.data
+            sleep(700)
             startCrop(imageUri)
 
 

@@ -53,6 +53,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.Thread.sleep
 import java.util.Calendar
 
 
@@ -328,6 +329,7 @@ class EditProfileFragment : Fragment() {
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             Log.d("LOGIN", "Image Uri: $imageUri")
+            sleep(700)
             startCrop(imageUri)
         }
     }
@@ -348,6 +350,7 @@ class EditProfileFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             imageUri = result.data?.data
             if (imageUri != null) {
+                sleep(700)
                 startCrop(imageUri)
             }
         }
